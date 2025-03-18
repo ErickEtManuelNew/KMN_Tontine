@@ -1,0 +1,6 @@
+@KMN_Tontine.API_HostAddress = http://localhost:5003
+
+GET {{KMN_Tontine.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
