@@ -26,7 +26,7 @@ namespace KMN_Tontine.API.Controllers
             }
 
             var transactions = await _transactionService.GetTransactionsAsync(membreId);
-            if (transactions == null || transactions.Count == 0)
+            if (transactions == null || !transactions.Any())
             {
                 return NotFound("Aucune transaction trouvée pour ce membre.");
             }
@@ -40,8 +40,8 @@ namespace KMN_Tontine.API.Controllers
             if (dto.Montant <= 0)
                 return BadRequest("Le montant doit être supérieur à zéro.");
 
-            var transaction = await _transactionService.CrediterAsync(dto);
-            return CreatedAtAction(nameof(GetTransactions), new { membreId = transaction.MembreId }, transaction);
+            await _transactionService.AjouterTransactionAsync(dto.MembreId, dto.CompteId, dto.Montant,Domain.Enums.TypeTransaction.Versement);
+            return Ok(); // CreatedAtAction(nameof(GetTransactions), new { membreId = transaction.MembreId }, transaction);
         }
     }
 }

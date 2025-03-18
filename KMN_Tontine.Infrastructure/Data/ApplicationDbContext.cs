@@ -1,7 +1,7 @@
 ﻿using KMN_Tontine.Domain.Entities;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 
 namespace KMN_Tontine.Infrastructure.Data
 {
@@ -47,12 +47,20 @@ namespace KMN_Tontine.Infrastructure.Data
             builder.Entity<MembreCompte>()
                 .HasOne(mc => mc.Membre)
                 .WithMany(m => m.MembreComptes)
-                .HasForeignKey(mc => mc.MembreId);
+                .HasForeignKey(mc => mc.MembreId)
+                .HasPrincipalKey(m => m.Id); ;
 
             builder.Entity<MembreCompte>()
                 .HasOne(mc => mc.Compte)
                 .WithMany(c => c.MembreComptes)
                 .HasForeignKey(mc => mc.CompteId);
+
+            builder.Entity<Membre>()
+                .HasOne(m => m.Association)
+                .WithMany(a => a.Membres)
+                .HasForeignKey(m => m.AssociationId)
+                .OnDelete(DeleteBehavior.Restrict); // 🔥 Empêche la suppression de l'association si des membres y sont liés
+
         }
     }
 }

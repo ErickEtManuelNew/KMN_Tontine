@@ -2,7 +2,10 @@
 using KMN_Tontine.Application.DTOs;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Infrastructure.Repositories.Interfaces;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,33 +17,35 @@ namespace KMN_Tontine.Application.Services
 {
     public class TransactionService : ITransactionService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public TransactionService(ApplicationDbContext context, IMapper mapper)
+        public TransactionService(ITransactionRepository transactionRepository)
         {
-            _context = context;
-            _mapper = mapper;
+            _transactionRepository = transactionRepository;
         }
 
-        public async Task<List<TransactionDTO>> GetTransactionsAsync(string membreId)
+        public async Task<IEnumerable<Transaction>> GetTransactionsAsync(string memberId)
         {
-            var transactions = await _context.Transactions
-                .Where(t => t.MembreId == membreId)
-                .ToListAsync();
-
-            return _mapper.Map<List<TransactionDTO>>(transactions);
+            return await _transactionRepository.GetByMembreIdAsync(memberId);
         }
 
-        public async Task<TransactionDTO> CrediterAsync(CreateTransactionDTO dto)
+        public async Task<IEnumerable<Transaction>> GetTransactionsByStatus(TransactionStatus status)
         {
-            var transaction = _mapper.Map<Transaction>(dto);
-            transaction.DateTransaction = DateTime.UtcNow;
+            return await _transactionRepository.GetByStatusAsync(status);
+        }
 
-            _context.Transactions.Add(transaction);
-            await _context.SaveChangesAsync();
+        public async Task AjouterTransactionAsync(string membreId, int compteId, decimal montant, TypeTransaction type)
+        {
+            var transaction = new Transaction
+            {
+                MembreId = membreId,
+                CompteId = compteId,
+                Montant = montant,
+                Type = type,
+                Status = TransactionStatus.EnAttente
+            };
 
-            return _mapper.Map<TransactionDTO>(transaction);
+            await _transactionRepository.AddAsync(transaction);
         }
     }
 }

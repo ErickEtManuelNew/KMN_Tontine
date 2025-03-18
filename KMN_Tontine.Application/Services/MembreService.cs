@@ -5,10 +5,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+
 using KMN_Tontine.Application.DTOs;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Infrastructure.Repositories.Implementations;
+using KMN_Tontine.Infrastructure.Repositories.Interfaces;
+
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.Extensions.Configuration;
@@ -20,16 +25,17 @@ namespace KMN_Tontine.Application.Services
     public class MembreService : IMembreService
     {
         private readonly UserManager<Membre> _userManager;
-        private readonly SignInManager<Membre> _signInManager;
+        private readonly IMembreRepository _membreRepository;
+        private readonly IAssociationRepository _associationRepository;
         private readonly IConfiguration _configuration;
-        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public MembreService(UserManager<Membre> userManager, SignInManager<Membre> signInManager, IConfiguration configuration, ApplicationDbContext context)
+        public MembreService(UserManager<Membre> userManager, IMembreRepository membreRepository, IConfiguration configuration, IAssociationRepository associationRepository, IMapper mapper)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _configuration = configuration;
-            _context = context;
+            _membreRepository = membreRepository;
+            _associationRepository = associationRepository;
+            _mapper = mapper;
         }
 
         public async Task<MembreDTO> RegisterAsync(RegisterDTO registerDto)
@@ -38,10 +44,9 @@ namespace KMN_Tontine.Application.Services
             {
                 UserName = registerDto.Email,
                 Email = registerDto.Email,
-                Matricule = registerDto.Matricule,
                 Nom = registerDto.Nom,
                 Prenom = registerDto.Prenom,
-                TypeMembre = registerDto.TypeMembre
+                Type = registerDto.TypeMembre
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -53,11 +58,10 @@ namespace KMN_Tontine.Application.Services
             return new MembreDTO
             {
                 Id = user.Id,
-                Matricule = user.Matricule,
                 Nom = user.Nom,
                 Prenom = user.Prenom,
                 Email = user.Email,
-                TypeMembre = user.TypeMembre
+                Type = user.Type
             };
         }
 
@@ -74,21 +78,74 @@ namespace KMN_Tontine.Application.Services
 
         private string GenerateJwtToken(Membre user)
         {
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+            var jwtSettings = _configuration.GetSection("Jwt");
+            var jwtKey = jwtSettings["Key"];
+
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");
+            }
+
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                throw new InvalidOperationException("❌ ERREUR : La clé JWT est introuvable !");
+            }
+
+            var key = Encoding.UTF8.GetBytes(jwtKey);
+
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id) // ✅ Ajoute cet identifiant
             };
 
             var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"], // 🔥 L'émetteur du token
+                audience: jwtSettings["Audience"], // 🔥 L'audience du token
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(jwtSettings["ExpireHours"])), // 🔥 Expiration
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-            );
+                );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<Membre> InscrireMembreAsync(InscriptionMembreDto dto)
+        {
+            // Vérifier si l’association existe
+            var association = await _associationRepository.GetByIdAsync(dto.AssociationId);
+            if (association == null)
+                throw new Exception("L'association spécifiée n'existe pas.");
+
+            // Vérifier si l’email est déjà utilisé via UserManager
+            var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingUser != null)
+                throw new Exception("Cet email est déjà utilisé.");
+
+            // Création du membre
+            var membre = _mapper.Map<Membre>(dto);
+            membre.UserName = dto.Email; // ASP.NET Identity requiert un UserName
+            membre.EmailConfirmed = false; // L'email doit être confirmé
+
+            var result = await _userManager.CreateAsync(membre, dto.Password);
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            // Génération du token de confirmation d'email
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(membre);
+
+            // Envoi d’un email avec le lien de confirmation (à implémenter)
+            // _emailService.SendEmailConfirmation(dto.Email, token);
+
+            return membre;
+        }
+
+        public async Task<Membre?> GetMembreByIdAsync(string membreId)
+        {
+            return await _membreRepository.GetByMembreIdAsync(membreId);
         }
     }
 }

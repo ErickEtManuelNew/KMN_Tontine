@@ -1,4 +1,7 @@
 ﻿using KMN_Tontine.Application.DTOs;
+using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +12,8 @@ namespace KMN_Tontine.Application.Interfaces
 {
     public interface ITransactionService
     {
-        Task<List<TransactionDTO>> GetTransactionsAsync(string membreId);
-        Task<TransactionDTO> CrediterAsync(CreateTransactionDTO transaction);
+        Task<IEnumerable<Transaction>> GetTransactionsByStatus(TransactionStatus status);
+        Task<IEnumerable<Transaction>> GetTransactionsAsync(string membreId);
+        Task AjouterTransactionAsync(string membreId, int compteId, decimal montant, TypeTransaction type);
     }
 }

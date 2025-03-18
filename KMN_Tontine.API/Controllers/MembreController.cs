@@ -43,5 +43,29 @@ namespace KMN_Tontine.API.Controllers
                 return Unauthorized("Email ou mot de passe incorrect.");
             }
         }
+
+        [HttpPost("inscrire")]
+        public async Task<IActionResult> InscrireMembre([FromBody] InscriptionMembreDto dto)
+        {
+            try
+            {
+                var membre = await _membreService.InscrireMembreAsync(dto);
+                return CreatedAtAction(nameof(GetMembreById), new { membreId = membre.Id }, new { message = "Inscription réussie. Vérifiez votre email pour confirmer votre compte." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{membreId}")]
+        public async Task<IActionResult> GetMembreById(string membreId)
+        {
+            var membre = await _membreService.GetMembreByIdAsync(membreId);
+            if (membre == null)
+                return NotFound(new { message = "Membre introuvable." });
+
+            return Ok(membre);
+        }
     }
 }

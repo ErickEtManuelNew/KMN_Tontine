@@ -5,6 +5,10 @@ using KMN_Tontine.Application.Mappings;
 using KMN_Tontine.Application.Services;
 using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Infrastructure.Repositories.Implementations;
+using KMN_Tontine.Infrastructure.Repositories.Interfaces;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +23,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Enregistrement des services
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+//TODO: Ajouter les services manquants
+//builder.Services.AddScoped<ICompteRepository, CompteRepository>();
+//builder.Services.AddScoped<IMembreRepository, MembreRepository>();
 
 // Enregistrement de AutoMapper
 builder.Services.AddAutoMapper(typeof(TransactionProfile));
@@ -28,9 +36,31 @@ builder.Services.AddIdentity<Membre, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
+builder.Services.AddScoped<IMembreRepository, MembreRepository>();
+builder.Services.AddScoped<MembreService>();
+
 // Configuration JWT
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
-builder.Services.AddAuthentication("Bearer")
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSettings["Key"];
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key");
+}
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new InvalidOperationException("❌ ERREUR : La clé JWT est introuvable !");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
@@ -39,8 +69,10 @@ builder.Services.AddAuthentication("Bearer")
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"], // 🔥 Vérifie l'émetteur
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"], // 🔥 Vérifie l'audience
             ValidateLifetime = true
         };
     });
@@ -105,19 +137,19 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"🔍 Requête reçue : {context.Request.Method} {context.Request.Path}");
-    if (context.Request.Headers.ContainsKey("Authorization"))
-    {
-        Console.WriteLine($"✅ Token détecté : {context.Request.Headers["Authorization"]}");
-    }
-    else
-    {
-        Console.WriteLine("❌ Aucun token JWT envoyé !");
-    }
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    Console.WriteLine($"🔍 Requête reçue : {context.Request.Method} {context.Request.Path}");
+//    if (context.Request.Headers.ContainsKey("Authorization"))
+//    {
+//        Console.WriteLine($"✅ Token détecté : {context.Request.Headers["Authorization"]}");
+//    }
+//    else
+//    {
+//        Console.WriteLine("❌ Aucun token JWT envoyé !");
+//    }
+//    await next();
+//});
 
 app.UseAuthentication();
 app.UseAuthorization();
