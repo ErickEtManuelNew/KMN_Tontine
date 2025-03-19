@@ -1,16 +1,22 @@
 ﻿using System.Net.Http.Headers;
+using System.Text;
+
+using Blazored.LocalStorage;
+using Blazored.SessionStorage;
 
 using KMN_Tontine.Blazor.UI.Components;
 using KMN_Tontine.Blazor.UI.Services;
 using KMN_Tontine.Blazor.UI.Services.Base;
 using KMN_Tontine.Infrastructure.Data;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,17 +30,23 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpClient<IClient, Client>(cl => cl.BaseAddress = new Uri("https://localhost:7070"));
 
 // 🔹 Configuration de l'authentification JWT
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.Authority = "https://localhost:5000"; // 🔥 Adresse de l'API
-        options.Audience = "https://localhost:5000";
-        options.RequireHttpsMetadata = false;
-    });
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//    .AddJwtBearer(options =>
+//    {
+//        options.Authority = "https://localhost:5000"; // 🔥 Adresse de l'API
+//        options.Audience = "https://localhost:5000";
+//        options.RequireHttpsMetadata = false;
+//    });
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<ProtectedSessionStorage>(); // 🔥 Ajout de ProtectedSessionStorage
-builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
+    provider.GetRequiredService<ApiAuthenticationStateProvider>());
+
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri("https://localhost:5000/"),
@@ -57,10 +69,26 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // 🔹 Configuration de l'authentification pour Blazor Server
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MaSuperCleSecreteJWT")),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddBlazoredLocalStorage();
 
 
 var app = builder.Build();

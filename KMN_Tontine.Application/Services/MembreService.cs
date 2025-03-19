@@ -35,6 +35,7 @@ namespace KMN_Tontine.Application.Services
             _userManager = userManager;
             _membreRepository = membreRepository;
             _associationRepository = associationRepository;
+            _configuration = configuration;
             _mapper = mapper;
         }
 
@@ -144,9 +145,11 @@ namespace KMN_Tontine.Application.Services
             return membre;
         }
 
-        public async Task<Membre?> GetMembreByIdAsync(string membreId)
+        public async Task<MembreDTO?> GetMembreByIdAsync(string membreId)
         {
-            return await _membreRepository.GetByMembreIdAsync(membreId);
+            var membre = await _membreRepository.GetByMembreIdAsync(membreId);
+
+            return _mapper.Map<MembreDTO>(membre);
         }
     }
 }

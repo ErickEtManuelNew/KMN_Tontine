@@ -1,16 +1,70 @@
 ﻿@page "/dashboard"
 @using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
-@attribute [Authorize]
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@* @attribute [Authorize] *@
 
-<h3>Tableau de Bord</h3>
-<p>Bienvenue, vous êtes connecté !</p>
+<h4 class="text-center">
+    Espace de <strong>@UserName</strong> dans l’association <strong>@AssociationName</strong>
+</h4>
 
-<button @onclick="Logout" class="btn btn-danger">Se déconnecter</button>
+<table class="table table-bordered text-center mt-3">
+    <thead class="table-light">
+        <tr>
+            <th>Comptes</th>
+            <th>Solde</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var compte in Comptes)
+        {
+            <tr>
+                <td>@compte.Nom</td>
+                <td>@compte.Solde</td>
+                <td>@(compte.Solde < 0 ? $"Vous devez créditer ce compte, minimalement de {-compte.Solde + 100}" : "")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-center mt-4">
+    <button class="btn btn-primary btn-lg" @onclick="CrediterComptes">Créditer des comptes</button>
+</div>
 
 @code {
-    private void Logout()
+    private string UserName = "Baramine"; // À récupérer dynamiquement
+    private string AssociationName = "Foreur"; // À récupérer dynamiquement
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //     var user = authState.User;
+
+    //     if (user == null || !user.Identity.IsAuthenticated)
+    //     {
+    //         Navigation.NavigateTo("/login");
+    //     }
+    // }
+
+    private List<CompteModel> Comptes = new()
     {
-        Navigation.NavigateTo("/logout", forceLoad: true);
+        new CompteModel { Nom = "privée", Solde = 12 },
+        new CompteModel { Nom = "Aide", Solde = -30 },
+        new CompteModel { Nom = "Retard", Solde = 40 },
+        new CompteModel { Nom = "Barbecue", Solde = 100 }
+    };
+
+    private void CrediterComptes()
+    {
+        Navigation.NavigateTo("/crediter");
+    }
+
+    private class CompteModel
+    {
+        public string Nom { get; set; }
+        public int Solde { get; set; }
     }
 }
+

@@ -2,9 +2,24 @@
 @using KMN_Tontine.Blazor.UI.Components.Layout
 
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly">
+    <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(MainLayout)" >
+                <NotAuthorized>
+                    @if(context.User?.Identity?.IsAuthenticated == false)
+                    {   <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <p>Vous n'êtes pas autorisé à accéder à cette page.</p>
+                        </div>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <p>En cours de chargement...</p>
+                </Authorizing>
+            </AuthorizeRouteView>
         </Found>
         <NotFound>
             <LayoutView Layout="typeof(MainLayout)">
@@ -12,14 +27,14 @@
             </LayoutView>
         </NotFound>
     </Router>
-</CascadingAuthenticationState>
+</CascadingAuthenticationState> *@
 
 @code {
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
 
     private RouteData routeData;
     private AuthenticationState context;
-} *@
+} 
 <!DOCTYPE html>
 <html lang="en">
 <head>

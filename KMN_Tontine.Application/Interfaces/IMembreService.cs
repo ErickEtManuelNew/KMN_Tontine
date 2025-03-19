@@ -14,6 +14,6 @@ namespace KMN_Tontine.Application.Interfaces
         Task<MembreDTO> RegisterAsync(RegisterDTO registerDto);
         Task<string> LoginAsync(LoginDTO loginDto);
         Task<Membre> InscrireMembreAsync(InscriptionMembreDto dto);
-        Task<Membre?> GetMembreByIdAsync(string membreId);
+        Task<MembreDTO?> GetMembreByIdAsync(string membreId);
     }
 }

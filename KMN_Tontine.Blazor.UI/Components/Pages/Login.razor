@@ -1,31 +1,82 @@
-﻿@page "/login"
-@using KMN_Tontine.Blazor.UI.Services
+﻿@page "/"
+@using System.Net.Http.Headers
+@using Blazored.LocalStorage
 @inject HttpClient Http
-@inject JwtAuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
 
-<h3>Connexion</h3>
-<InputText @bind-Value="Email" placeholder="Email" class="form-control" />
-<InputText @bind-Value="Password" type="password" placeholder="Mot de passe" class="form-control" />
-<button @onclick="PerformLogin" class="btn btn-success">Se connecter</button>
+<h3 class="text-center">Bienvenue sur KMN-Tontine</h3>
+    <br />
+<p class="text-center">Gérez vos cotisations et opérations en toute simplicité.</p>
+
+<br />
+<h3 class="text-center">Connexion</h3>
+
+<div class="d-flex justify-content-center">
+    <div class="card shadow p-4" style="width: 350px;">
+        <EditForm Model="LoginModel" OnValidSubmit="PerformLogin" FormName="LoginForm">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <InputText @bind-Value="LoginModel.Email" class="form-control" />
+                <ValidationMessage For="@(() => LoginModel.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mot de passe</label>
+                <InputText @bind-Value="LoginModel.Password" Type="password" class="form-control" />
+                <ValidationMessage For="@(() => LoginModel.Password)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <p class="alert alert-warning mt-3 text-center">@Message</p>
+        }
+
+        <div class="text-center mt-2">
+            <a href="/register" class="text-decoration-none">Créer un compte</a>
+        </div>
+    </div>
+</div>
 
 @code {
-    private string Email { get; set; }
-    private string Password { get; set; }
+    private LoginDTO LoginModel { get; set; } = new();
+    private string Message { get; set; }
 
     private async Task PerformLogin()
     {
-        var response = await Http.PostAsJsonAsync("auth/login", new { Email, Password });
-
+        var response = await Http.PostAsJsonAsync("api/membres/login", LoginModel);
         if (response.IsSuccessStatusCode)
         {
             var token = await response.Content.ReadAsStringAsync();
-            await AuthProvider.MarkUserAsAuthenticated(token);
-            Navigation.NavigateTo("/");
+
+            await LocalStorage.SetItemAsync("authToken", token); // 🔹 Stocker le token dans le stockage local
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            Message = "Connexion réussie ! Redirection en cours...";
+            // await Task.Delay(2000);
+            Navigation.NavigateTo("/dashboard");
         }
         else
         {
-            Console.WriteLine("Échec de connexion");
+            Message = "Identifiants incorrects.";
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var user = authState.User;
+
+        // if (user.Identity.IsAuthenticated)
+        // {
+            // Navigation.NavigateTo("/dashboard");
+        // }
     }
 }
