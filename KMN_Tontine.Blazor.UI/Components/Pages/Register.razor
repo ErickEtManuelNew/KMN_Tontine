@@ -1,0 +1,69 @@
+﻿@page "/register"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Inscription</h3>
+
+<div>
+    <EditForm Model="User" OnValidSubmit="PerformRegistration" FormName="registerForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary/>
+    <div class="mb-3">
+            <label for="nom">Nom</label>
+            <InputText id="nom" name="nom" @bind-Value="User.Nom" class="form-control" />
+        <ValidationMessage For="@(() => User.Nom)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Prénom</label>
+            <InputText id="prenom" name="prenom" @bind-Value="User.Prenom" class="form-control" />
+        <ValidationMessage For="@(() => User.Prenom)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+            <InputText id="email" name="email" @bind-Value="User.Email" class="form-control" />
+        <ValidationMessage For="@(() => User.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Mot de passe</label>
+            <InputText id="password" name="password" @bind-Value="User.Password" Type="password" class="form-control" />
+        <ValidationMessage For="@(() => User.Password)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Type de Membre</label>
+            <InputSelect id="typeMembre" name="typeMembre" @bind-Value="User.TypeMembre" class="form-control">
+            @foreach (var type in Enum.GetValues(typeof(TypeMembre)))
+            {
+                <option value="@type">@type</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => User.TypeMembre)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">S'inscrire</button>
+</EditForm>
+</div>
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <p class="alert alert-warning">@Message</p>
+}
+
+@code {
+    private RegisterDTO User { get; set; } = new();
+    private string Message { get; set; }
+
+    private async Task PerformRegistration()
+    {
+        Message = await AuthService.RegisterAsync(User);
+        if (Message.Contains("réussie"))
+        {
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

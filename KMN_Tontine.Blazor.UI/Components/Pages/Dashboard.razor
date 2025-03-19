@@ -1,0 +1,16 @@
+﻿@page "/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<h3>Tableau de Bord</h3>
+<p>Bienvenue, vous êtes connecté !</p>
+
+<button @onclick="Logout" class="btn btn-danger">Se déconnecter</button>
+
+@code {
+    private void Logout()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}

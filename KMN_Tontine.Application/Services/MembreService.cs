@@ -46,7 +46,8 @@ namespace KMN_Tontine.Application.Services
                 Email = registerDto.Email,
                 Nom = registerDto.Nom,
                 Prenom = registerDto.Prenom,
-                Type = registerDto.TypeMembre
+                Type = registerDto.TypeMembre,
+                AssociationId = 1 // 🔥 Association par défaut
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);

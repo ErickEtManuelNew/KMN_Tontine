@@ -125,6 +125,9 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
+builder.Services.AddHttpClient();
+builder.WebHost.UseUrls("https://localhost:5000");
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -133,7 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "KMN-Tontine API v1");
-        c.RoutePrefix = string.Empty; // Ouvre Swagger directement sur la racine (`http://localhost:5000/`)
+        c.RoutePrefix = string.Empty; // Ouvre Swagger directement sur la racine (`https://localhost:5000/`)
     });
 }
 
@@ -150,7 +153,7 @@ if (app.Environment.IsDevelopment())
 //    }
 //    await next();
 //});
-
+app.UseHttpsRedirection(); // 🔥 Important pour forcer HTTPS
 app.UseAuthentication();
 app.UseAuthorization();
 

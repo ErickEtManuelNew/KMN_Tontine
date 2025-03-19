@@ -1,0 +1,31 @@
+﻿@page "/login"
+@using KMN_Tontine.Blazor.UI.Services
+@inject HttpClient Http
+@inject JwtAuthenticationStateProvider AuthProvider
+@inject NavigationManager Navigation
+
+<h3>Connexion</h3>
+<InputText @bind-Value="Email" placeholder="Email" class="form-control" />
+<InputText @bind-Value="Password" type="password" placeholder="Mot de passe" class="form-control" />
+<button @onclick="PerformLogin" class="btn btn-success">Se connecter</button>
+
+@code {
+    private string Email { get; set; }
+    private string Password { get; set; }
+
+    private async Task PerformLogin()
+    {
+        var response = await Http.PostAsJsonAsync("auth/login", new { Email, Password });
+
+        if (response.IsSuccessStatusCode)
+        {
+            var token = await response.Content.ReadAsStringAsync();
+            await AuthProvider.MarkUserAsAuthenticated(token);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine("Échec de connexion");
+        }
+    }
+}
