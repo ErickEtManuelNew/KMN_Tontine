@@ -1,0 +1,174 @@
+@page "/tontines/{Id:int}/edit"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject IClient Client
+
+<PageTitle>Modifier la tontine</PageTitle>
+
+@if (isLoading)
+{
+    <Loading IsLoading="true" Message="Chargement des détails de la tontine..." />
+}
+else if (error != null)
+{
+    <ErrorMessage Message="@error" />
+}
+else if (tontine != null)
+{
+    <div class="py-10">
+        <header>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="md:flex md:items-center md:justify-between">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                            Modifier la tontine
+                        </h2>
+                    </div>
+                    <div class="mt-4 flex md:mt-0 md:ml-4">
+                        <button @onclick="NavigateBack" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="mt-8">
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <SuccessMessage Message="@successMessage" AutoDismissAfterSeconds="3" OnDismiss="@(() => successMessage = null)" />
+                    }
+
+                    <div class="mt-5 md:mt-0 md:col-span-2">
+                        <EditForm Model="@tontine" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <div class="shadow sm:rounded-md sm:overflow-hidden">
+                                <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                                    <div class="grid grid-cols-6 gap-6">
+                                        <div class="col-span-6 sm:col-span-4">
+                                            <label for="nom" class="block text-sm font-medium text-gray-700">Nom</label>
+                                            <InputText @bind-Value="tontine.Nom" id="nom" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                            <ValidationMessage For="@(() => tontine.Nom)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6">
+                                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                            <InputTextArea @bind-Value="tontine.Description" id="description" rows="3" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                            <ValidationMessage For="@(() => tontine.Description)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="montant" class="block text-sm font-medium text-gray-700">Montant (FCFA)</label>
+                                            <InputNumber @bind-Value="tontine.Montant" id="montant" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                            <ValidationMessage For="@(() => tontine.Montant)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="frequence" class="block text-sm font-medium text-gray-700">Fréquence</label>
+                                            <InputSelect @bind-Value="tontine.Frequence" id="frequence" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                <option value="">Sélectionnez une fréquence</option>
+                                                <option value="Journalier">Journalier</option>
+                                                <option value="Hebdomadaire">Hebdomadaire</option>
+                                                <option value="Mensuel">Mensuel</option>
+                                                <option value="Trimestriel">Trimestriel</option>
+                                            </InputSelect>
+                                            <ValidationMessage For="@(() => tontine.Frequence)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="dateDebut" class="block text-sm font-medium text-gray-700">Date de début</label>
+                                            <InputDate @bind-Value="tontine.DateDebut" id="dateDebut" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                            <ValidationMessage For="@(() => tontine.DateDebut)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="dateFin" class="block text-sm font-medium text-gray-700">Date de fin</label>
+                                            <InputDate @bind-Value="tontine.DateFin" id="dateFin" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                            <ValidationMessage For="@(() => tontine.DateFin)" class="text-red-500 text-sm" />
+                                        </div>
+
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="statut" class="block text-sm font-medium text-gray-700">Statut</label>
+                                            <InputSelect @bind-Value="tontine.Statut" id="statut" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                <option value="En attente">En attente</option>
+                                                <option value="Active">Active</option>
+                                                <option value="Terminée">Terminée</option>
+                                            </InputSelect>
+                                            <ValidationMessage For="@(() => tontine.Statut)" class="text-red-500 text-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Enregistrer les modifications
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private TontineDto tontine;
+    private bool isLoading = true;
+    private string error;
+    private string successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTontine();
+    }
+
+    private async Task LoadTontine()
+    {
+        try
+        {
+            isLoading = true;
+            error = null;
+            tontine = await Client.TontinesGETAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            error = "Une erreur s'est produite lors du chargement de la tontine.";
+            Console.WriteLine($"Erreur : {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo($"/tontines/{Id}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            error = null;
+            successMessage = null;
+
+            await Client.TontinesPUTAsync(Id, tontine);
+
+            successMessage = "Les modifications ont été enregistrées avec succès.";
+            await Task.Delay(2000); // Attendre 2 secondes avant la redirection
+            NavigationManager.NavigateTo($"/tontines/{Id}");
+        }
+        catch (Exception ex)
+        {
+            error = "Une erreur s'est produite lors de l'enregistrement des modifications.";
+            Console.WriteLine($"Erreur : {ex.Message}");
+        }
+    }
+} 

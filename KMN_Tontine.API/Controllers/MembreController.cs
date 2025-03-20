@@ -1,4 +1,5 @@
 ﻿using KMN_Tontine.Application.DTOs;
+using KMN_Tontine.Application.DtosResponses;
 using KMN_Tontine.Application.Interfaces;
 
 using Microsoft.AspNetCore.Mvc;
@@ -17,19 +18,43 @@ namespace KMN_Tontine.API.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
             try
             {
                 var membre = await _membreService.RegisterAsync(registerDto);
-                return Ok(membre);
+
+                // Vérifie si l'inscription a réussi (par exemple, si `membre` n'est pas null)
+                if (membre != null)
+                {
+                    return Created("", new SimpleResponse
+                    {
+                        Success = true,
+                        Message = "Inscription réussie."
+                    });
+                }
+
+                // En cas d'échec sans exception (ex. validation échouée)
+                return BadRequest(new SimpleResponse
+                {
+                    Success = false,
+                    Message = "L'inscription a échoué. Veuillez vérifier vos informations."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new SimpleResponse
+                {
+                    Success = false,
+                    Message = $"Erreur : {ex.Message}"
+                });
             }
         }
 
+        [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
@@ -41,20 +66,6 @@ namespace KMN_Tontine.API.Controllers
             catch (UnauthorizedAccessException)
             {
                 return Unauthorized("Email ou mot de passe incorrect.");
-            }
-        }
-
-        [HttpPost("inscrire")]
-        public async Task<IActionResult> InscrireMembre([FromBody] InscriptionMembreDto dto)
-        {
-            try
-            {
-                var membre = await _membreService.InscrireMembreAsync(dto);
-                return CreatedAtAction(nameof(GetMembreById), new { membreId = membre.Id }, new { message = "Inscription réussie. Vérifiez votre email pour confirmer votre compte." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
             }
         }
 

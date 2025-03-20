@@ -1,9 +1,9 @@
-﻿@page "/Index"
+@page "/"
+@inject NavigationManager NavigationManager
 
-<h3>Bienvenue sur KMN-Tontine</h3>
-<p>Gérez vos cotisations et opérations en toute simplicité.</p>
-
-<div>
-    <a href="/register" class="btn btn-primary">Créer un compte</a>
-    <a href="/login" class="btn btn-secondary">Se connecter</a>
-</div>
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+} 

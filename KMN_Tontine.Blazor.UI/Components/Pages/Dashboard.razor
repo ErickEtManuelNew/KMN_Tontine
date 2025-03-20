@@ -1,70 +1,108 @@
-﻿@page "/dashboard"
-@using Microsoft.AspNetCore.Authorization
-@inject NavigationManager Navigation
-@inject HttpClient Http
+@page "/dashboard"
+@using KMN_Tontine.Blazor.UI.Services
+@using KMN_Tontine.Blazor.UI.Services.Base
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@attribute [Authorize]
+@inject ICompteService CompteService
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@* @attribute [Authorize] *@
+@inject NavigationManager NavigationManager
 
-<h4 class="text-center">
-    Espace de <strong>@UserName</strong> dans l’association <strong>@AssociationName</strong>
-</h4>
+<PageTitle>Dashboard</PageTitle>
 
-<table class="table table-bordered text-center mt-3">
-    <thead class="table-light">
-        <tr>
-            <th>Comptes</th>
-            <th>Solde</th>
-            <th>Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var compte in Comptes)
-        {
-            <tr>
-                <td>@compte.Nom</td>
-                <td>@compte.Solde</td>
-                <td>@(compte.Solde < 0 ? $"Vous devez créditer ce compte, minimalement de {-compte.Solde + 100}" : "")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+@if (_loading)
+{
+    <div class="flex justify-center items-center h-screen">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+}
+else if (_error)
+{
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Erreur!</strong>
+        <span class="block sm:inline">Une erreur s'est produite lors du chargement des données.</span>
+    </div>
+}
+else
+{
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-6">Espace de @_userName dans l'association @_associationName</h2>
 
-<div class="text-center mt-4">
-    <button class="btn btn-primary btn-lg" @onclick="CrediterComptes">Créditer des comptes</button>
-</div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 border-b border-gray-200 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Comptes</th>
+                            <th class="px-6 py-3 border-b border-gray-200 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Solde</th>
+                            <th class="px-6 py-3 border-b border-gray-200 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach (var compte in _comptes)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                                    @compte.Nom
+                                </td>
+                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                                    @compte.Solde
+                                </td>
+                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                                    @compte.Notes
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-@code {
-    private string UserName = "Baramine"; // À récupérer dynamiquement
-    private string AssociationName = "Foreur"; // À récupérer dynamiquement
-
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-    //     var user = authState.User;
-
-    //     if (user == null || !user.Identity.IsAuthenticated)
-    //     {
-    //         Navigation.NavigateTo("/login");
-    //     }
-    // }
-
-    private List<CompteModel> Comptes = new()
-    {
-        new CompteModel { Nom = "privée", Solde = 12 },
-        new CompteModel { Nom = "Aide", Solde = -30 },
-        new CompteModel { Nom = "Retard", Solde = 40 },
-        new CompteModel { Nom = "Barbecue", Solde = 100 }
-    };
-
-    private void CrediterComptes()
-    {
-        Navigation.NavigateTo("/crediter");
-    }
-
-    private class CompteModel
-    {
-        public string Nom { get; set; }
-        public int Solde { get; set; }
-    }
+            <div class="mt-6">
+                <button @onclick="NavigateToCrediter" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Créditer des comptes
+                </button>
+            </div>
+        </div>
+    </div>
 }
 
+@code {
+    private List<CompteDTO> _comptes = new();
+    private bool _loading = true;
+    private bool _error = false;
+    private string _userName = string.Empty;
+    private string _associationName = "Foreur";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                _userName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Baramine";
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    _comptes = await CompteService.GetComptesAsync(userId);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            _error = true;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void NavigateToCrediter()
+    {
+        NavigationManager.NavigateTo("/crediter");
+    }
+} 

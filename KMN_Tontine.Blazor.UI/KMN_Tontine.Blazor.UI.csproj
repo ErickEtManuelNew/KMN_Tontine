@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,17 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KMN_Tontine.API\KMN_Tontine.API.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Base\" />
+    <Content Remove="Components\Pages\Crediter.razor" />
+    <Content Remove="Components\Pages\Tontines\TontineAddMember.razor" />
+    <Content Remove="Components\Pages\Tontines\TontineCreate.razor" />
+    <Content Remove="Components\Pages\Tontines\TontineDetails.razor" />
+    <Content Remove="Components\Pages\Tontines\TontineEdit.razor" />
+    <Content Remove="Components\Pages\Tontines\TontineList.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Tontines\" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,155 @@
+@page "/crediter"
+@using KMN_Tontine.Blazor.UI.Services
+@using KMN_Tontine.Blazor.UI.Services.Base
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ICompteService CompteService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Créditer des comptes</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Créditer des comptes</h2>
+
+                @if (_loading)
+                {
+                    <div class="flex justify-center items-center">
+                        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                }
+                else if (_error)
+                {
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Erreur!</strong>
+                        <span class="block sm:inline">@_errorMessage</span>
+                    </div>
+                }
+                else if (_success)
+                {
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <strong class="font-bold">Succès!</strong>
+                        <span class="block sm:inline">Le compte a été crédité avec succès.</span>
+                    </div>
+                }
+
+                <div class="mt-6">
+                    <EditForm Model="@_transaction" OnValidSubmit="HandleValidSubmit" Context="formContext">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="compte">
+                                Compte
+                            </label>
+                            <select @bind="_transaction.CompteId" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="0">Sélectionnez un compte</option>
+                                @foreach (var compte in _comptes)
+                                {
+                                    <option value="@compte.Id">@compte.Nom</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="montant">
+                                Montant
+                            </label>
+                            <input @bind="_transaction.Montant" type="number" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Créditer
+                            </button>
+                            <button type="button" @onclick="NavigateBack" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Retour
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="text-center">
+            <p>Vous devez être connecté pour accéder à cette page.</p>
+            <button @onclick="NavigateToLogin" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+                Se connecter
+            </button>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<CompteDTO> _comptes = new();
+    private CreateTransactionDTO _transaction = new();
+    private bool _loading = true;
+    private bool _error = false;
+    private bool _success = false;
+    private string _errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    _comptes = await CompteService.GetComptesAsync(userId);
+                    _transaction.MembreId = userId;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = true;
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            _loading = true;
+            _error = false;
+            _success = false;
+
+            await CompteService.CrediterCompteAsync(_transaction);
+            _success = true;
+
+            // Réinitialiser le formulaire
+            _transaction = new CreateTransactionDTO { MembreId = _transaction.MembreId };
+        }
+        catch (Exception ex)
+        {
+            _error = true;
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/dashboard");
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+} 

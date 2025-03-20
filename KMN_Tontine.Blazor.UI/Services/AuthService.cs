@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using Blazored.LocalStorage;
@@ -6,63 +6,48 @@ using Blazored.LocalStorage;
 using KMN_Tontine.Blazor.UI.Services.Base;
 
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net.Http.Json;
 
 namespace KMN_Tontine.Blazor.UI.Services
 {
-    public class AuthService(HttpClient httpClient, ILocalStorageService localStorage, AuthenticationStateProvider authenticationStateProvider)
+    public class AuthService : IAuthService
     {
-        private readonly HttpClient _httpClient = httpClient;
-        private readonly ILocalStorageService _localStorage = localStorage;
-        private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
+        private readonly IClient _client;
+        private readonly ILocalStorageService _localStorage;
+        private readonly AuthenticationStateProvider _authenticationStateProvider;
 
-        public async Task<string> RegisterAsync(RegisterDTO model)
+        public AuthService(
+            IClient client,
+            ILocalStorageService localStorage,
+            AuthenticationStateProvider authenticationStateProvider)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/membres/register", model);
-
-            if (response.IsSuccessStatusCode)
-                return "Inscription réussie ! Vérifiez votre email.";
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return $"Erreur : {errorMessage}";
-            }
+            _client = client;
+            _localStorage = localStorage;
+            _authenticationStateProvider = authenticationStateProvider;
         }
 
-        public async Task<string> GetUserIdFromToken()
+        public async Task<SimpleResponse> RegisterAsync(RegisterDTO model)
         {
-            var token = await _localStorage.GetItemAsync<string>("authToken");
-            if (string.IsNullOrEmpty(token)) return null;
-
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
-            var userId = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            return userId;
+            return await _client.RegisterAsync(model);
         }
 
-        public async Task<InscriptionMembreDto> GetUserInfo()
+        public async Task<TokenResponse> LoginAsync(LoginDTO model)
         {
-            var userId = await GetUserIdFromToken();
-            if (string.IsNullOrEmpty(userId)) return null;
-
-            return await _httpClient.GetFromJsonAsync<InscriptionMembreDto>($"api/membres/{userId}");
+            var response = await _client.LoginAsync(model);
+            
+            if (response?.Token != null)
+            {
+                await _localStorage.SetItemAsync("authToken", response.Token);
+                await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedIn();
+            }
+            
+            return response;
         }
 
-        public async Task<bool> LoginAsync(LoginDTO model)
+        public async Task LogoutAsync()
         {
-            var response = await _httpClient.PostAsJsonAsync("api/membres/login", model);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await _localStorage.SetItemAsync("authToken", await response.Content.ReadAsStringAsync());
-                await ((ApiAuthenticationStateProvider) _authenticationStateProvider).LoggedIn();
-                return true;
-            }
-            else
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                return false;
-            }
+            await _localStorage.RemoveItemAsync("authToken");
+            await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedOut();
         }
     }
-}
+} 
