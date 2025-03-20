@@ -97,7 +97,8 @@ namespace KMN_Tontine.Application.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(ClaimTypes.Name, user.Nom),
+                new Claim(ClaimTypes.Surname, user.Prenom),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id) // ✅ Ajoute cet identifiant
             };

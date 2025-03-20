@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using Serilog; // Ajouté pour résoudre l'erreur
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 //TODO: Ajouter les services manquants
-//builder.Services.AddScoped<ICompteRepository, CompteRepository>();
+builder.Services.AddScoped<ICompteRepository, CompteRepository>();
 //builder.Services.AddScoped<IMembreRepository, MembreRepository>();
 
 // Enregistrement de AutoMapper
@@ -80,6 +81,12 @@ builder.Services.AddAuthorization();
 
 // Enregistrement des services métiers
 builder.Services.AddScoped<IMembreService, MembreService>();
+
+// Enregistrement des services métier
+builder.Services.AddScoped<ICompteService, CompteService>();
+
+// Configuration d'AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

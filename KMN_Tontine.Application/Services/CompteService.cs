@@ -1,43 +1,71 @@
 ﻿using AutoMapper;
-
 using KMN_Tontine.Application.DTOs;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
-using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Infrastructure.Repositories.Interfaces;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace KMN_Tontine.Application.Services
 {
     public class CompteService : ICompteService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICompteRepository _compteRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<CompteService> _logger;
 
-        public CompteService(ApplicationDbContext context, IMapper mapper)
+        public CompteService(
+            ICompteRepository compteRepository,
+            IMapper mapper,
+            ILogger<CompteService> logger)
         {
-            _context = context;
-            _mapper = mapper;
+            _compteRepository = compteRepository ?? throw new ArgumentNullException(nameof(compteRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<List<CompteDTO>> GetAllComptesAsync()
+        public async Task<IEnumerable<CompteDTO>> GetComptesByMembreIdAsync(string membreId)
         {
-            var comptes = await _context.Comptes.ToListAsync();
-            return _mapper.Map<List<CompteDTO>>(comptes);
+            try
+            {
+                _logger.LogInformation($"Récupération des comptes pour le membre {membreId}");
+                var comptes = await _compteRepository.GetComptesByMembreIdAsync(membreId);
+                var compteDtos = _mapper.Map<IEnumerable<CompteDTO>>(comptes);
+                _logger.LogInformation($"Nombre de comptes récupérés : {compteDtos?.Count() ?? 0}");
+                return compteDtos;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erreur lors de la récupération des comptes pour le membre {membreId}");
+                throw;
+            }
         }
 
-        public async Task<CompteDTO> GetCompteByIdAsync(int id)
+        public async Task<CompteDTO?> GetCompteByIdAsync(int id)
         {
-            var compte = await _context.Comptes.FindAsync(id);
-            return _mapper.Map<CompteDTO>(compte);
+            var compte = await _compteRepository.GetByIdAsync(id);
+            return compte != null ? _mapper.Map<CompteDTO>(compte) : null;
         }
 
-        public async Task<CompteDTO> CreateCompteAsync(CreateCompteDTO compteDto)
+        public async Task<CompteDTO> CreateCompteAsync(CompteDTO compteDto)
         {
             var compte = _mapper.Map<Compte>(compteDto);
-            _context.Comptes.Add(compte);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<CompteDTO>(compte);
+            var createdCompte = await _compteRepository.AddAsync(compte);
+            return _mapper.Map<CompteDTO>(createdCompte);
+        }
+
+        public async Task UpdateCompteAsync(CompteDTO compteDto)
+        {
+            var compte = _mapper.Map<Compte>(compteDto);
+            await _compteRepository.UpdateAsync(compte);
+        }
+
+        public async Task DeleteCompteAsync(int id)
+        {
+            await _compteRepository.DeleteAsync(id);
         }
     }
 }

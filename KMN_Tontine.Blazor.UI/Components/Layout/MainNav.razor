@@ -1,165 +1,104 @@
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthenticationService
 
 <div class="h-screen flex overflow-hidden bg-gray-100">
-    <!-- Sidebar mobile -->
-    <div class="md:hidden">
-        <div class="fixed inset-0 flex z-40">
-            <div class="fixed inset-0" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-600 opacity-75"></div>
+    <!-- Sidebar Desktop -->
+    <aside class="hidden md:flex md:flex-col w-64 bg-white shadow-lg border-r border-gray-200">
+        <div class="flex items-center justify-center py-6">
+            <h1 class="text-2xl font-bold text-indigo-600">KMN Tontine</h1>
+        </div>
+        <nav class="flex-1 px-3 space-y-2">
+            @foreach (var item in NavigationItems)
+            {
+                <a href="@item.Url" class="@GetNavLinkClass(item.Url)">
+                    <i class="@item.Icon mr-3"></i>
+                    <span>@item.Label</span>
+                </a>
+            }
+        </nav>
+
+        <!-- Profil utilisateur -->
+        <div class="border-t border-gray-300 p-4 flex items-center">
+            <i class="fas fa-user-circle text-gray-600 text-2xl"></i>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-700">@userName</p>
+                <button @onclick="HandleLogout" class="text-xs text-red-600 hover:underline">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Se déconnecter
+                </button>
             </div>
-            <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-                <div class="absolute top-0 right-0 -mr-12 pt-2">
-                    <button @onclick="ToggleSidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                        <span class="sr-only">Fermer le menu</span>
-                        <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+        </div>
+    </aside>
+
+    <!-- Sidebar Mobile -->
+    <div class="md:hidden">
+        <div class="fixed inset-0 flex z-40" hidden="@(isSidebarOpen ? "false" : "true")">
+            <div class="absolute inset-0 bg-black opacity-50" @onclick="ToggleSidebar"></div>
+            <aside class="relative flex flex-col w-64 bg-white shadow-lg border-r border-gray-200">
+                <div class="flex justify-between p-4 border-b">
+                    <h1 class="text-xl font-bold text-indigo-600">KMN Tontine</h1>
+                    <button @onclick="ToggleSidebar" class="text-gray-700 hover:text-gray-900">
+                        ✖
                     </button>
                 </div>
-                @SidebarContent
-            </div>
+                <nav class="flex-1 p-3 space-y-2">
+                    @foreach (var item in NavigationItems)
+                    {
+                        <a href="@item.Url" class="@GetNavLinkClass(item.Url)">
+                            <i class="@item.Icon mr-3"></i>
+                            <span>@item.Label</span>
+                        </a>
+                    }
+                </nav>
+            </aside>
         </div>
     </div>
 
-    <!-- Sidebar desktop -->
-    <div class="hidden md:flex md:flex-shrink-0">
-        <div class="flex flex-col w-64">
-            <div class="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
-                @SidebarContent
-            </div>
-        </div>
-    </div>
-
-    <!-- Main content -->
-    <div class="flex flex-col w-0 flex-1 overflow-hidden">
-        <div class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
-            <button @onclick="ToggleSidebar" class="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                <span class="sr-only">Ouvrir le menu</span>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </div>
-        <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
-            @ChildContent
-        </main>
-    </div>
+    <!-- Bouton Mobile -->
+    <button @onclick="ToggleSidebar"
+            class="md:hidden fixed top-4 left-4 bg-indigo-600 text-white p-2 rounded-md shadow-lg">
+        ☰
+    </button>
 </div>
 
 @code {
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
-
     private bool isSidebarOpen = false;
+    private string userName = "Utilisateur";
 
-    private RenderFragment SidebarContent => builder =>
+    private List<NavItem> NavigationItems = new()
     {
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "class", "flex-1 flex flex-col pt-5 pb-4 overflow-y-auto");
-
-        // Logo
-        builder.OpenElement(2, "div");
-        builder.AddAttribute(3, "class", "flex items-center flex-shrink-0 px-4");
-        builder.OpenElement(4, "h1");
-        builder.AddAttribute(5, "class", "text-xl font-semibold text-gray-900");
-        builder.AddContent(6, "KMN Tontine");
-        builder.CloseElement();
-        builder.CloseElement();
-
-        // Navigation
-        builder.OpenElement(7, "nav");
-        builder.AddAttribute(8, "class", "mt-5 flex-1 px-2 bg-white space-y-1");
-
-        // Dashboard
-        builder.OpenElement(9, "a");
-        builder.AddAttribute(10, "href", "/dashboard");
-        builder.AddAttribute(11, "class", GetNavLinkClass("/dashboard"));
-        builder.OpenElement(12, "svg");
-        builder.AddAttribute(13, "class", "mr-3 h-6 w-6");
-        builder.AddAttribute(14, "fill", "none");
-        builder.AddAttribute(15, "viewBox", "0 0 24 24");
-        builder.AddAttribute(16, "stroke", "currentColor");
-        builder.AddMarkupContent(17, "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\" />");
-        builder.CloseElement();
-        builder.AddContent(18, "Tableau de bord");
-        builder.CloseElement();
-
-        // Tontines
-        builder.OpenElement(19, "a");
-        builder.AddAttribute(20, "href", "/tontines");
-        builder.AddAttribute(21, "class", GetNavLinkClass("/tontines"));
-        builder.OpenElement(22, "svg");
-        builder.AddAttribute(23, "class", "mr-3 h-6 w-6");
-        builder.AddAttribute(24, "fill", "none");
-        builder.AddAttribute(25, "viewBox", "0 0 24 24");
-        builder.AddAttribute(26, "stroke", "currentColor");
-        builder.AddMarkupContent(27, "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z\" />");
-        builder.CloseElement();
-        builder.AddContent(28, "Tontines");
-        builder.CloseElement();
-
-        // Transactions
-        builder.OpenElement(29, "a");
-        builder.AddAttribute(30, "href", "/transactions");
-        builder.AddAttribute(31, "class", GetNavLinkClass("/transactions"));
-        builder.OpenElement(32, "svg");
-        builder.AddAttribute(33, "class", "mr-3 h-6 w-6");
-        builder.AddAttribute(34, "fill", "none");
-        builder.AddAttribute(35, "viewBox", "0 0 24 24");
-        builder.AddAttribute(36, "stroke", "currentColor");
-        builder.AddMarkupContent(37, "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\" />");
-        builder.CloseElement();
-        builder.AddContent(38, "Transactions");
-        builder.CloseElement();
-
-        // Membres
-        builder.OpenElement(39, "a");
-        builder.AddAttribute(40, "href", "/membres");
-        builder.AddAttribute(41, "class", GetNavLinkClass("/membres"));
-        builder.OpenElement(42, "svg");
-        builder.AddAttribute(43, "class", "mr-3 h-6 w-6");
-        builder.AddAttribute(44, "fill", "none");
-        builder.AddAttribute(45, "viewBox", "0 0 24 24");
-        builder.AddAttribute(46, "stroke", "currentColor");
-        builder.AddMarkupContent(47, "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z\" />");
-        builder.CloseElement();
-        builder.AddContent(48, "Membres");
-        builder.CloseElement();
-
-        builder.CloseElement(); // nav
-
-        // Profile section
-        builder.OpenElement(49, "div");
-        builder.AddAttribute(50, "class", "flex-shrink-0 flex border-t border-gray-200 p-4");
-        builder.OpenElement(51, "div");
-        builder.AddAttribute(52, "class", "flex items-center");
-        builder.OpenElement(53, "div");
-        builder.AddAttribute(54, "class", "ml-3");
-        builder.OpenElement(55, "p");
-        builder.AddAttribute(56, "class", "text-sm font-medium text-gray-700 group-hover:text-gray-900");
-        builder.AddContent(57, "@userName");
-        builder.CloseElement();
-        builder.OpenElement(58, "button");
-        builder.AddAttribute(59, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, HandleLogout));
-        builder.AddAttribute(60, "class", "text-xs font-medium text-gray-500 group-hover:text-gray-700");
-        builder.AddContent(61, "Se déconnecter");
-        builder.CloseElement();
-        builder.CloseElement();
-        builder.CloseElement();
-        builder.CloseElement();
-
-        builder.CloseElement(); // flex-1
+        new NavItem("fas fa-home", "Tableau de bord", "/dashboard"),
+        new NavItem("fas fa-piggy-bank", "Tontines", "/tontines"),
+        new NavItem("fas fa-exchange-alt", "Transactions", "/transactions"),
+        new NavItem("fas fa-users", "Membres", "/membres")
     };
 
-    private string GetNavLinkClass(string href)
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var firstName = user.FindFirst(c => c.Type == ClaimTypes.Name)?.Value ?? "";
+            var lastName = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
+            userName = $"{firstName} {lastName}".Trim() ?? "Utilisateur";
+        }
+        else
+        {
+            userName = "Non connecté";
+        }
+    }
+
+    private string GetNavLinkClass(string url)
     {
         var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
-        var isActive = relativePath.StartsWith(href.TrimStart('/').ToLower());
+        var isActive = relativePath.StartsWith(url.TrimStart('/').ToLower());
         return isActive
-            ? "bg-gray-100 text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md";
+            ? "bg-indigo-600 text-white flex items-center px-4 py-2 rounded-md shadow-md transition-all"
+            : "text-gray-700 hover:bg-gray-100 flex items-center px-4 py-2 rounded-md transition-all";
     }
 
     private void ToggleSidebar()
@@ -172,4 +111,6 @@
         await AuthenticationService.LogoutAsync();
         NavigationManager.NavigateTo("/login");
     }
-} 
+
+    private record NavItem(string Icon, string Label, string Url);
+}

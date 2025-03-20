@@ -12,30 +12,56 @@ namespace KMN_Tontine.Blazor.UI.Services
 
     public class CompteService : ICompteService
     {
-        private readonly HttpClient _httpClient;
         private readonly IClient _client;
+        private readonly ILogger<CompteService> _logger;
 
-        public CompteService(HttpClient httpClient, IClient client)
+        public CompteService(IClient client, ILogger<CompteService> logger)
         {
-            _httpClient = httpClient;
             _client = client;
+            _logger = logger;
         }
 
         public async Task<List<CompteDTO>> GetComptesAsync(string membreId)
         {
-            var response = await _httpClient.GetFromJsonAsync<List<CompteDTO>>($"api/comptes/membre/{membreId}");
-            return response ?? new List<CompteDTO>();
+            try
+            {
+                _logger.LogInformation($"Tentative de récupération des comptes pour le membre {membreId}");
+
+                var response = await _client.MembreAsync(membreId);
+
+                return (List<CompteDTO>)(response ?? new List<CompteDTO>());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception lors de la récupération des comptes");
+                throw;
+            }
         }
 
         public async Task<CompteDTO> GetCompteAsync(int compteId)
         {
-            var response = await _httpClient.GetFromJsonAsync<CompteDTO>($"api/comptes/{compteId}");
-            return response ?? new CompteDTO();
+            try
+            {
+                return await _client.ComptesAsync(compteId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Exception lors de la récupération du compte {compteId}");
+                throw;
+            }
         }
 
         public async Task CrediterCompteAsync(CreateTransactionDTO transaction)
         {
-            await _client.CrediterAsync(transaction);
+            try
+            {
+                await _client.CrediterAsync(transaction);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception lors du crédit du compte");
+                throw;
+            }
         }
     }
 } 

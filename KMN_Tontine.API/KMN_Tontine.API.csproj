@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <UserSecretsId>6897c925-4085-489c-80c5-96a8ac53ebe0</UserSecretsId>
   </PropertyGroup>
 
@@ -22,7 +24,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Expressions" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />    
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>

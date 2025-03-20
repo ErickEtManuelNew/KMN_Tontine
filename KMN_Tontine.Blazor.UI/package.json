@@ -1,0 +1,11 @@
+{
+  "name": "kmn_tontine",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "unocss": "^0.53.0"
+  },
+  "scripts": {
+    "build:css": "npx unocss -i wwwroot/css/site.css -o wwwroot/css/output.css --watch"
+  }
+}

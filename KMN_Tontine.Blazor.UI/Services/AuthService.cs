@@ -1,12 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-
 using Blazored.LocalStorage;
 
 using KMN_Tontine.Blazor.UI.Services.Base;
 
 using Microsoft.AspNetCore.Components.Authorization;
-using System.Net.Http.Json;
 
 namespace KMN_Tontine.Blazor.UI.Services
 {

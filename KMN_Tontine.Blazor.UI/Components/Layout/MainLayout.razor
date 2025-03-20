@@ -6,12 +6,16 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <div class="min-h-screen bg-gray-100">
-                <MainNav />
-                
-                <main class="p-4">
+            <div class="d-flex min-vh-100">
+                <!-- Sidebar -->
+                <div class="bg-primary text-white p-3 flex-shrink-0" style="width: 250px;">
+                    <MainNav />
+                </div>
+
+                <!-- Contenu Principal -->
+                <div class="flex-grow-1 p-4 bg-light">
                     @Body
-                </main>
+                </div>
             </div>
         </Authorized>
         <NotAuthorized>
