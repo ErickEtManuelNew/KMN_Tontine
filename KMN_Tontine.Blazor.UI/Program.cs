@@ -1,43 +1,29 @@
-using System.Text;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 using KMN_Tontine.Blazor.UI;
 using KMN_Tontine.Blazor.UI.Services;
 using KMN_Tontine.Blazor.UI.Services.Base;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+// 🌍 Détection de l’environnement
+var environment = builder.Environment.EnvironmentName;
+Console.WriteLine($"🚀 Blazor Server démarre en mode : {environment}");
 
-// Configuration de l'authentification JWT
-builder.Services.AddAuthentication(options =>
+// 🔥 Charger les User Secrets en développement
+if (builder.Environment.IsDevelopment())
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
-    };
-});
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
-builder.Services.AddAuthorizationCore();
+// 🔗 Définir l'URL de l'API (Railway en prod, localhost en dev)
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
+                 ?? Environment.GetEnvironmentVariable("ApiSettings__BaseUrl")
+                 ?? "https://localhost:5000";
 
-// Configuration des services HTTP
-var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:5000";
+Console.WriteLine($"🔗 API utilisée : {apiBaseUrl}");
 
+// 📡 Configuration du service HTTP avec injection automatique du token JWT
 builder.Services.AddHttpClient("KMNTontineAPI", client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
@@ -49,19 +35,25 @@ builder.Services.AddScoped<IClient>(sp =>
     return new Client(apiBaseUrl, httpClient);
 });
 
-// Configuration des services de l'application
+// 🔑 Gestion des tokens et de l'authentification
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<ICompteService, CompteService>();
+
+// 🔥 Gestion automatique de l'ajout du token dans les requêtes HTTP
 builder.Services.AddScoped<AuthenticationHeaderHandler>();
 
-// Configuration du stockage local
+// 🗄️ Stockage local pour conserver le token JWT
 builder.Services.AddBlazoredLocalStorage();
+
+// Add services to the container.
+builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// 🌍 Configuration du pipeline
+if (app.Environment.IsProduction())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
@@ -76,5 +68,7 @@ app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+Console.WriteLine($"🚀 Blazor Server est prêt sur {app.Environment.EnvironmentName}");
 
 app.Run();
