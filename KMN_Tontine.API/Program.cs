@@ -14,41 +14,55 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-using Serilog; // Ajouté pour résoudre l'erreur
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connexion DB
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var environment = builder.Environment.EnvironmentName;
+Console.WriteLine($"🚀 Démarrage en mode : {environment}");
 
-// Enregistrement des services
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddEnvironmentVariables();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException("❌ ERREUR : La connexion SQL Server est introuvable !");
+}
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-//TODO: Ajouter les services manquants
 builder.Services.AddScoped<ICompteRepository, CompteRepository>();
-//builder.Services.AddScoped<IMembreRepository, MembreRepository>();
+builder.Services.AddScoped<IMembreRepository, MembreRepository>();
+builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
 
-// Enregistrement de AutoMapper
+// Enregistrement des services métiers
+builder.Services.AddScoped<IMembreService, MembreService>();
+builder.Services.AddScoped<ICompteService, CompteService>();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddAutoMapper(typeof(TransactionProfile));
 
-// Configuration Identity
 builder.Services.AddIdentity<Membre, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
-builder.Services.AddScoped<IMembreRepository, MembreRepository>();
-builder.Services.AddScoped<MembreService>();
-
-// Configuration JWT
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSettings["Key"];
-
-if (string.IsNullOrEmpty(jwtKey))
+// 🔥 Charger les User Secrets en mode développement
+if (builder.Environment.IsDevelopment())
 {
-    jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("Jwt__Key");
+    builder.Configuration.AddUserSecrets<Program>();
 }
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSettings["Key"]
+             ?? Environment.GetEnvironmentVariable("Jwt__Key");
 
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -56,40 +70,45 @@ if (string.IsNullOrEmpty(jwtKey))
 }
 
 var key = Encoding.UTF8.GetBytes(jwtKey);
-
 builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = environment == "Production";
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings["Issuer"], // 🔥 Vérifie l'émetteur
-            ValidateAudience = true,
-            ValidAudience = jwtSettings["Audience"], // 🔥 Vérifie l'audience
-            ValidateLifetime = true
-        };
-    });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true
+    };
+});
+
 builder.Services.AddAuthorization();
-
-// Enregistrement des services métiers
-builder.Services.AddScoped<IMembreService, MembreService>();
-
-// Enregistrement des services métier
-builder.Services.AddScoped<ICompteService, CompteService>();
-
-// Configuration d'AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Host.UseSerilog((ctx, lc) =>
+    lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        b => b.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+builder.Services.AddHttpClient();
+
+
 builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "KMN_Tontine.API", Version = "v1" });
@@ -121,48 +140,43 @@ builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
     });
 });
 
-builder.Host.UseSerilog((ctx, lc) =>
-    lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        b => b.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
-
-builder.Services.AddHttpClient();
-builder.WebHost.UseUrls("https://localhost:5000");
-
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || builder.Configuration["EnableSwaggerInProd"] == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "KMN-Tontine API v1");
-        c.RoutePrefix = string.Empty; // Ouvre Swagger directement sur la racine (`https://localhost:5000/`)
+        c.RoutePrefix = string.Empty;
     });
 }
 
-//app.Use(async (context, next) =>
-//{
-//    Console.WriteLine($"🔍 Requête reçue : {context.Request.Method} {context.Request.Path}");
-//    if (context.Request.Headers.ContainsKey("Authorization"))
-//    {
-//        Console.WriteLine($"✅ Token détecté : {context.Request.Headers["Authorization"]}");
-//    }
-//    else
-//    {
-//        Console.WriteLine("❌ Aucun token JWT envoyé !");
-//    }
-//    await next();
-//});
-app.UseHttpsRedirection(); // 🔥 Important pour forcer HTTPS
+// 🔥 Exécuter les migrations DB automatiquement
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+
+if (app.Environment.IsDevelopment())
+{
+    app.Urls.Add($"https://localhost:{port}");
+}
+else
+{
+    app.Urls.Add($"https://+:{port}");
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
+
+Console.WriteLine($"🚀 Application démarrée sur : {string.Join(", ", app.Urls)}");
+
 app.Run();
+

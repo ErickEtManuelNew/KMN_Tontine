@@ -33,9 +33,15 @@ jobs:
         dotnet publish KMN_Tontine.API/KMN_Tontine.API.csproj --configuration Release --output ./publish/api
         dotnet publish KMN_Tontine.Blazor.UI/KMN_Tontine.Blazor.UI.csproj --configuration Release --output ./publish/ui
 
-    - name: 🚢 Deploy to Railway
+    - name: 🚢 Déploiement sur Railway
       uses: railwayapp/cli-action@v1
       with:
         command: up
         service: kmn-tontine
         token: ${{ secrets.RAILWAY_TOKEN }}
+
+    - name: 🛠️ Injecter la chaîne de connexion SQL Server
+      run: echo "ConnectionStrings__DefaultConnection=${{ secrets.ConnectionStrings__DefaultConnection }}" >> $GITHUB_ENV
+
+    - name: 🛠️ Injecter la clé JWT
+      run: echo "Jwt__Key=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV      
