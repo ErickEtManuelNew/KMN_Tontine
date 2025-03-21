@@ -1,0 +1,3 @@
+[build]
+builder = "nixpacks"
+nixPkgs = ["dotnet-sdk_9"]
