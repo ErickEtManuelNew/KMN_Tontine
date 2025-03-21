@@ -1,0 +1,41 @@
+name: Build and Deploy to Railway 🚀
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🔄 Checkout du code
+      uses: actions/checkout@v3
+
+    - name: ⚙️ Setup .NET 9
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: 📦 Restore dependencies
+      run: |
+        dotnet restore KMN_Tontine.API/KMN_Tontine.API.csproj
+        dotnet restore KMN_Tontine.Blazor.UI/KMN_Tontine.Blazor.UI.csproj
+
+    - name: 🏗️ Build API et UI
+      run: |
+        dotnet build KMN_Tontine.API/KMN_Tontine.API.csproj --configuration Release --no-restore
+        dotnet build KMN_Tontine.Blazor.UI/KMN_Tontine.Blazor.UI.csproj --configuration Release --no-restore
+
+    - name: 🚀 Publish API et UI
+      run: |
+        dotnet publish KMN_Tontine.API/KMN_Tontine.API.csproj --configuration Release --output ./publish/api
+        dotnet publish KMN_Tontine.Blazor.UI/KMN_Tontine.Blazor.UI.csproj --configuration Release --output ./publish/ui
+
+    - name: 🚢 Deploy to Railway
+      uses: railwayapp/cli-action@v1
+      with:
+        command: up
+        service: kmn-tontine
+        token: ${{ secrets.RAILWAY_TOKEN }}
