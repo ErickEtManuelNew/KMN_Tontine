@@ -142,15 +142,15 @@ builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment() || builder.Configuration["EnableSwaggerInProd"] == "true")
-{
+//if (app.Environment.IsDevelopment() || builder.Configuration["EnableSwaggerInProd"] == "true")
+//{
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "KMN-Tontine API v1");
         c.RoutePrefix = string.Empty;
     });
-}
+//}
 
 // 🔥 Exécuter les migrations DB automatiquement
 using (var scope = app.Services.CreateScope())
