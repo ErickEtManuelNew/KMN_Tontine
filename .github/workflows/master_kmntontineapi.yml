@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - KMNTontineAPI
+name: Build and deploy ASP.Net Core app to Azure Web App - KmnTontineApi
 
 on:
   push:
@@ -54,15 +54,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_122D0ADFAD50417AB157114855FE47D6 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F9B5A0E368494DDB9A775C21F926CD5A }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D7756267A6A64532A2B555E2ECB53A75 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F49A7285430642DD9AF3E6FA4595A44F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0DA48F772F4D4775A0C633B7C6FCFF81 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B874D8BAF97745F4975E1547627BC5D5 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'KMNTontineAPI'
+          app-name: 'KmnTontineApi'
           slot-name: 'Production'
           package: .
           
