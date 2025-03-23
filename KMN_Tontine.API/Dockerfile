@@ -3,8 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# Copie du certificat
-COPY devcert.pfx /https/devcert.pfx
+
 
 # Définir les variables d'environnement attendues par Kestrel
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/devcert.pfx
@@ -12,6 +11,8 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecret!
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
+# Copie du certificat
+COPY ["KMN_Tontine.API/devcert.pfx", "https/"]
 COPY ["KMN_Tontine.API/KMN_Tontine.API.csproj", "KMN_Tontine.API/"]
 COPY ["KMN_Tontine.Application/KMN_Tontine.Application.csproj", "KMN_Tontine.Application/"]
 COPY ["KMN_Tontine.Domain/KMN_Tontine.Domain.csproj", "KMN_Tontine.Domain/"]
