@@ -168,10 +168,10 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // En production : désactiver HTTPS complètement
-    builder.WebHost.ConfigureKestrel(options =>
+    // Kestrel lira ASPNETCORE_Kestrel__Certificates__Default__Path et __Password
+    builder.WebHost.ConfigureKestrel((context, options) =>
     {
-        options.ListenAnyIP(80); // Port HTTP uniquement
+        // Aucun binding manuel requis si les ENV sont présents
     });
 }
 
