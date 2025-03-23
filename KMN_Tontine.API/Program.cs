@@ -27,7 +27,7 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+                       ?? Environment.GetEnvironmentVariable("ConnectionStrings_DefaultConnection");
 
 if (string.IsNullOrEmpty(connectionString))
 {
@@ -62,7 +62,7 @@ if (builder.Environment.IsDevelopment())
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSettings["Key"]
-             ?? Environment.GetEnvironmentVariable("Jwt__Key");
+             ?? Environment.GetEnvironmentVariable("Jwt_Key");
 
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -167,7 +167,9 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.Urls.Add($"https://+:{port}");
+    // Prod : écouter HTTP sur le port 80 (Docker friendly)
+    app.Urls.Clear(); // au cas où un port est défini par défaut
+    app.Urls.Add("http://0.0.0.0:80");
 }
 
 app.UseHttpsRedirection();
