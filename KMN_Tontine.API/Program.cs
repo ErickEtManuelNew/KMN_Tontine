@@ -164,15 +164,17 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 if (app.Environment.IsDevelopment())
 {
     app.Urls.Add($"https://localhost:{port}");
+    app.UseHttpsRedirection();
 }
 else
 {
-    // Prod : écouter HTTP sur le port 80 (Docker friendly)
-    app.Urls.Clear(); // au cas où un port est défini par défaut
-    app.Urls.Add("http://0.0.0.0:80");
+    // En prod, Docker ou Railway : écouter sur HTTP
+    port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+    app.Urls.Clear();
+    app.Urls.Add($"http://0.0.0.0:{port}");
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
