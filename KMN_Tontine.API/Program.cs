@@ -164,17 +164,15 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 if (app.Environment.IsDevelopment())
 {
     app.Urls.Add($"https://localhost:{port}");
-    app.UseHttpsRedirection();
 }
 else
 {
-    // Kestrel lira ASPNETCORE_Kestrel__Certificates__Default__Path et __Password
-    builder.WebHost.ConfigureKestrel((context, options) =>
-    {
-        // Aucun binding manuel requis si les ENV sont présents
-    });
+    // En prod, Docker ou Railway : écouter sur HTTP
+    app.Urls.Clear();
+    app.Urls.Add($"https://0.0.0.0:80");
 }
 
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
