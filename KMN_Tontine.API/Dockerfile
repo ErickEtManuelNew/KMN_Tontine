@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
 # Installer openssl pour générer certificat
 RUN apt-get update && apt-get install -y openssl
