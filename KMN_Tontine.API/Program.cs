@@ -168,10 +168,11 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // En prod, Docker ou Railway : écouter sur HTTP
-    port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-    app.Urls.Clear();
-    app.Urls.Add($"http://0.0.0.0:{port}");
+    // En production : désactiver HTTPS complètement
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(80); // Port HTTP uniquement
+    });
 }
 
 app.UseRouting();
