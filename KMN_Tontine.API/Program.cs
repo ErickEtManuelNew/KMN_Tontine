@@ -169,7 +169,7 @@ else
 {
     // En prod, Docker ou Railway : écouter sur HTTP
     app.Urls.Clear();
-    app.Urls.Add($"https://0.0.0.0:{port}");
+    app.Urls.Add($"http://0.0.0.0:{port}");
 }
 
 app.UseHttpsRedirection();
