@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace KMN_Tontine.Application.Interfaces
 {
-    public interface ICompteService
+    public interface IAccountService
     {
         Task<IEnumerable<CompteDTO>> GetComptesByMembreIdAsync(string membreId);
         Task<CompteDTO?> GetCompteByIdAsync(int id);

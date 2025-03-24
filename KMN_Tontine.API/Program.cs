@@ -45,7 +45,7 @@ builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
 
 // Enregistrement des services métiers
 builder.Services.AddScoped<IMembreService, MembreService>();
-builder.Services.AddScoped<ICompteService, CompteService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddAutoMapper(typeof(TransactionProfile));
@@ -108,7 +108,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpClient();
 
-
 builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "KMN_Tontine.API", Version = "v1" });
@@ -142,27 +141,38 @@ builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
 
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment() || builder.Configuration["EnableSwaggerInProd"] == "true")
-//{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "KMN-Tontine API v1");
-        c.RoutePrefix = string.Empty;
-    });
-//}
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "KMN-Tontine API v1");
+    c.RoutePrefix = string.Empty;
+});
 
 // 🔥 Exécuter les migrations DB automatiquement
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
+    if (!dbContext.Associations.Any())
+    {
+        dbContext.Associations.Add(new Association
+        {
+            Name = "KMN Ndjangui",
+            Address = "1, rue de Ngualan",
+            Email = "kmn_ndjangui@ndjangui.com",
+            CreationDate = DateTime.UtcNow,
+            IsActive = true
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
 }
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseHttpsRedirection();
     app.Urls.Add($"https://localhost:{port}");
 }
 else
@@ -171,8 +181,6 @@ else
     app.Urls.Clear();
     app.Urls.Add($"http://0.0.0.0:{port}");
 }
-
-//app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();

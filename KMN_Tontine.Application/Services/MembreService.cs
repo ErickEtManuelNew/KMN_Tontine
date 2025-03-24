@@ -45,8 +45,8 @@ namespace KMN_Tontine.Application.Services
             {
                 UserName = registerDto.Email,
                 Email = registerDto.Email,
-                Nom = registerDto.Nom,
-                Prenom = registerDto.Prenom,
+                LastName = registerDto.Nom,
+                Firstname = registerDto.Prenom,
                 Type = registerDto.TypeMembre,
                 AssociationId = 1 // 🔥 Association par défaut
             };
@@ -60,8 +60,8 @@ namespace KMN_Tontine.Application.Services
             return new MembreDTO
             {
                 Id = user.Id,
-                Nom = user.Nom,
-                Prenom = user.Prenom,
+                Nom = user.LastName,
+                Prenom = user.Firstname,
                 Email = user.Email,
                 Type = user.Type
             };
@@ -97,8 +97,8 @@ namespace KMN_Tontine.Application.Services
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.Nom),
-                new Claim(ClaimTypes.Surname, user.Prenom),
+                new Claim(ClaimTypes.Name, user.LastName),
+                new Claim(ClaimTypes.Surname, user.Firstname),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id) // ✅ Ajoute cet identifiant
             };

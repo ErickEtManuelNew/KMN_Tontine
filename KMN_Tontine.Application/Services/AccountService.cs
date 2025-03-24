@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 
 namespace KMN_Tontine.Application.Services
 {
-    public class CompteService : ICompteService
+    public class AccountService : IAccountService
     {
         private readonly ICompteRepository _compteRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<CompteService> _logger;
+        private readonly ILogger<AccountService> _logger;
 
-        public CompteService(
+        public AccountService(
             ICompteRepository compteRepository,
             IMapper mapper,
-            ILogger<CompteService> logger)
+            ILogger<AccountService> logger)
         {
             _compteRepository = compteRepository ?? throw new ArgumentNullException(nameof(compteRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

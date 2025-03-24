@@ -10,6 +10,7 @@ namespace KMN_Tontine.Infrastructure.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
+        public DbSet<Association> Associations { get; set; }
         public DbSet<Compte> Comptes { get; set; }
         public DbSet<MembreCompte> MembreComptes { get; set; }
         public DbSet<Transaction> Transactions { get; set; }

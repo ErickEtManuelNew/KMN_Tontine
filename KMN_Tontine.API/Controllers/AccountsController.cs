@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace KMN_Tontine.API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    public class ComptesController : ControllerBase
+    public class AccountsController : ControllerBase
     {
-        private readonly ICompteService _compteService;
-        private readonly ILogger<ComptesController> _logger;
+        private readonly IAccountService _compteService;
+        private readonly ILogger<AccountsController> _logger;
 
-        public ComptesController(ICompteService compteService, ILogger<ComptesController> logger)
+        public AccountsController(IAccountService compteService, ILogger<AccountsController> logger)
         {
             _compteService = compteService ?? throw new ArgumentNullException(nameof(compteService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
