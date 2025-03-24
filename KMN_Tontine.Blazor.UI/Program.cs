@@ -53,13 +53,16 @@ builder.Services.AddRazorPages();
 var app = builder.Build();
 
 // 🌍 Configuration du pipeline
-if (app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+else
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
