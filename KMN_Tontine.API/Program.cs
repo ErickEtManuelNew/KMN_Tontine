@@ -172,7 +172,7 @@ else
     app.Urls.Add($"http://0.0.0.0:{port}");
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
