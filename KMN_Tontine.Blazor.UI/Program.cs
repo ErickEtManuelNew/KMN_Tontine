@@ -18,7 +18,7 @@ if (builder.Environment.IsDevelopment())
 
 // 🔗 Définir l'URL de l'API (Railway en prod, localhost en dev)
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
-                 ?? Environment.GetEnvironmentVariable("ApiSettings__BaseUrl")
+                 ?? Environment.GetEnvironmentVariable("ApiSettings_BaseUrl")
                  ?? "https://localhost:5000";
 
 Console.WriteLine($"🔗 API utilisée : {apiBaseUrl}");
