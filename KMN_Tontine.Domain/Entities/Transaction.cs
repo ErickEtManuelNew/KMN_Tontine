@@ -1,21 +1,25 @@
-﻿using KMN_Tontine.Domain.Enums;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using KMN_Tontine.Domain.Enums;
 
 namespace KMN_Tontine.Domain.Entities
 {
     public class Transaction
     {
         public int Id { get; set; }
-        public string MembreId { get; set; }
-        public Membre Membre { get; set; }
+        public TransactionType Type { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public string Description { get; set; }
 
-        public int CompteId { get; set; } // 🔥 Ajout du compte lié à la transaction
-        public Compte Compte { get; set; }
+        public int AccountId { get; set; }
+        public Account Account { get; set; }
 
-        public decimal Montant { get; set; }
-        public DateTime DateTransaction { get; set; } = DateTime.UtcNow;
-        public TransactionStatus Status { get; set; } = TransactionStatus.EnAttente; // 🔥 Enum TransactionStatus
-        public TypeTransaction Type { get; set; } // 🔥 Enum TypeTransaction
-
-        public string? CodeValidation { get; set; } // Code de validation (via email)
+        public int TontineId { get; set; }
+        public Tontine Tontine { get; set; }
     }
 }

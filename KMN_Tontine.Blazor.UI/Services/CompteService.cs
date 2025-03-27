@@ -1,17 +1,20 @@
 using KMN_Tontine.Blazor.UI.Services.Base;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+
 using System.Net.Http.Json;
 
 namespace KMN_Tontine.Blazor.UI.Services
 {
     public interface ICompteService
     {
-        Task<List<CompteDTO>> GetComptesAsync(string membreId);
-        Task<CompteDTO> GetCompteAsync(int compteId);
-        Task CrediterCompteAsync(CreateTransactionDTO transaction);
+        Task<List<AccountResponse>> GetComptesAsync(string membreId);
+        Task<AccountResponse> GetCompteAsync(int compteId);
+        Task CrediterCompteAsync(CreateTransactionRequest transaction);
     }
 
     public class CompteService : ICompteService
     {
+        private readonly ProtectedLocalStorage _protectedLocalStore;
         private readonly IClient _client;
         private readonly ILogger<CompteService> _logger;
 
@@ -21,15 +24,15 @@ namespace KMN_Tontine.Blazor.UI.Services
             _logger = logger;
         }
 
-        public async Task<List<CompteDTO>> GetComptesAsync(string membreId)
+        public async Task<List<AccountResponse>> GetComptesAsync(string membreId)
         {
             try
             {
                 _logger.LogInformation($"Tentative de récupération des comptes pour le membre {membreId}");
 
-                var response = await _client.MembreAsync(membreId);
+                var response = await _client.MemberAsync(Guid.Parse(membreId));
 
-                return (List<CompteDTO>)(response ?? new List<CompteDTO>());
+                return (List<AccountResponse>)(response ?? new List<AccountResponse>());
             }
             catch (Exception ex)
             {
@@ -38,11 +41,11 @@ namespace KMN_Tontine.Blazor.UI.Services
             }
         }
 
-        public async Task<CompteDTO> GetCompteAsync(int compteId)
+        public async Task<AccountResponse> GetCompteAsync(int compteId)
         {
             try
             {
-                return await _client.ComptesAsync(compteId);
+                return await _client.AccountsGETAsync(compteId);
             }
             catch (Exception ex)
             {
@@ -51,11 +54,11 @@ namespace KMN_Tontine.Blazor.UI.Services
             }
         }
 
-        public async Task CrediterCompteAsync(CreateTransactionDTO transaction)
+        public async Task CrediterCompteAsync(CreateTransactionRequest transaction)
         {
             try
             {
-                await _client.CrediterAsync(transaction);
+                //await _client.CrediterAsync(transaction);
             }
             catch (Exception ex)
             {

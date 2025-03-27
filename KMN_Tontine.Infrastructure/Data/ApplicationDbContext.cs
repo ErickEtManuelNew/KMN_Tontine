@@ -5,63 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KMN_Tontine.Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<Membre>
+    public class ApplicationDbContext : IdentityDbContext<Member>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Association> Associations { get; set; }
-        public DbSet<Compte> Comptes { get; set; }
-        public DbSet<MembreCompte> MembreComptes { get; set; }
+        public DbSet<Tontine> Tontines { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Member> Members { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<PromessePaiement> PromessesPaiement { get; set; }
+        public DbSet<PaymentPromise> PaymentPromises { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Définition de la précision pour éviter les erreurs de troncature
-            builder.Entity<Compte>()
-                .Property(c => c.Solde)
-                .HasPrecision(18, 2);
-
-            builder.Entity<Membre>()
-                .Property(m => m.SoldeComptePrive)
-                .HasPrecision(18, 2);
-
-            builder.Entity<MembreCompte>()
-                .Property(mc => mc.Solde)
-                .HasPrecision(18, 2);
-
-            builder.Entity<Transaction>()
-                .Property(t => t.Montant)
-                .HasPrecision(18, 2);
-
-            builder.Entity<PromessePaiement>()
-                .Property(t => t.Montant)
-                .HasPrecision(18, 2);
-
-            // Relation Membre ↔ Compte (clé composite)
-            builder.Entity<MembreCompte>()
-                .HasKey(mc => new { mc.MembreId, mc.CompteId });
-
-            builder.Entity<MembreCompte>()
-                .HasOne(mc => mc.Membre)
-                .WithMany(m => m.MembreComptes)
-                .HasForeignKey(mc => mc.MembreId)
-                .HasPrincipalKey(m => m.Id); ;
-
-            builder.Entity<MembreCompte>()
-                .HasOne(mc => mc.Compte)
-                .WithMany(c => c.MembreComptes)
-                .HasForeignKey(mc => mc.CompteId);
-
-            builder.Entity<Membre>()
-                .HasOne(m => m.Association)
-                .WithMany(a => a.Membres)
-                .HasForeignKey(m => m.AssociationId)
-                .OnDelete(DeleteBehavior.Restrict); // 🔥 Empêche la suppression de l'association si des membres y sont liés
-
+            builder.Entity<Account>().Property(a => a.Type).HasConversion<string>();
+            builder.Entity<Transaction>().Property(t => t.Type).HasConversion<string>();
+            builder.Entity<Member>().Property(m => m.Role).HasConversion<string>();
         }
     }
 }

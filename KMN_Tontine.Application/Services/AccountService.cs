@@ -1,71 +1,97 @@
 ﻿using AutoMapper;
-using KMN_Tontine.Application.DTOs;
+
+using KMN_Tontine.Application.Common;
+using KMN_Tontine.Application.DTOs.Requests;
+using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
-using KMN_Tontine.Infrastructure.Repositories.Interfaces;
-
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using KMN_Tontine.Domain.Interfaces;
 
 namespace KMN_Tontine.Application.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly ICompteRepository _compteRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<AccountService> _logger;
 
-        public AccountService(
-            ICompteRepository compteRepository,
-            IMapper mapper,
-            ILogger<AccountService> logger)
+        public AccountService(IAccountRepository accountRepository, IMapper mapper)
         {
-            _compteRepository = compteRepository ?? throw new ArgumentNullException(nameof(compteRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _accountRepository = accountRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CompteDTO>> GetComptesByMembreIdAsync(string membreId)
+        public async Task<AccountResponse> GetAccountByIdAsync(int id)
+        {
+            var account = await _accountRepository.GetByIdAsync(id);
+            if (account == null)
+                throw new KeyNotFoundException("Account not found");
+
+            return _mapper.Map<AccountResponse>(account);
+        }
+
+        public async Task<IEnumerable<AccountResponse>> GetAllAccountsAsync()
+        {
+            var accounts = await _accountRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<AccountResponse>>(accounts);
+        }
+
+        public async Task<IEnumerable<AccountResponse>> GetAccountsByMemberIdAsync(Guid memberid)
+        {
+            var accounts = await _accountRepository.GetByMemberIdAsync(memberid);
+            return _mapper.Map<IEnumerable<AccountResponse>>(accounts);
+        }
+
+        public async Task<SimpleResponse> CreateAccountAsync(CreateAccountRequest request)
         {
             try
             {
-                _logger.LogInformation($"Récupération des comptes pour le membre {membreId}");
-                var comptes = await _compteRepository.GetComptesByMembreIdAsync(membreId);
-                var compteDtos = _mapper.Map<IEnumerable<CompteDTO>>(comptes);
-                _logger.LogInformation($"Nombre de comptes récupérés : {compteDtos?.Count() ?? 0}");
-                return compteDtos;
+                var account = _mapper.Map<Account>(request);
+                account.Balance = request.InitialBalance; // Initialiser le solde
+                await _accountRepository.AddAsync(account);
+
+                return SimpleResponse.Ok("Account created successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Erreur lors de la récupération des comptes pour le membre {membreId}");
-                throw;
+                return SimpleResponse.Error($"Failed to create account: {ex.Message}");
             }
         }
 
-        public async Task<CompteDTO?> GetCompteByIdAsync(int id)
+        public async Task<SimpleResponse> UpdateAccountAsync(int id, UpdateAccountRequest request)
         {
-            var compte = await _compteRepository.GetByIdAsync(id);
-            return compte != null ? _mapper.Map<CompteDTO>(compte) : null;
+            try
+            {
+                var account = await _accountRepository.GetByIdAsync(id);
+                if (account == null)
+                    return SimpleResponse.Error("Account not found");
+
+                // Mettre à jour les propriétés
+                account.Balance = request.Balance ?? account.Balance;
+
+                await _accountRepository.UpdateAsync(account);
+                return SimpleResponse.Ok("Account updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return SimpleResponse.Error($"Failed to update account: {ex.Message}");
+            }
         }
 
-        public async Task<CompteDTO> CreateCompteAsync(CompteDTO compteDto)
+        public async Task<SimpleResponse> DeleteAccountAsync(int id)
         {
-            var compte = _mapper.Map<Compte>(compteDto);
-            var createdCompte = await _compteRepository.AddAsync(compte);
-            return _mapper.Map<CompteDTO>(createdCompte);
-        }
+            try
+            {
+                var account = await _accountRepository.GetByIdAsync(id);
+                if (account == null)
+                    return SimpleResponse.Error("Account not found");
 
-        public async Task UpdateCompteAsync(CompteDTO compteDto)
-        {
-            var compte = _mapper.Map<Compte>(compteDto);
-            await _compteRepository.UpdateAsync(compte);
-        }
-
-        public async Task DeleteCompteAsync(int id)
-        {
-            await _compteRepository.DeleteAsync(id);
+                await _accountRepository.DeleteAsync(id);
+                return SimpleResponse.Ok("Account deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return SimpleResponse.Error($"Failed to delete account: {ex.Message}");
+            }
         }
     }
 }

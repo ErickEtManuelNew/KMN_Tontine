@@ -1,6 +1,9 @@
-﻿using Blazored.LocalStorage;
+﻿using System.Net.Http.Headers;
+
+using Blazored.LocalStorage;
 using KMN_Tontine.Blazor.UI;
 using KMN_Tontine.Blazor.UI.Services;
+using KMN_Tontine.Blazor.UI.Services.Authentication;
 using KMN_Tontine.Blazor.UI.Services.Base;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -23,25 +26,22 @@ var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
 
 Console.WriteLine($"🔗 API utilisée : {apiBaseUrl}");
 
-// 📡 Configuration du service HTTP avec injection automatique du token JWT
-builder.Services.AddHttpClient("KMNTontineAPI", client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-}).AddHttpMessageHandler<AuthenticationHeaderHandler>();
+// 🛠️ Configuration du client NSwag
+builder.Services.AddHttpClient<IClient, Client>(cl => cl.BaseAddress = new Uri(apiBaseUrl));
 
-builder.Services.AddScoped<IClient>(sp =>
-{
-    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("KMNTontineAPI");
-    return new Client(apiBaseUrl, httpClient);
-});
+//builder.Services.AddHttpClient<Client>((provider, client) =>
+//{
+//    //var baseUrl = "https://api.example.com"; // Replace with your actual base URL
+//    client.BaseAddress = new Uri(apiBaseUrl);
+//});
 
 // 🔑 Gestion des tokens et de l'authentification
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(p =>
+                p.GetRequiredService<ApiAuthenticationStateProvider>());
 builder.Services.AddScoped<ICompteService, CompteService>();
-
-// 🔥 Gestion automatique de l'ajout du token dans les requêtes HTTP
-builder.Services.AddScoped<AuthenticationHeaderHandler>();
 
 // 🗄️ Stockage local pour conserver le token JWT
 builder.Services.AddBlazoredLocalStorage();

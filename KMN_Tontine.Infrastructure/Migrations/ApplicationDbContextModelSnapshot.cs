@@ -3,7 +3,6 @@ using System;
 using KMN_Tontine.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -16,258 +15,235 @@ namespace KMN_Tontine.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Association", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Address")
+                    b.Property<string>("MemberId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("TontineId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Associations");
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("TontineId");
+
+                    b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Compte", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AssociationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MembreId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nom")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Solde")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssociationId");
-
-                    b.ToTable("Comptes");
-                });
-
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Membre", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Member", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AssociationId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Firstname")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("SoldeComptePrive")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssociationId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.MembreCompte", b =>
-                {
-                    b.Property<string>("MembreId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CompteId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Solde")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("MembreId", "CompteId");
-
-                    b.HasIndex("CompteId");
-
-                    b.ToTable("MembreComptes");
-                });
-
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PromessePaiement", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<decimal>("AmountPromised")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("CodePaiement")
+                    b.Property<DateTime?>("FulfilledDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MemberId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("CompteId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DatePromesse")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MembreId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("Montant")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("PromiseDate")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompteId");
+                    b.HasIndex("MemberId");
 
-                    b.HasIndex("MembreId");
+                    b.ToTable("PaymentPromises");
+                });
 
-                    b.ToTable("PromessesPaiement");
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Tontine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tontines");
                 });
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("CodeValidation")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("CompteId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DateTransaction")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MembreId")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Montant")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("TontineId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompteId");
+                    b.HasIndex("AccountId");
 
-                    b.HasIndex("MembreId");
+                    b.HasIndex("TontineId");
 
                     b.ToTable("Transactions");
                 });
@@ -275,26 +251,25 @@ namespace KMN_Tontine.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -303,19 +278,17 @@ namespace KMN_Tontine.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -328,19 +301,17 @@ namespace KMN_Tontine.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -352,17 +323,17 @@ namespace KMN_Tontine.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -374,10 +345,10 @@ namespace KMN_Tontine.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -389,99 +360,80 @@ namespace KMN_Tontine.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Compte", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Account", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Association", "Association")
-                        .WithMany("Comptes")
-                        .HasForeignKey("AssociationId")
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", "Member")
+                        .WithMany("Accounts")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Association");
-                });
-
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Membre", b =>
-                {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Association", "Association")
-                        .WithMany("Membres")
-                        .HasForeignKey("AssociationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Association");
-                });
-
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.MembreCompte", b =>
-                {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Compte", "Compte")
-                        .WithMany("MembreComptes")
-                        .HasForeignKey("CompteId")
+                    b.HasOne("KMN_Tontine.Domain.Entities.Tontine", "Tontine")
+                        .WithMany("Accounts")
+                        .HasForeignKey("TontineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", "Membre")
-                        .WithMany("MembreComptes")
-                        .HasForeignKey("MembreId")
+                    b.Navigation("Member");
+
+                    b.Navigation("Tontine");
+                });
+
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromise", b =>
+                {
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", "Member")
+                        .WithMany("PaymentPromises")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Compte");
-
-                    b.Navigation("Membre");
+                    b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PromessePaiement", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Compte", "Compte")
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", "Member")
                         .WithMany()
-                        .HasForeignKey("CompteId")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", "Membre")
-                        .WithMany()
-                        .HasForeignKey("MembreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Compte");
-
-                    b.Navigation("Membre");
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Compte", "Compte")
-                        .WithMany()
-                        .HasForeignKey("CompteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", "Membre")
+                    b.HasOne("KMN_Tontine.Domain.Entities.Account", "Account")
                         .WithMany("Transactions")
-                        .HasForeignKey("MembreId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Compte");
+                    b.HasOne("KMN_Tontine.Domain.Entities.Tontine", "Tontine")
+                        .WithMany("Transactions")
+                        .HasForeignKey("TontineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Membre");
+                    b.Navigation("Account");
+
+                    b.Navigation("Tontine");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -495,7 +447,7 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", null)
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -504,7 +456,7 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", null)
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -519,7 +471,7 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", null)
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -528,28 +480,28 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Membre", null)
+                    b.HasOne("KMN_Tontine.Domain.Entities.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Association", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Account", b =>
                 {
-                    b.Navigation("Comptes");
-
-                    b.Navigation("Membres");
+                    b.Navigation("Transactions");
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Compte", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Member", b =>
                 {
-                    b.Navigation("MembreComptes");
+                    b.Navigation("Accounts");
+
+                    b.Navigation("PaymentPromises");
                 });
 
-            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Membre", b =>
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.Tontine", b =>
                 {
-                    b.Navigation("MembreComptes");
+                    b.Navigation("Accounts");
 
                     b.Navigation("Transactions");
                 });

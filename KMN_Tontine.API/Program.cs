@@ -2,11 +2,12 @@
 
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Application.Mappings;
+using KMN_Tontine.Application.Seed;
 using KMN_Tontine.Application.Services;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
 using KMN_Tontine.Infrastructure.Repositories.Implementations;
-using KMN_Tontine.Infrastructure.Repositories.Interfaces;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,7 @@ var environment = builder.Environment.EnvironmentName;
 Console.WriteLine($"🚀 Démarrage en mode : {environment}");
 
 builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{environment}.json", optional: true)
     .AddEnvironmentVariables();
@@ -35,22 +37,24 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ICompteRepository, CompteRepository>();
-builder.Services.AddScoped<IMembreRepository, MembreRepository>();
-builder.Services.AddScoped<IAssociationRepository, AssociationRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<ITontineRepository, TontineRepository>();
 
 // Enregistrement des services métiers
-builder.Services.AddScoped<IMembreService, MembreService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddAutoMapper(typeof(TransactionProfile));
+//builder.Services.AddAutoMapper(typeof(TransactionProfile));
 
-builder.Services.AddIdentity<Membre, IdentityRole>()
+builder.Services.AddIdentity<Member, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -97,6 +101,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Host.UseSerilog((ctx, lc) =>
     lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+
+// Enregistrement des seeders
+builder.Services.AddScoped<RoleSeeder>();
+builder.Services.AddScoped<SuperAdminSeeder>();
 
 builder.Services.AddCors(options =>
 {
@@ -148,14 +156,35 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
+// Appeler les seeders
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        // Résolution des seeders via DI
+        var roleSeeder = services.GetRequiredService<RoleSeeder>();
+        await roleSeeder.SeedRolesAsync();
+
+        var superAdminSeeder = services.GetRequiredService<SuperAdminSeeder>();
+        await superAdminSeeder.SeedSuperAdminAsync();
+    }
+    catch (Exception ex)
+    {
+        // Gérer les erreurs lors du seeding
+        Console.WriteLine($"An error occurred while seeding: {ex.Message}");
+    }
+}
+
 // 🔥 Exécuter les migrations DB automatiquement
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
-    if (!dbContext.Associations.Any())
+    if (!dbContext.Tontines.Any())
     {
-        dbContext.Associations.Add(new Association
+        dbContext.Tontines.Add(new Tontine
         {
             Name = "KMN Ndjangui",
             Address = "1, rue de Ngualan",
@@ -181,6 +210,27 @@ else
     app.Urls.Clear();
     app.Urls.Add($"http://0.0.0.0:{port}");
 }
+
+// Appeler les seeders
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        var roleSeeder = services.GetRequiredService<RoleSeeder>();
+        await roleSeeder.SeedRolesAsync();
+
+        var superAdminSeeder = services.GetRequiredService<SuperAdminSeeder>();
+        await superAdminSeeder.SeedSuperAdminAsync();
+    }
+    catch (Exception ex)
+    {
+        // Gérer les erreurs lors du seeding
+        Console.WriteLine($"An error occurred while seeding: {ex.Message}");
+    }
+}
+
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();

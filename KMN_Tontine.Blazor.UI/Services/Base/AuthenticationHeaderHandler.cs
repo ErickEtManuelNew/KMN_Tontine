@@ -16,7 +16,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         {
             try
             {
-                var token = await _localStorage.GetItemAsync<string>("authToken");
+                var token = await _localStorage.GetItemAsync<string>("accessToken");
                 if (!string.IsNullOrEmpty(token))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

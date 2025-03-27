@@ -20,7 +20,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         {
             try
             {
-                var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+                var savedToken = await _localStorage.GetItemAsync<string>("accessToken");
                 if (string.IsNullOrWhiteSpace(savedToken))
                 {
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -31,7 +31,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
                 if (expiry < DateTime.Now)
                 {
-                    await _localStorage.RemoveItemAsync("authToken");
+                    await _localStorage.RemoveItemAsync("accessToken");
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
                 }
 
@@ -48,7 +48,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         public async Task LoggedIn()
         {
-            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+            var savedToken = await _localStorage.GetItemAsync<string>("accessToken");
             var tokenContent = _tokenHandler.ReadJwtToken(savedToken);
             var claims = tokenContent.Claims.ToList();
             var identity = new ClaimsIdentity(claims, "jwt");
@@ -58,7 +58,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         public async Task LoggedOut()
         {
-            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync("accessToken");
             var identity = new ClaimsIdentity();
             var user = new ClaimsPrincipal(identity);
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));

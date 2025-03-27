@@ -22,18 +22,18 @@ namespace KMN_Tontine.Blazor.UI.Services
             _authenticationStateProvider = authenticationStateProvider;
         }
 
-        public async Task<SimpleResponse> RegisterAsync(RegisterDTO model)
+        public async Task<SimpleResponse> RegisterAsync(RegisterRequest model)
         {
             return await _client.RegisterAsync(model);
         }
 
-        public async Task<TokenResponse> LoginAsync(LoginDTO model)
+        public async Task<TokenResponse> LoginAsync(LoginRequest model)
         {
             var response = await _client.LoginAsync(model);
             
-            if (response?.Token != null)
+            if (response?.AccessToken != null)
             {
-                await _localStorage.SetItemAsync("authToken", response.Token);
+                await _localStorage.SetItemAsync("accessToken", response.AccessToken);
                 await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedIn();
             }
             
@@ -42,7 +42,7 @@ namespace KMN_Tontine.Blazor.UI.Services
 
         public async Task LogoutAsync()
         {
-            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync("accessToken");
             await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedOut();
         }
     }

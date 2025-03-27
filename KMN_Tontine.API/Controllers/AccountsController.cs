@@ -1,83 +1,100 @@
-using KMN_Tontine.Application.DTOs;
+﻿using KMN_Tontine.Application.Common;
+using KMN_Tontine.Application.DTOs.Requests;
+using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace KMN_Tontine.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    [Produces("application/json")]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountService _compteService;
-        private readonly ILogger<AccountsController> _logger;
+        private readonly IAccountService _accountService;
 
-        public AccountsController(IAccountService compteService, ILogger<AccountsController> logger)
+        public AccountsController(IAccountService accountService)
         {
-            _compteService = compteService ?? throw new ArgumentNullException(nameof(compteService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _accountService = accountService;
         }
 
         /// <summary>
-        /// Récupère tous les comptes d'un membre spécifique
+        /// Récupérer un compte par ID
         /// </summary>
-        /// <param name="membreId">L'identifiant unique du membre</param>
-        /// <returns>La liste des comptes du membre</returns>
-        /// <response code="200">Retourne la liste des comptes</response>
-        /// <response code="401">Non autorisé</response>
-        /// <response code="404">Aucun compte trouvé pour ce membre</response>
-        [HttpGet("membre/{membreId}")]
-        [ProducesResponseType(typeof(IEnumerable<CompteDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<CompteDTO>>> GetComptesByMembre(string membreId)
+        public async Task<IActionResult> GetAccount(int id)
         {
             try
             {
-                _logger.LogInformation($"Tentative de récupération des comptes pour le membre {membreId}");
-                var comptes = await _compteService.GetComptesByMembreIdAsync(membreId);
-                
-                if (!comptes.Any())
-                {
-                    _logger.LogWarning($"Aucun compte trouvé pour le membre {membreId}");
-                    return NotFound($"Aucun compte trouvé pour le membre {membreId}");
-                }
-
-                _logger.LogInformation($"Comptes récupérés avec succès pour le membre {membreId}");
-                return Ok(comptes);
+                var result = await _accountService.GetAccountByIdAsync(id);
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, $"Erreur lors de la récupération des comptes pour le membre {membreId}");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    "Une erreur est survenue lors de la récupération des comptes");
+                return NotFound(new SimpleResponse { Success = false, Message = ex.Message });
             }
         }
 
         /// <summary>
-        /// Récupère un compte spécifique par son ID
+        /// Récupérer tous les comptes
         /// </summary>
-        /// <param name="id">L'identifiant unique du compte</param>
-        /// <returns>Le compte demandé</returns>
-        /// <response code="200">Retourne le compte demandé</response>
-        /// <response code="401">Non autorisé</response>
-        /// <response code="404">Compte non trouvé</response>
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(CompteDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CompteDTO>> GetCompte(int id)
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AccountResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> GetAllAccounts()
         {
-            var compte = await _compteService.GetCompteByIdAsync(id);
-            if (compte == null)
-            {
-                return NotFound($"Compte avec l'ID {id} non trouvé");
-            }
-            return Ok(compte);
+            var result = await _accountService.GetAllAccountsAsync();
+            return result.Any() ? Ok(result) : NoContent();
+        }
+
+        /// <summary>
+        /// Récupérer tous les comptes d'un membre
+        /// </summary>
+        [HttpGet("member/{memberId}")]
+        [ProducesResponseType(typeof(IEnumerable<AccountResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> GetAccountsByMember(Guid memberId)
+        {
+            var result = await _accountService.GetAccountsByMemberIdAsync(memberId);
+            return result.Any() ? Ok(result) : NoContent();
+        }
+
+        /// <summary>
+        /// Créer un nouveau compte
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
+        {
+            var result = await _accountService.CreateAccountAsync(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Mettre à jour un compte existant
+        /// </summary>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateAccount(int id, [FromBody] UpdateAccountRequest request)
+        {
+            var result = await _accountService.UpdateAccountAsync(id, request);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        /// <summary>
+        /// Supprimer un compte
+        /// </summary>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteAccount(int id)
+        {
+            var result = await _accountService.DeleteAccountAsync(id);
+            return result.Success ? NoContent() : NotFound(result);
         }
     }
-} 
+}

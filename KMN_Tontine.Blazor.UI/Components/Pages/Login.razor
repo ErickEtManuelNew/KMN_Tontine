@@ -1,8 +1,9 @@
 @page "/login"
 
 @using KMN_Tontine.Blazor.UI.Services
+@using KMN_Tontine.Blazor.UI.Services.Authentication
 @using Microsoft.AspNetCore.Components.Authorization
-@inject IAuthService AuthenticationService
+@inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -50,7 +51,7 @@
 </div>
 
 @code {
-    private LoginDTO _loginModel = new();
+    private LoginRequest _loginModel = new();
     private bool _loading;
     private bool _error;
     private string _errorMessage = string.Empty;
@@ -70,7 +71,7 @@
         {
             _loading = true;
             _error = false;
-            await AuthenticationService.LoginAsync(_loginModel);
+            await AuthenticationService.AuthenticateAsync(_loginModel);
             NavigationManager.NavigateTo("/dashboard");
         }
         catch (Exception ex)
