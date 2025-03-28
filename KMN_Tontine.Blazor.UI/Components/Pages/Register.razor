@@ -3,120 +3,165 @@
 @using KMN_Tontine.Blazor.UI.Services
 @using KMN_Tontine.Blazor.UI.Services.Base
 @inject IAuthService AuthService
-@inject NavigationManager NavigationManager
+@inject NavigationManager Navigation
 
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Créer un compte
-            </h2>
-        </div>
-        <EditForm Model="@registerModel" OnValidSubmit="HandleRegistration" class="mt-8 space-y-6">
-            <DataAnnotationsValidator />
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div class="mb-4">
-                    <label for="email" class="sr-only">Email</label>
-                    <InputText id="email" @bind-Value="registerModel.Email" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email" />
-                    <ValidationMessage For="@(() => registerModel.Email)" />
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="sr-only">Mot de passe</label>
-                    <InputText type="password" id="password" @bind-Value="registerModel.Password" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Mot de passe" />
-                    <ValidationMessage For="@(() => registerModel.Password)" />
-                </div>
-                <div class="mb-4">
-                    <label for="nom" class="sr-only">Nom</label>
-                    <InputText id="nom" @bind-Value="registerModel.LastName" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Nom" />
-                    <ValidationMessage For="@(() => registerModel.LastName)" />
-                </div>
-                <div class="mb-4">
-                    <label for="prenom" class="sr-only">Prénom</label>
-                    <InputText id="prenom" @bind-Value="registerModel.FirstName" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Prénom" />
-                    <ValidationMessage For="@(() => registerModel.FirstName)" />
-                </div>
-                <div>
-                    <label for="typeMembre" class="sr-only">Type de membre</label>
-                    <InputSelect id="typeMembre" @bind-Value="registerModel.Role" class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-                        <option value="">Sélectionnez un type de membre</option>
-                        <option value="@RoleType._0">Membre</option>
-                        <option value="@RoleType._1">Administrateur</option>
-                        <option value="@RoleType._2">Super Administrateur</option>
-                    </InputSelect>
-                    <ValidationMessage For="@(() => registerModel.Role)" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-center text-primary">Bienvenue sur KMN Tontine !</h3>
+                    <p class="text-center text-muted">
+                        Rejoignez notre communauté dynamique et commencez à gérer vos tontines en toute simplicité.
+                    </p>
+
+                    <EditForm Model="@registerRequest" OnValidSubmit="HandleRegistration">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <!-- Prénom -->
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">Prénom</label>
+                            <InputText id="firstName" @bind-Value="registerRequest.FirstName" class="form-control" placeholder="Entrez votre prénom" />
+                            <ValidationMessage For="@(() => registerRequest.FirstName)" class="text-danger" />
+                        </div>
+
+                        <!-- Nom -->
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Nom</label>
+                            <InputText id="lastName" @bind-Value="registerRequest.LastName" class="form-control" placeholder="Entrez votre nom" />
+                            <ValidationMessage For="@(() => registerRequest.LastName)" class="text-danger" />
+                        </div>
+
+                        <!-- Date de naissance -->
+                        <div class="mb-3">
+                            <label for="dateOfBirth" class="form-label">Date de naissance</label>
+                            <InputDate id="dateOfBirth" @bind-Value="registerRequest.DateOfBirth" class="form-control" placeholder="Sélectionnez votre date de naissance" />
+                            <ValidationMessage For="@(() => registerRequest.DateOfBirth)" class="text-danger" />
+                            <small class="form-text text-muted">Votre âge doit être supérieur à 18 ans pour vous inscrire.</small>
+                        </div>
+
+                        <!-- E-mail -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Adresse e-mail</label>
+                            <InputText id="email" @bind-Value="registerRequest.Email" class="form-control" placeholder="Entrez votre adresse e-mail" />
+                            <ValidationMessage For="@(() => registerRequest.Email)" class="text-danger" />
+                            <small class="form-text text-muted">Nous ne partagerons jamais votre e-mail. Il sera utilisé uniquement pour confirmer votre inscription.</small>
+                        </div>
+
+                        <!-- Mot de passe -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <InputText id="password" @bind-Value="registerRequest.Password" type="password" class="form-control" placeholder="Entrez un mot de passe (minimum 8 caractères)" />
+                            <ValidationMessage For="@(() => registerRequest.Password)" class="text-danger" />
+                            <small class="form-text text-muted">
+                                Pour protéger votre compte, votre mot de passe doit contenir au moins :
+                                <ul>
+                                    <li>8 caractères</li>
+                                    <li>1 majuscule</li>
+                                    <li>1 minuscule</li>
+                                    <li>1 chiffre</li>
+                                    <li>1 caractère spécial</li>
+                                </ul>
+                                <strong>Avec KMN Tontine, votre sécurité est notre priorité.</strong>
+                            </small>
+                        </div>
+
+                        <!-- Adresse (optionnel) -->
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adresse (optionnel)</label>
+                            <InputText id="address" @bind-Value="registerRequest.Address" class="form-control" placeholder="Entrez votre adresse" />
+                            <small class="form-text text-muted">Cette information est facultative mais peut être utile pour les correspondances officielles.</small>
+                        </div>
+
+                        <!-- Bouton d'envoi -->
+                        <button type="submit" class="btn btn-primary w-100">
+                            @if (_loading)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+                            }
+                            S'inscrire
+                        </button>
+                    </EditForm>
+
+<!-- Message de confirmation -->
+@if (showConfirmationMessage)
+{
+    <div class="alert alert-success mt-3 text-center">
+        <strong>Félicitations !</strong> Vous êtes maintenant inscrit sur KMN Tontine. Un e-mail de confirmation a été envoyé à <strong>@registerRequest.Email</strong>. Veuillez vérifier votre boîte de réception.
+    </div>
+}
+
+<!-- Message d'erreur -->
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3 text-center">
+                            <strong>@errorMessage</strong>
+        
+    </div>
+}
                 </div>
             </div>
-
-            @if (!string.IsNullOrEmpty(message))
-            {
-                <div class="@(isError ? "text-red-500" : "text-green-500") text-sm mt-2">
-                    @message
-                </div>
-            }
-
-            <div>
-                <button type="submit" disabled="@isLoading" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    @if (isLoading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
-                        <span>Inscription en cours...</span>
-                    }
-                    else
-                    {
-                        <span>S'inscrire</span>
-                    }
-                </button>
-            </div>
-        </EditForm>
-        <div class="text-center mt-4">
-            <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
-                Déjà inscrit ? Se connecter
-            </a>
         </div>
     </div>
 </div>
-
 @code {
-    private RegisterRequest registerModel = new();
-    private string message;
-    private bool isError;
-    private bool isLoading;
+    private RegisterRequest registerRequest = new RegisterRequest();
+    private bool showConfirmationMessage = false;
+    private string errorMessage = null;
+    private bool _loading;
+
+    protected override void OnInitialized()
+    {
+        registerRequest.DateOfBirth = DateTime.Today; // 📅 Initialise à aujourd'hui
+    }
 
     private async Task HandleRegistration()
     {
-        isLoading = true;
-        message = string.Empty;
-        isError = false;
-
         try
         {
-            var response = await AuthService.RegisterAsync(registerModel);
-            if (response != null)
+            _loading = true;
+
+            // Valider les données avant envoi
+            if (string.IsNullOrWhiteSpace(registerRequest.FirstName) ||
+                string.IsNullOrWhiteSpace(registerRequest.LastName) ||
+                registerRequest.DateOfBirth == default ||
+                string.IsNullOrWhiteSpace(registerRequest.Email) ||
+                string.IsNullOrWhiteSpace(registerRequest.Password))
             {
-                message = response.Message ?? "Inscription réussie ! Vous pouvez maintenant vous connecter.";
-                isError = false;
-                await Task.Delay(2000); // Attendre 2 secondes avant la redirection
-                NavigationManager.NavigateTo("/login");
+                errorMessage = "Veuillez remplir tous les champs obligatoires.";
+                return;
+            }
+
+            registerRequest.Role = RoleType._2; // Rôle par défaut pour les utilisateurs
+
+            // Envoyer les données au backend pour enregistrement
+            var response = await AuthService.RegisterAsync(registerRequest);
+
+            if (response.Success)
+            {
+                // Afficher le message de confirmation
+                showConfirmationMessage = true;
+
+                // Optionnel : Rediriger vers une page de confirmation ou de connexion après un délai
+                await Task.Delay(3000); // Attendre 3 secondes
+                Navigation.NavigateTo("/login");
             }
             else
             {
-                message = "Une erreur est survenue lors de l'inscription.";
-                isError = true;
+                // Gérer les erreurs du serveur
+                var error = response.Message;
+                errorMessage = $"Erreur lors de l'enregistrement : {error}";
             }
-        }
-        catch (ApiException ex)
-        {
-            message = ex.Message;
-            isError = true;
         }
         catch (Exception ex)
         {
-            message = "Une erreur est survenue lors de l'inscription.";
-            isError = true;
+            // Gérer les exceptions réseau ou autres
+            errorMessage = $"Une erreur inattendue s'est produite : {ex.Message}";
         }
         finally
         {
-            isLoading = false;
+            _loading = false;
         }
     }
 } 

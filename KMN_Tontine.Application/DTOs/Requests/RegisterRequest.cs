@@ -48,6 +48,6 @@ namespace KMN_Tontine.Application.DTOs.Requests
         /// </summary>
         public RoleType Role { get; set; } = RoleType.Member;
 
-        public string Address { get; set; }
+        public string? Address { get; set; }
     }
 }

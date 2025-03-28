@@ -11,6 +11,7 @@ using KMN_Tontine.Application.DTOs.Responses;
 
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -29,20 +30,33 @@ namespace KMN_Tontine.Application.Services
             _configuration = configuration;
         }
 
-        public async Task<TokenResponse> RegisterAsync(RegisterRequest request)
+        public async Task<SimpleResponse> RegisterAsync(RegisterRequest request)
         {
             var user = new Member
             {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                DateOfBirth = request.DateOfBirth,
+                Role = request.Role,
                 UserName = request.Email,
                 Email = request.Email,
-                FullName = request.FirstName + request.LastName
+                FullName = request.FirstName + request.LastName,
+                PasswordHash = request.Password
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
-                throw new InvalidOperationException("User registration failed");
-
-            return GenerateToken(user);
+                return new SimpleResponse()
+                {
+                    Success = false,
+                    Message = string.Join(" | ", result.Errors.Select(e => e.Description))
+                };
+            else
+                return new SimpleResponse()
+                {
+                    Success = true,
+                    Message = string.Empty
+                };
         }
 
         public async Task<TokenResponse> LoginAsync(LoginRequest request)
