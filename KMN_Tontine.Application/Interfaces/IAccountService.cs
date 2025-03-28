@@ -16,6 +16,7 @@ namespace KMN_Tontine.Application.Interfaces
         Task<IEnumerable<AccountResponse>> GetAllAccountsAsync();
         Task<IEnumerable<AccountResponse>> GetAccountsByMemberIdAsync(Guid memberid);
         Task<SimpleResponse> CreateAccountAsync(CreateAccountRequest request);
+        Task<SimpleResponse> CreateAccountForMemberAsync(string memberId);
         Task<SimpleResponse> UpdateAccountAsync(int id, UpdateAccountRequest request);
         Task<SimpleResponse> DeleteAccountAsync(int id);
     }

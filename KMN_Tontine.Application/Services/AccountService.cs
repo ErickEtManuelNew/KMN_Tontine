@@ -5,7 +5,9 @@ using KMN_Tontine.Application.DTOs.Requests;
 using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
 using KMN_Tontine.Domain.Interfaces;
+using KMN_Tontine.Infrastructure.Repositories.Implementations;
 
 namespace KMN_Tontine.Application.Services
 {
@@ -92,6 +94,24 @@ namespace KMN_Tontine.Application.Services
             {
                 return SimpleResponse.Error($"Failed to delete account: {ex.Message}");
             }
+        }
+
+        public async Task<SimpleResponse> CreateAccountForMemberAsync(string memberId)
+        {
+            // Créer les comptes associés à l'utilisateur
+            // Affecter tous les types de comptes (enum) à l'utilisateur
+            foreach (AccountType accountType in Enum.GetValues<AccountType>())
+            {
+                await _accountRepository.AddAsync(new Account
+                {
+                    MemberId = memberId,
+                    Balance = 0,
+                    Type = accountType,
+                    TontineId = 1
+                });
+            }
+
+            return await Task.FromResult(SimpleResponse.Ok("Accounts created successfully"));
         }
     }
 }

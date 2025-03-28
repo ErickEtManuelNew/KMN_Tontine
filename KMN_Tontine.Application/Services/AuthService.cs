@@ -22,18 +22,23 @@ namespace KMN_Tontine.Application.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<Member> _userManager;
+        private readonly IAccountService _accountService;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<Member> userManager, IConfiguration configuration)
+        public AuthService(IAccountService accountService, UserManager<Member> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _accountService = accountService;
         }
 
         public async Task<SimpleResponse> RegisterAsync(RegisterRequest request)
         {
+            // Créer un jeton de confirmation
+            var confirmationToken = Guid.NewGuid().ToString();
+
             var user = new Member
-            {
+            {                
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 DateOfBirth = request.DateOfBirth,
@@ -41,22 +46,38 @@ namespace KMN_Tontine.Application.Services
                 UserName = request.Email,
                 Email = request.Email,
                 FullName = request.FirstName + request.LastName,
-                PasswordHash = request.Password
+                PasswordHash = request.Password,
+                ConfirmationCode = confirmationToken,
+                EmailConfirmed = false
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
+            {
                 return new SimpleResponse()
                 {
                     Success = false,
                     Message = string.Join(" | ", result.Errors.Select(e => e.Description))
                 };
+            }
             else
-                return new SimpleResponse()
-                {
-                    Success = true,
-                    Message = string.Empty
-                };
+            {
+                // Créer les comptes associés à l'utilisateur
+                // Affecter tous les types de comptes (enum) à l'utilisateur
+                var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
+                if (res.Success)
+                    return new SimpleResponse()
+                    {
+                        Success = true,
+                        Message = string.Empty
+                    };
+                else
+                    return new SimpleResponse()
+                    {
+                        Success = false,
+                        Message =res.Message
+                    };
+            }
         }
 
         public async Task<TokenResponse> LoginAsync(LoginRequest request)
@@ -84,6 +105,7 @@ namespace KMN_Tontine.Application.Services
         {
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(ClaimTypes.Email, user.Email),

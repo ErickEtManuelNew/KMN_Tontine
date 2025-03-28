@@ -3163,13 +3163,13 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public enum AccountType
     {
 
-        _0 = 0,
+        Private = 0,
 
-        _1 = 1,
+        Help = 1,
 
-        _2 = 2,
+        Late = 2,
 
-        _3 = 3,
+        Other = 3,
 
     }
 

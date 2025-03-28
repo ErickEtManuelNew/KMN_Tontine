@@ -1,5 +1,6 @@
 @page "/register"
 
+@using KMN_Tontine.Blazor.UI.Helpers
 @using KMN_Tontine.Blazor.UI.Services
 @using KMN_Tontine.Blazor.UI.Services.Base
 @inject IAuthService AuthService
@@ -14,7 +15,13 @@
                     <p class="text-center text-muted">
                         Rejoignez notre communauté dynamique et commencez à gérer vos tontines en toute simplicité.
                     </p>
-
+                    <!-- Message de confirmation -->
+                    @if (showConfirmationMessage)
+                    {
+                        <div class="alert alert-success mt-3 text-center">
+                            <strong>Félicitations !</strong> Vous êtes maintenant inscrit sur KMN Tontine. Un e-mail de confirmation a été envoyé à <strong>@registerRequest.Email</strong>. Veuillez vérifier votre boîte de réception.
+                        </div>
+                    }
                     <EditForm Model="@registerRequest" OnValidSubmit="HandleRegistration">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
@@ -67,6 +74,13 @@
                             </small>
                         </div>
 
+                        <!-- Confirmation du mot de passe -->
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmez le mot de passe</label>
+                            <InputText id="confirmPassword" @bind-Value="confirmPassword" type="password" class="form-control" placeholder="Confirmez votre mot de passe" />
+                            <ValidationMessage For="@(() => confirmPassword)" class="text-danger" />
+                        </div>
+
                         <!-- Adresse (optionnel) -->
                         <div class="mb-3">
                             <label for="address" class="form-label">Adresse (optionnel)</label>
@@ -84,22 +98,14 @@
                         </button>
                     </EditForm>
 
-<!-- Message de confirmation -->
-@if (showConfirmationMessage)
-{
-    <div class="alert alert-success mt-3 text-center">
-        <strong>Félicitations !</strong> Vous êtes maintenant inscrit sur KMN Tontine. Un e-mail de confirmation a été envoyé à <strong>@registerRequest.Email</strong>. Veuillez vérifier votre boîte de réception.
-    </div>
-}
-
-<!-- Message d'erreur -->
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger mt-3 text-center">
+                    <!-- Message d'erreur -->
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3 text-center">
                             <strong>@errorMessage</strong>
-        
-    </div>
-}
+
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -110,10 +116,12 @@
     private bool showConfirmationMessage = false;
     private string errorMessage = null;
     private bool _loading;
+    private string confirmPassword;
+    private PasswordHelper _passwordHelper = new PasswordHelper();
 
     protected override void OnInitialized()
     {
-        registerRequest.DateOfBirth = DateTime.Today; // 📅 Initialise à aujourd'hui
+        registerRequest.DateOfBirth = DateTime.Today.AddYears(-18); // 📅 Initialise à aujourd'hui
     }
 
     private async Task HandleRegistration()
@@ -133,6 +141,15 @@
                 return;
             }
 
+            if (registerRequest.Password != confirmPassword)
+            {
+                errorMessage = "Les mots de passe ne correspondent pas.";
+                return;
+            }
+
+            // Hasher le mot de passe
+            // registerRequest.Password = _passwordHelper.HashPassword(registerRequest.Password);
+
             registerRequest.Role = RoleType._2; // Rôle par défaut pour les utilisateurs
 
             // Envoyer les données au backend pour enregistrement
@@ -142,9 +159,10 @@
             {
                 // Afficher le message de confirmation
                 showConfirmationMessage = true;
+                StateHasChanged(); // Forcer le rafraîchissement
 
                 // Optionnel : Rediriger vers une page de confirmation ou de connexion après un délai
-                await Task.Delay(3000); // Attendre 3 secondes
+                await Task.Delay(6000); // Attendre 3 secondes
                 Navigation.NavigateTo("/login");
             }
             else

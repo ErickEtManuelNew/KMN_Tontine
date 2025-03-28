@@ -1,5 +1,6 @@
 @page "/login"
 
+@using KMN_Tontine.Blazor.UI.Helpers
 @using KMN_Tontine.Blazor.UI.Services
 @using KMN_Tontine.Blazor.UI.Services.Authentication
 @using Microsoft.AspNetCore.Components.Authorization
@@ -71,6 +72,15 @@
         {
             _loading = true;
             _error = false;
+
+            // Vérifier le mot de passe
+            // bool isPasswordValid = PasswordHelper.VerifyPassword(user.PasswordHash, _loginModel.Password);
+
+            // if (!isPasswordValid)
+            // {
+            //     _errorMessage = "E-mail ou mot de passe incorrect.";
+            //     return;
+            // }
             await AuthenticationService.AuthenticateAsync(_loginModel);
             NavigationManager.NavigateTo("/dashboard");
         }

@@ -1,0 +1,46 @@
+﻿@page "/confirm-email"
+@inject NavigationManager Navigation
+
+<h3>Confirmation de compte</h3>
+
+@if (isConfirmed)
+{
+    <div class="alert alert-success">
+        Votre compte a été confirmé avec succès ! Vous pouvez maintenant vous connecter.
+    </div>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Token { get; set; }
+
+    private bool isConfirmed = false;
+    private string errorMessage = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Token))
+        {
+            // var response = await Http.PostAsJsonAsync("api/confirm-email", new { token = Token });
+
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     isConfirmed = true;
+            // }
+            // else
+            // {
+            //     errorMessage = "Le lien de confirmation est invalide ou a expiré.";
+            // }
+        }
+        else
+        {
+            errorMessage = "Aucun jeton de confirmation fourni.";
+        }
+    }
+}
