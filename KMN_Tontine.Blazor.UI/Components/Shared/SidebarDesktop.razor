@@ -1,0 +1,36 @@
+﻿@* SidebarDesktop.razor *@
+@using Components.Layout
+
+@if (NavigationItems != null)
+{
+    <aside class="hidden md:flex md:flex-col w-64 bg-white shadow-lg border-r border-gray-200">
+        <div class="flex items-center justify-center py-6">
+            <h1 class="text-2xl font-bold text-indigo-600">KMN Tontine</h1>
+        </div>
+        <nav class="flex-1 px-3 space-y-2">
+            @foreach (var item in NavigationItems)
+            {
+                <a href="@item.Url" class="flex items-center px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100">
+                    <i class="@item.Icon mr-3"></i>
+                    <span>@item.Label</span>
+                </a>
+            }
+        </nav>
+
+        <div class="border-t border-gray-300 p-4 flex items-center">
+            <i class="fas fa-user-circle text-gray-600 text-2xl"></i>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-700">@UserName</p>
+                <button @onclick="OnLogout" class="text-xs text-red-600 hover:underline">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Se déconnecter
+                </button>
+            </div>
+        </div>
+    </aside>
+}
+
+@code {
+    [Parameter] public List<MainNav.NavItem> NavigationItems { get; set; }
+    [Parameter] public string UserName { get; set; }
+    [Parameter] public EventCallback OnLogout { get; set; }
+}

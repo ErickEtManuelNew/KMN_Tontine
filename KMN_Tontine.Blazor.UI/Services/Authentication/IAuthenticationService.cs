@@ -5,6 +5,6 @@ namespace KMN_Tontine.Blazor.UI.Services.Authentication
     public interface IAuthenticationService
     {
         Task<Response<TokenResponse>> AuthenticateAsync(LoginRequest loginModel);
-        public Task Logout();
+        Task LogoutAsync();
     }
 }

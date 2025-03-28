@@ -1,116 +1,81 @@
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager NavigationManager
+@* MainNav.razor *@
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 @inject IAuthService AuthenticationService
+@inject CurrentUserService CurrentUserServ
 
 <div class="h-screen flex overflow-hidden bg-gray-100">
     <!-- Sidebar Desktop -->
-    <aside class="hidden md:flex md:flex-col w-64 bg-white shadow-lg border-r border-gray-200">
-        <div class="flex items-center justify-center py-6">
-            <h1 class="text-2xl font-bold text-indigo-600">KMN Tontine</h1>
-        </div>
-        <nav class="flex-1 px-3 space-y-2">
-            @foreach (var item in NavigationItems)
-            {
-                <a href="@item.Url" class="@GetNavLinkClass(item.Url)">
-                    <i class="@item.Icon mr-3"></i>
-                    <span>@item.Label</span>
-                </a>
-            }
-        </nav>
-
-        <!-- Profil utilisateur -->
-        <div class="border-t border-gray-300 p-4 flex items-center">
-            <i class="fas fa-user-circle text-gray-600 text-2xl"></i>
-            <div class="ml-3">
-                <p class="text-sm font-medium text-gray-700">@userName</p>
-                <button @onclick="HandleLogout" class="text-xs text-red-600 hover:underline">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Se déconnecter
-                </button>
-            </div>
-        </div>
-    </aside>
+    <SidebarDesktop NavigationItems="NavigationItems" UserName=@CurrentUserServ.FullName OnLogout="HandleLogout" />
 
     <!-- Sidebar Mobile -->
-    <div class="md:hidden">
-        <div class="fixed inset-0 flex z-40" hidden="@(isSidebarOpen ? "false" : "true")">
-            <div class="absolute inset-0 bg-black opacity-50" @onclick="ToggleSidebar"></div>
-            <aside class="relative flex flex-col w-64 bg-white shadow-lg border-r border-gray-200">
-                <div class="flex justify-between p-4 border-b">
-                    <h1 class="text-xl font-bold text-indigo-600">KMN Tontine</h1>
-                    <button @onclick="ToggleSidebar" class="text-gray-700 hover:text-gray-900">
-                        ✖
-                    </button>
-                </div>
-                <nav class="flex-1 p-3 space-y-2">
-                    @foreach (var item in NavigationItems)
-                    {
-                        <a href="@item.Url" class="@GetNavLinkClass(item.Url)">
-                            <i class="@item.Icon mr-3"></i>
-                            <span>@item.Label</span>
-                        </a>
-                    }
-                </nav>
-            </aside>
-        </div>
-    </div>
+    <SidebarMobile NavigationItems="NavigationItems" UserName=@CurrentUserServ.FullName IsOpen="isSidebarOpen" ToggleSidebar="ToggleSidebar" />
 
     <!-- Bouton Mobile -->
     <button @onclick="ToggleSidebar"
-            class="md:hidden fixed top-4 left-4 bg-indigo-600 text-white p-2 rounded-md shadow-lg">
+            class="md:hidden fixed top-4 left-4 bg-indigo-600 text-white p-2 rounded-md shadow-lg z-50">
         ☰
     </button>
 </div>
 
 @code {
+    private List<NavItem> NavigationItems = new();
+    private string userName = "Invité";
     private bool isSidebarOpen = false;
-    private string userName = "Utilisateur";
-
-    private List<NavItem> NavigationItems = new()
-    {
-        new NavItem("fas fa-home", "Tableau de bord", "/dashboard"),
-        new NavItem("fas fa-piggy-bank", "Tontines", "/tontines"),
-        new NavItem("fas fa-exchange-alt", "Transactions", "/transactions"),
-        new NavItem("fas fa-users", "Membres", "/membres")
-    };
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        await CurrentUserServ.LoadUserInfoAsync();
 
-        if (user.Identity?.IsAuthenticated ?? false)
+        NavigationItems = new()
         {
-            var firstName = user.FindFirst(c => c.Type == ClaimTypes.Name)?.Value ?? "";
-            var lastName = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
-            userName = $"{firstName} {lastName}".Trim() ?? "Utilisateur";
-        }
-        else
+            new NavItem("🏠 Accueil", "/", "fas fa-home", "Tous")
+        };
+
+        if (CurrentUserServ.IsAdmin)
         {
-            userName = "Non connecté";
+            NavigationItems.AddRange(new[]
+            {
+                new NavItem("➕ Inscrire un membre", "/register-membre", "fas fa-user-plus", "Admin"),
+                new NavItem("🧾 Affecter à des comptes", "/affecter-comptes", "fas fa-user-tag", "Admin"),
+                new NavItem("📂 Tous les comptes", "/comptes", "fas fa-folder-open", "Admin"),
+                new NavItem("💸 Créditer un compte", "/crediter", "fas fa-hand-holding-usd", "Admin"),
+                new NavItem("📊 Solde global", "/solde-global", "fas fa-chart-pie", "Admin")
+            });
+        }
+
+        if (CurrentUserServ.IsMember)
+        {
+            NavigationItems.AddRange(new[]
+            {
+                new NavItem("📈 Mes comptes", "/mes-comptes", "fas fa-wallet", "Member"),
+                new NavItem("💼 Mon solde", "/mon-solde", "fas fa-coins", "Member"),
+                new NavItem("💸 Paiement / Promesse", "/paiement", "fas fa-money-check-alt", "Member")
+            });
         }
     }
 
-    private string GetNavLinkClass(string url)
-    {
-        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
-        var isActive = relativePath.StartsWith(url.TrimStart('/').ToLower());
-        return isActive
-            ? "bg-indigo-600 text-white flex items-center px-4 py-2 rounded-md shadow-md transition-all"
-            : "text-gray-700 hover:bg-gray-100 flex items-center px-4 py-2 rounded-md transition-all";
-    }
-
-    private void ToggleSidebar()
-    {
-        isSidebarOpen = !isSidebarOpen;
-    }
+    private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
 
     private async Task HandleLogout()
     {
         await AuthenticationService.LogoutAsync();
-        NavigationManager.NavigateTo("/login");
+        Navigation.NavigateTo("/login");
     }
 
-    private record NavItem(string Icon, string Label, string Url);
+    public class NavItem
+    {
+        public NavItem(string label, string url, string icon, string role)
+        {
+            Label = label;
+            Url = url;
+            Icon = icon;
+            Role = role;
+        }
+
+        public string Label { get; set; }
+        public string Url { get; set; }
+        public string Icon { get; set; }
+        public string Role { get; set; }
+    }
 }

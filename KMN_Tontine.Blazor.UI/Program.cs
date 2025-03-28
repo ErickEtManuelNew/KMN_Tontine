@@ -43,6 +43,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>(p =>
                 p.GetRequiredService<ApiAuthenticationStateProvider>());
 builder.Services.AddScoped<ICompteService, CompteService>();
 
+builder.Services.AddScoped<CurrentUserService>();
+
 // 🗄️ Stockage local pour conserver le token JWT
 builder.Services.AddBlazoredLocalStorage();
 

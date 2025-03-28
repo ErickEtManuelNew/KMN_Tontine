@@ -45,7 +45,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Authentication
             return response;
         }
 
-        public async Task Logout()
+        public async Task LogoutAsync()
         {
             await ((ApiAuthenticationStateProvider)authenticationStateProvider).LoggedOut();
         }
