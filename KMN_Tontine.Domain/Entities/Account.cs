@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-
-using KMN_Tontine.Domain.Enums;
+﻿using KMN_Tontine.Domain.Enums;
 
 namespace KMN_Tontine.Domain.Entities
 {
@@ -14,6 +7,7 @@ namespace KMN_Tontine.Domain.Entities
         public int Id { get; set; }
         public AccountType Type { get; set; }
         public decimal Balance { get; set; }
+        public string? Comment { get; set; }
 
         public string MemberId { get; set; }
         public Member Member { get; set; }

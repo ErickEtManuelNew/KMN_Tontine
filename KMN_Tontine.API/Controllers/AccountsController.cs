@@ -58,7 +58,7 @@ namespace KMN_Tontine.API.Controllers
         public async Task<IActionResult> GetAccountsByMember(Guid memberId)
         {
             var result = await _accountService.GetAccountsByMemberIdAsync(memberId);
-            return result.Any() ? Ok(result) : NoContent();
+            return Ok(result);
         }
 
         /// <summary>

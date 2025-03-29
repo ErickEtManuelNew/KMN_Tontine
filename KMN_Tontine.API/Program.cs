@@ -7,7 +7,9 @@ using KMN_Tontine.Application.Services;
 using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Infrastructure.Interface;
 using KMN_Tontine.Infrastructure.Repositories.Implementations;
+using KMN_Tontine.Infrastructure.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +46,8 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ITontineRepository, TontineRepository>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Enregistrement des services métiers
 builder.Services.AddScoped<IMemberService, MemberService>();

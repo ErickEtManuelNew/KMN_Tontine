@@ -92,5 +92,11 @@ namespace KMN_Tontine.Application.Services
                 return SimpleResponse.Error($"Failed to delete payment promise: {ex.Message}");
             }
         }
+
+        public async Task<List<PaymentPromiseResponse>> GetByAccountIdAsync(int accountId)
+        {
+            var list = await _paymentPromiseRepository.GetByAccountIdAsync(accountId);
+            return _mapper.Map<List<PaymentPromiseResponse>>(list);
+        }
     }
 }

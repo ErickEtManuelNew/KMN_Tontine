@@ -14,6 +14,8 @@ namespace KMN_Tontine.Domain.Entities
         public DateTime? FulfilledDate { get; set; }
         public bool IsFulfilled => FulfilledDate.HasValue;
 
+        public int AccountId { get; set; }
+        public Account Account { get; set; }
         public string MemberId { get; set; }
         public Member Member { get; set; }
     }

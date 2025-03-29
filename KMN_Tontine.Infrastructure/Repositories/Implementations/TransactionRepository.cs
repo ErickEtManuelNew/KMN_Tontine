@@ -55,5 +55,12 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Transaction>> GetByMemberIdAsync(string memberId)
+        {
+            return await _context.Transactions
+                .Where(t => t.Account.MemberId == memberId)
+                .ToListAsync();
+        }
     }
 }

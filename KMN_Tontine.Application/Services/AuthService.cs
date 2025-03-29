@@ -12,6 +12,7 @@ using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Domain.Enums;
+using KMN_Tontine.Infrastructure.Interface;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -24,59 +25,76 @@ namespace KMN_Tontine.Application.Services
         private readonly UserManager<Member> _userManager;
         private readonly IAccountService _accountService;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IAccountService accountService, UserManager<Member> userManager, IConfiguration configuration)
+        public AuthService(IUnitOfWork unitOfWork, IAccountService accountService, UserManager<Member> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;
             _accountService = accountService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<SimpleResponse> RegisterAsync(RegisterRequest request)
         {
-            // Créer un jeton de confirmation
-            var confirmationToken = Guid.NewGuid().ToString();
+            await _unitOfWork.BeginTransactionAsync();
 
-            var user = new Member
-            {                
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                DateOfBirth = request.DateOfBirth,
-                Role = request.Role,
-                UserName = request.Email,
-                Email = request.Email,
-                FullName = request.FirstName + request.LastName,
-                PasswordHash = request.Password,
-                ConfirmationCode = confirmationToken,
-                EmailConfirmed = false
-            };
-
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
+            try
             {
-                return new SimpleResponse()
-                {
-                    Success = false,
-                    Message = string.Join(" | ", result.Errors.Select(e => e.Description))
+                // Créer un jeton de confirmation
+                var confirmationToken = Guid.NewGuid().ToString();
+
+                var user = new Member
+                {                
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    DateOfBirth = request.DateOfBirth,
+                    Role = request.Role,
+                    UserName = request.Email,
+                    Email = request.Email,
+                    FullName = request.FirstName + request.LastName,
+                    PasswordHash = request.Password,
+                    ConfirmationCode = confirmationToken,
+                    EmailConfirmed = false
                 };
-            }
-            else
-            {
-                // Créer les comptes associés à l'utilisateur
-                // Affecter tous les types de comptes (enum) à l'utilisateur
-                var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
-                if (res.Success)
+
+                var result = await _userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new SimpleResponse()
+                    {
+                        Success = false,
+                        Message = string.Join(" | ", result.Errors.Select(e => e.Description))
+                    };
+                }
+                else
+                {
+                    // Créer les comptes associés à l'utilisateur
+                    // Affecter tous les types de comptes (enum) à l'utilisateur
+                    var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
+                    if (!res.Success)
+                    {
+                        await _unitOfWork.RollbackAsync();
+                        return new SimpleResponse()
+                        {
+                            Success = false,
+                            Message = res.Message
+                        };
+                    }
+
+                    await _unitOfWork.CommitAsync();
                     return new SimpleResponse()
                     {
                         Success = true,
                         Message = string.Empty
                     };
-                else
-                    return new SimpleResponse()
-                    {
-                        Success = false,
-                        Message =res.Message
-                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return new SimpleResponse { Success = false, Message = ex.Message };
             }
         }
 

@@ -7,6 +7,7 @@
 @inject ICompteService CompteService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject CurrentUserService CurrentUser
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -27,7 +28,7 @@ else
 {
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-bold mb-6">Espace de @_userName dans l'association @_associationName</h2>
+            <center><h2 class="text-2xl font-bold mb-6">Espace de @_userName dans l'association @_associationName</h2></center>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white">
@@ -49,7 +50,7 @@ else
                                     @compte.Balance
                                 </td>
                                 <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                    
+                                    @compte.Comment
                                 </td>
                             </tr>
                         }
@@ -58,9 +59,11 @@ else
             </div>
 
             <div class="mt-6">
-                <button @onclick="NavigateToCrediter" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Créditer des comptes
-                </button>
+                <center>
+                    <button @onclick="NavigateToCrediter" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Créditer des comptes
+                    </button>
+                </center>
             </div>
         </div>
     </div>
@@ -77,18 +80,11 @@ else
     {
         try
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
+            _userName = CurrentUser.UserName ?? "Baramine";
 
-            if (user.Identity?.IsAuthenticated == true)
+            if (!string.IsNullOrEmpty(CurrentUser.UserId))
             {
-                var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                _userName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Baramine";
-
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    _comptes = await CompteService.GetComptesAsync(userId);
-                }
+                _comptes = await CompteService.GetComptesAsync(CurrentUser.UserId);
             }
         }
         catch (Exception)
@@ -103,6 +99,6 @@ else
 
     private void NavigateToCrediter()
     {
-        NavigationManager.NavigateTo("/crediter");
+        NavigationManager.NavigateTo("/myaccounts");
     }
 } 

@@ -17,5 +17,8 @@ namespace KMN_Tontine.Application.Interfaces
         Task<SimpleResponse> CreateTransactionAsync(CreateTransactionRequest request);
         Task<SimpleResponse> UpdateTransactionAsync(int id, UpdateTransactionRequest request);
         Task<SimpleResponse> DeleteTransactionAsync(int id);
+        Task<List<TransactionResponse>> GetTransactionsByAccountIdAsync(int accountId);
+        Task<List<TransactionResponse>> GetTransactionsByMemberIdAsync(string memberId);
+
     }
 }

@@ -1,0 +1,66 @@
+﻿@page "/transactions"
+@attribute [Authorize]
+@inject IClient Client
+@inject CurrentUserService CurrentUser
+@inject NavigationManager Navigation
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">💼 My Transactions</h3>
+
+@if (!isAuthorized)
+{
+    <div class="text-red-600 font-semibold">You must be logged in to access this page.</div>
+}
+else if (transactions == null)
+{
+    <div class="text-gray-500">Loading transactions...</div>
+}
+else if (!transactions.Any())
+{
+    <div class="text-gray-500">You have no transactions yet.</div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead class="bg-indigo-600 text-white">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Date</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Account</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Description</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach (var tx in transactions)
+                {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">@tx.Date.ToShortDateString()</td>
+                        <td class="px-6 py-4 whitespace-nowrap">@* @tx.CompteNom *@</td>
+                        <td class="px-6 py-4 whitespace-nowrap">@tx.Description</td>
+                        <td class="px-6 py-4 whitespace-nowrap">@tx.Amount.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<TransactionResponse>? transactions;
+    private bool isAuthorized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CurrentUser.LoadUserInfoAsync();
+
+        if (string.IsNullOrEmpty(CurrentUser.UserName))
+        {
+            isAuthorized = false;
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        isAuthorized = true;
+        // transactions = (await Client.Tr.MembreTransactionsAsync(CurrentUser.UserName)).ToList();
+    }
+}

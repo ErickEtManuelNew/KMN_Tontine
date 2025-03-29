@@ -16,5 +16,6 @@ namespace KMN_Tontine.Domain.Interfaces
         Task AddAsync(PaymentPromise promise);
         Task UpdateAsync(PaymentPromise promise);
         Task DeleteAsync(int id);
+        Task<List<PaymentPromise>> GetByAccountIdAsync(int accountId);
     }
 }

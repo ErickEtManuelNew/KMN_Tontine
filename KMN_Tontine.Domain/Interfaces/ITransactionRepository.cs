@@ -16,5 +16,6 @@ namespace KMN_Tontine.Domain.Interfaces
         Task AddAsync(Transaction transaction);
         Task UpdateAsync(Transaction transaction);
         Task DeleteAsync(int id);
+        Task<List<Transaction>> GetByMemberIdAsync(string memberId);
     }
 }

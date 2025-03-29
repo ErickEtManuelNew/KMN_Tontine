@@ -84,5 +84,33 @@ namespace KMN_Tontine.API.Controllers
             var result = await _transactionService.DeleteTransactionAsync(id);
             return result.Success ? NoContent() : NotFound(result);
         }
+
+        [HttpGet("by-account/{accountId:int}")]
+        [ProducesResponseType(typeof(List<TransactionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<TransactionResponse>>> GetByAccount(int accountId)
+        {
+            if (accountId <= 0)
+                return BadRequest("Invalid account ID.");
+
+            var result = await _transactionService.GetTransactionsByAccountIdAsync(accountId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("by-member/{memberId}")]
+        [ProducesResponseType(typeof(List<TransactionResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<TransactionResponse>>> GetByMember(string memberId)
+        {
+            var result = await _transactionService.GetTransactionsByMemberIdAsync(memberId);
+
+            if (result == null || !result.Any())
+                return NotFound($"No transactions found for member ID {memberId}.");
+
+            return Ok(result);
+        }
     }
 }

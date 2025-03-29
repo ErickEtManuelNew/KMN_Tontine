@@ -1,4 +1,6 @@
-﻿using KMN_Tontine.Domain.Entities;
+﻿using System.Reflection.Emit;
+
+using KMN_Tontine.Domain.Entities;
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,10 @@ namespace KMN_Tontine.Infrastructure.Data
             builder.Entity<Account>().Property(a => a.Type).HasConversion<string>();
             builder.Entity<Transaction>().Property(t => t.Type).HasConversion<string>();
             builder.Entity<Member>().Property(m => m.Role).HasConversion<string>();
+
+            builder.Entity<PaymentPromise>()
+                .Property(p => p.AmountPromised)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }

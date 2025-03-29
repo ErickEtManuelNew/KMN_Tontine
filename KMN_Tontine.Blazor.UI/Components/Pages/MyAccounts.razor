@@ -1,0 +1,81 @@
+﻿@page "/myaccounts"
+@inject IClient Client
+@inject CurrentUserService CurrentUser
+@using KMN_Tontine.Blazor.UI.Services.Base
+@inject NavigationManager Navigation
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">📂 My Accounts</h3>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <p>Loading accounts...</p>
+    </div>
+}
+else if (accounts == null || !accounts.Any())
+{
+    <div class="text-center text-gray-600">
+        <p>You don't have any associated accounts yet.</p>
+    </div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead class="bg-indigo-600 text-white">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Account Name</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Balance</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Notes</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach (var account in accounts)
+                {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">@account.Type.ToString()</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">@account.Balance.ToString("C")</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@account.Comment</td>
+                        <td class="px-6 py-4 whitespace-nowrap space-x-2">
+                            <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
+                                    @onclick="() => ViewDetails(account.Id)">
+                                📊 Details
+                            </button>
+                            <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                    @onclick="() => MakePromise(account.Id)">
+                                🤝 Promise
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<AccountResponse> accounts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CurrentUser.LoadUserInfoAsync();
+
+        if (string.IsNullOrEmpty(CurrentUser.UserName)) return;
+
+        var result = await Client.MemberAsync(Guid.Parse(CurrentUser.UserId));
+        accounts = result.ToList();
+        isLoading = false;
+    }
+
+    private void ViewDetails(int accountId)
+    {
+        Navigation.NavigateTo($"/account-details/{accountId}");
+    }
+
+    private void MakePromise(int accountId)
+    {
+        Navigation.NavigateTo($"/promise/{accountId}");
+    }
+}

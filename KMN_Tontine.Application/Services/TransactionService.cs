@@ -92,5 +92,17 @@ namespace KMN_Tontine.Application.Services
                 return SimpleResponse.Error($"Failed to delete transaction: {ex.Message}");
             }
         }
+
+        public async Task<List<TransactionResponse>> GetTransactionsByAccountIdAsync(int accountId)
+        {
+            var transactions = await _transactionRepository.GetByAccountIdAsync(accountId);
+            return _mapper.Map<List<TransactionResponse>>(transactions);
+        }
+
+        public async Task<List<TransactionResponse>> GetTransactionsByMemberIdAsync(string memberId)
+        {
+            var transactions = await _transactionRepository.GetByMemberIdAsync(memberId);
+            return _mapper.Map<List<TransactionResponse>>(transactions);
+        }
     }
 }

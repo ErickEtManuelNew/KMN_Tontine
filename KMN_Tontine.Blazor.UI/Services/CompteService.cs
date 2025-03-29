@@ -32,7 +32,7 @@ namespace KMN_Tontine.Blazor.UI.Services
 
                 var response = await _client.MemberAsync(Guid.Parse(membreId));
 
-                return (List<AccountResponse>)(response ?? new List<AccountResponse>());
+                return (List<AccountResponse>)(response ?? []);
             }
             catch (Exception ex)
             {

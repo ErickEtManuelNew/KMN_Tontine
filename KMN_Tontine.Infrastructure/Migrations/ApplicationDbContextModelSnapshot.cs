@@ -26,6 +26,9 @@ namespace KMN_Tontine.Infrastructure.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Comment")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -145,8 +148,11 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("AmountPromised")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("FulfilledDate")
                         .HasColumnType("TEXT");
@@ -159,6 +165,8 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("MemberId");
 
@@ -401,11 +409,19 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromise", b =>
                 {
+                    b.HasOne("KMN_Tontine.Domain.Entities.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("KMN_Tontine.Domain.Entities.Member", "Member")
                         .WithMany("PaymentPromises")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
 
                     b.Navigation("Member");
                 });

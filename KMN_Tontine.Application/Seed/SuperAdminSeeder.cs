@@ -45,6 +45,7 @@ namespace KMN_Tontine.Application.Seed
                     Email = email,
                     FullName = fullName,
                     Role = RoleType.SuperAdmin,
+                    ConfirmationCode = Guid.NewGuid().ToString(),
                     EmailConfirmed = true
                 };
 

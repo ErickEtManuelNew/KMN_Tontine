@@ -1,0 +1,65 @@
+﻿@page "/account-details/{accountId:int}"
+@attribute [Authorize]
+@inject IClient Client
+@inject CurrentUserService CurrentUser
+@inject NavigationManager Navigation
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">📊 Account Details</h3>
+
+@if (!isAuthorized)
+{
+    <div class="text-red-600 font-semibold">You must be logged in to access this page.</div>
+}
+else if (account == null)
+{
+    <div class="text-center text-gray-600">Loading account details...</div>
+}
+else
+{
+    <div class="bg-white shadow rounded p-6 mb-6">
+        <h4 class="text-lg font-semibold text-gray-800">@account.Type.ToString()</h4>
+        <p class="text-gray-600 mt-1">💰 Balance: @account.Balance.ToString("C")</p>
+        <p class="text-sm text-gray-500 italic mt-1">@account.Comment</p>
+    </div>
+
+    <h4 class="text-md font-semibold text-indigo-600 mb-2">Transaction history</h4>
+    @if (transactions != null && transactions.Any())
+    {
+        <ul class="list-disc list-inside space-y-2">
+            @foreach (var tx in transactions)
+            {
+                <li>
+                    <span class="font-medium">@tx.Date.ToShortDateString()</span>: @tx.Description -
+                    <strong>@tx.Amount.ToString("C")</strong>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-gray-500">No transactions available.</p>
+    }
+}
+
+@code {
+    [Parameter] public int accountId { get; set; }
+    private AccountResponse? account;
+    private List<TransactionResponse> transactions = new();
+    private bool isAuthorized = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CurrentUser.LoadUserInfoAsync();
+
+        if (string.IsNullOrEmpty(CurrentUser.UserName))
+        {
+            isAuthorized = false;
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        isAuthorized = true;
+        account = await Client.AccountsGETAsync(accountId);
+        transactions = (await Client.ByAccount2Async(accountId)).ToList();
+    }
+}

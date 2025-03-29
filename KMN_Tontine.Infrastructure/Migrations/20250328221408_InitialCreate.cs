@@ -37,6 +37,7 @@ namespace KMN_Tontine.Infrastructure.Migrations
                     DateOfBirth = table.Column<DateTime>(type: "TEXT", nullable: false),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     Role = table.Column<string>(type: "TEXT", nullable: false),
+                    ConfirmationCode = table.Column<string>(type: "TEXT", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
@@ -181,28 +182,6 @@ namespace KMN_Tontine.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PaymentPromises",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    AmountPromised = table.Column<decimal>(type: "TEXT", nullable: false),
-                    PromiseDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    FulfilledDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    MemberId = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PaymentPromises", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PaymentPromises_AspNetUsers_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -231,6 +210,7 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
                     Balance = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Comment = table.Column<string>(type: "TEXT", nullable: false),
                     MemberId = table.Column<string>(type: "TEXT", nullable: false),
                     TontineId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
@@ -247,6 +227,35 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         name: "FK_Accounts_Tontines_TontineId",
                         column: x => x.TontineId,
                         principalTable: "Tontines",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentPromises",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    AmountPromised = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PromiseDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    FulfilledDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    AccountId = table.Column<int>(type: "INTEGER", nullable: false),
+                    MemberId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentPromises", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentPromises_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PaymentPromises_AspNetUsers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -327,6 +336,11 @@ namespace KMN_Tontine.Infrastructure.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentPromises_AccountId",
+                table: "PaymentPromises",
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PaymentPromises_MemberId",

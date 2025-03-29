@@ -84,5 +84,19 @@ namespace KMN_Tontine.API.Controllers
             var result = await _paymentPromiseService.DeletePaymentPromiseAsync(id);
             return result.Success ? NoContent() : NotFound(result);
         }
+
+        [HttpGet("by-account/{accountId:int}")]
+        [ProducesResponseType(typeof(List<PaymentPromiseResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<PaymentPromiseResponse>>> GetByAccount(int accountId)
+        {
+            if (accountId <= 0)
+                return BadRequest("Invalid account ID.");
+
+            var result = await _paymentPromiseService.GetByAccountIdAsync(accountId);
+
+            return Ok(result);
+        }
     }
 }
