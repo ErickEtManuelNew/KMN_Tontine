@@ -160,6 +160,26 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
+// 🔥 Exécuter les migrations DB automatiquement
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+    if (!dbContext.Tontines.Any())
+    {
+        dbContext.Tontines.Add(new Tontine
+        {
+            Name = "KMN Ndjangui",
+            Address = "1, rue de Ngualan",
+            Email = "kmn_ndjangui@ndjangui.com",
+            CreationDate = DateTime.UtcNow,
+            IsActive = true
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
+}
+
 // Appeler les seeders
 using (var scope = app.Services.CreateScope())
 {
@@ -178,26 +198,6 @@ using (var scope = app.Services.CreateScope())
     {
         // Gérer les erreurs lors du seeding
         Console.WriteLine($"An error occurred while seeding: {ex.Message}");
-    }
-}
-
-// 🔥 Exécuter les migrations DB automatiquement
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
-    if (!dbContext.Tontines.Any())
-    {
-        dbContext.Tontines.Add(new Tontine
-        {
-            Name = "KMN Ndjangui",
-            Address = "1, rue de Ngualan",
-            Email = "kmn_ndjangui@ndjangui.com",
-            CreationDate = DateTime.UtcNow,
-            IsActive = true
-        });
-
-        await dbContext.SaveChangesAsync();
     }
 }
 
