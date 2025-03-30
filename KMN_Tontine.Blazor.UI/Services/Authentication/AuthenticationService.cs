@@ -26,16 +26,27 @@ namespace KMN_Tontine.Blazor.UI.Services.Authentication
             try
             {
                 var result = await httpClient.LoginAsync(loginModel);
-                response = new Response<TokenResponse>
-                {
-                    Data = result,
-                    Success = true,
-                };
-                //Store Token
-                await localStorage.SetItemAsync("accessToken", result.AccessToken);
 
-                //Change auth state of app
-                await ((ApiAuthenticationStateProvider)authenticationStateProvider).LoggedIn();
+                if(result.IsSuccess)
+                {
+                    response = new Response<TokenResponse>
+                    {
+                        Data = result,
+                        Success = true,
+                    };
+                    //Store Token
+                    await localStorage.SetItemAsync("accessToken", result.AccessToken);
+                    //Change auth state of app
+                    await ((ApiAuthenticationStateProvider)authenticationStateProvider).LoggedIn();
+                }
+                else
+                {
+                    response = new Response<TokenResponse>
+                    {
+                        Data = result,
+                        Success = false,
+                    };
+                }
             }
             catch (ApiException exception)
             {

@@ -102,7 +102,7 @@ namespace KMN_Tontine.Application.Services
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
-                throw new UnauthorizedAccessException("Invalid email or password");
+                return new TokenResponse { IsSuccess = false, Message = "Invalid email or password" };
 
             return GenerateToken(user);
         }
@@ -137,14 +137,15 @@ namespace KMN_Tontine.Application.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
+                expires: DateTime.Now.AddHours(6),
                 signingCredentials: creds
             );
 
             return new TokenResponse
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = "refresh_token_placeholder" // Générez un vrai refresh token si nécessaire
+                RefreshToken = "refresh_token_placeholder", // Générez un vrai refresh token si nécessaire
+                IsSuccess = true,
             };
         }
     }

@@ -26,28 +26,7 @@ var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
 
 Console.WriteLine($"🔗 API utilisée : {apiBaseUrl}");
 
-//builder.Services.AddScoped<AuthenticationHeaderHandler>();
-
-// 🛠️ Configuration du client NSwag
-//builder.Services.AddHttpClient<IClient, Client>("KMNTontineAPI", client =>
-//{
-//    client.BaseAddress = new Uri(apiBaseUrl);
-//})
-//.AddHttpMessageHandler<AuthenticationHeaderHandler>();
-
-//builder.Services.AddScoped(sp =>
-//{
-//    var factory = sp.GetRequiredService<IHttpClientFactory>();
-//    return factory.CreateClient("KMNTontineAPI");
-//});
-
 builder.Services.AddHttpClient<IClient, Client>(cl => cl.BaseAddress = new Uri(apiBaseUrl));
-
-//builder.Services.AddHttpClient<Client>((provider, client) =>
-//{
-//    //var baseUrl = "https://api.example.com"; // Replace with your actual base URL
-//    client.BaseAddress = new Uri(apiBaseUrl);
-//});
 
 // 🔑 Gestion des tokens et de l'authentification
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

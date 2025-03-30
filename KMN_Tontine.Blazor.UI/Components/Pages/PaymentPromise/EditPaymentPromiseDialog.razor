@@ -1,0 +1,72 @@
+﻿@using System.Net.Http.Headers
+@using KMN_Tontine.Blazor.UI.Services.Base
+@inject IClient Client
+@inject CurrentUserService CurrentUser
+
+@if (IsOpen && Promise != null)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-10 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md scale-100 animate-fadeIn">
+            <h3 class="text-lg font-bold mb-4">✏️ Edit Payment Promise</h3>
+
+            <EditForm Model="Promise" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-red-600" />
+
+                <div class="mb-3">
+                    <label class="block">Amount</label>
+                    <InputNumber @bind-Value="Promise.AmountPromised" class="form-input w-full" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="block">Promisse Date</label>
+                    <InputDate @bind-Value="Promise.PromiseDate" class="form-input w-full" />
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" @onclick="Close" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<style>
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public UpdatePaymentPromiseRequest? Promise { get; set; }
+    [Parameter] public EventCallback OnSuccess { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (Promise is null) return;
+
+        var request = new UpdatePaymentPromiseRequest
+            {
+                Id = Promise.Id,
+                AmountPromised = Promise.AmountPromised,
+                PromiseDate = Promise.PromiseDate
+            };
+
+        Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+        var result = await Client.PaymentPromisesPUTAsync(Promise.Id, request);
+
+        if (result.Success)
+        {
+            await OnSuccess.InvokeAsync();
+            await Close();
+        }
+    }
+
+    private async Task Close()
+    {
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}

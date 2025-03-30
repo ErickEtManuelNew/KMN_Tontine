@@ -17,7 +17,9 @@
         @if (_error)
         {
             <div class="alert alert-danger" role="alert">
-                <strong>Erreur :</strong> @_errorMessage
+                <center>
+                    <strong>@_errorMessage</strong>
+                </center>
             </div>
         }
 
@@ -81,10 +83,19 @@
             //     _errorMessage = "E-mail ou mot de passe incorrect.";
             //     return;
             // }
-            await AuthenticationService.AuthenticateAsync(_loginModel);
-            NavigationManager.NavigateTo("/dashboard");
+            var result = await AuthenticationService.AuthenticateAsync(_loginModel);
+
+            if (result.Data.IsSuccess)
+            {
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                _error = true;
+                _errorMessage = result.Data.Message;
+            }
         }
-        catch (Exception ex)
+        catch (ApiException ex)
         {
             _error = true;
             _errorMessage = ex.Message;

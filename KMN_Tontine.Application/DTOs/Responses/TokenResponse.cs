@@ -12,5 +12,7 @@ namespace KMN_Tontine.Application.DTOs.Responses
         public string RefreshToken { get; set; }
         public DateTime Expires { get; set; }
         public bool IsExpired { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 }

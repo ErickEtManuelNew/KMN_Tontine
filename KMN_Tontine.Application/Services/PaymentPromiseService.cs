@@ -64,7 +64,8 @@ namespace KMN_Tontine.Application.Services
                     return SimpleResponse.Error("Payment promise not found");
 
                 // Mettre à jour les propriétés
-                promise.FulfilledDate = request.FulfilledDate ?? promise.FulfilledDate;
+                promise.AmountPromised = request.AmountPromised;
+                promise.PromiseDate = request.PromiseDate;
 
                 await _paymentPromiseRepository.UpdateAsync(promise);
                 return SimpleResponse.Ok("Payment promise updated successfully");

@@ -3525,6 +3525,12 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("isExpired")]
         public bool IsExpired { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("isSuccess")]
+        public bool IsSuccess { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("message")]
+        public string Message { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -3621,8 +3627,14 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public partial class UpdatePaymentPromiseRequest
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("fulfilledDate")]
-        public System.DateTime? FulfilledDate { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("promiseDate")]
+        public System.DateTime PromiseDate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
+        public double AmountPromised { get; set; }
 
     }
 
