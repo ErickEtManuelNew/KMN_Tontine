@@ -44,7 +44,7 @@ namespace KMN_Tontine.Application.Seed
                     UserName = email,
                     Email = email,
                     FullName = fullName,
-                    Role = RoleType.SuperAdmin,
+                    DateOfBirth = new DateTime(2000, 1, 1),
                     ConfirmationCode = Guid.NewGuid().ToString(),
                     EmailConfirmed = true
                 };
@@ -53,6 +53,7 @@ namespace KMN_Tontine.Application.Seed
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, RoleType.SuperAdmin.ToString());
+                    await _userManager.AddToRoleAsync(user, RoleType.Admin.ToString());
                 }
                 else
                 {

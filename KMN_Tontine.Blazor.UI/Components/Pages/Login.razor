@@ -10,9 +10,12 @@
 
 <PageTitle>Connexion - KMN Tontine</PageTitle>
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow p-4 w-50">
-        <h2 class="text-center text-primary mb-4">🔑 Connexion</h2>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+    <div class="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
+        <div class="alert alert-info text-center shadow rounded mb-4">
+            🙏 Bienvenue sur <strong>KMN Tontine</strong>, votre espace de gestion solidaire 💼
+        </div>
+        <p class="text-center text-gray-600 mb-6">Connectez-vous pour accéder à votre espace personnel.</p>
 
         @if (_error)
         {
@@ -21,6 +24,11 @@
                     <strong>@_errorMessage</strong>
                 </center>
             </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_successMessage))
+        {
+            <div class="alert alert-success">@_successMessage</div>
         }
 
         <EditForm Model="_loginModel" OnValidSubmit="HandleLogin">
@@ -47,9 +55,10 @@
             </button>
         </EditForm>
 
-        <div class="text-center mt-3">
-            <a href="/register" class="text-primary">Pas encore inscrit ? Créer un compte</a>
-        </div>
+        <p class="mt-4 text-sm text-center text-gray-600">
+            Pas encore inscrit ?
+            <a href="/register" class="text-indigo-600 hover:underline">Créer un compte</a>
+        </p>
     </div>
 </div>
 
@@ -58,6 +67,7 @@
     private bool _loading;
     private bool _error;
     private string _errorMessage = string.Empty;
+    private string? _successMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,18 +97,24 @@
 
             if (result.Data.IsSuccess)
             {
+                _successMessage = "🎉 Connexion réussie ! Bienvenue ✨";
+                _errorMessage = null;
+
+                await Task.Delay(5000);
                 NavigationManager.NavigateTo("/dashboard");
             }
             else
             {
                 _error = true;
                 _errorMessage = result.Data.Message;
+                _successMessage = null;
             }
         }
         catch (ApiException ex)
         {
             _error = true;
             _errorMessage = ex.Message;
+            _successMessage = null;
         }
         finally
         {

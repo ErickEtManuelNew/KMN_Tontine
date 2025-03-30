@@ -29,7 +29,7 @@ namespace KMN_Tontine.Blazor.UI.Services
             var firstName = user.FindFirst(c => c.Type == ClaimTypes.Name)?.Value ?? "";
             var lastName = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
             FullName = $"{firstName} {lastName}".Trim() ?? "Utilisateur";
-            IsAdmin = user.IsInRole("Admin");
+            IsAdmin = user.IsInRole("Admin") || user.IsInRole("SuperAdmin");
             IsMember = user.IsInRole("Member");
 
             // 🔑 Lire le token JWT (accessToken) si besoin

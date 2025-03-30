@@ -24,7 +24,6 @@ namespace KMN_Tontine.Infrastructure.Data
 
             builder.Entity<Account>().Property(a => a.Type).HasConversion<string>();
             builder.Entity<Transaction>().Property(t => t.Type).HasConversion<string>();
-            builder.Entity<Member>().Property(m => m.Role).HasConversion<string>();
 
             builder.Entity<PaymentPromise>()
                 .Property(p => p.AmountPromised)

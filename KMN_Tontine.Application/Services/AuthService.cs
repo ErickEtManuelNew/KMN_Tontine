@@ -49,7 +49,6 @@ namespace KMN_Tontine.Application.Services
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     DateOfBirth = request.DateOfBirth,
-                    Role = request.Role,
                     UserName = request.Email,
                     Email = request.Email,
                     FullName = request.FirstName + request.LastName,
@@ -68,28 +67,38 @@ namespace KMN_Tontine.Application.Services
                         Message = string.Join(" | ", result.Errors.Select(e => e.Description))
                     };
                 }
-                else
-                {
-                    // Créer les comptes associés à l'utilisateur
-                    // Affecter tous les types de comptes (enum) à l'utilisateur
-                    var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
-                    if (!res.Success)
-                    {
-                        await _unitOfWork.RollbackAsync();
-                        return new SimpleResponse()
-                        {
-                            Success = false,
-                            Message = res.Message
-                        };
-                    }
 
-                    await _unitOfWork.CommitAsync();
+                // Créer les comptes associés à l'utilisateur
+                // Affecter tous les types de comptes (enum) à l'utilisateur
+                var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
+                if (!res.Success)
+                {
+                    await _unitOfWork.RollbackAsync();
                     return new SimpleResponse()
                     {
-                        Success = true,
-                        Message = string.Empty
+                        Success = false,
+                        Message = res.Message
                     };
                 }
+
+                // Ajouter le rôle spécifié (ou par défaut)
+                var res1 = _userManager.AddToRoleAsync(user, request.Role.ToString());
+                if (!res1.Result.Succeeded)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new SimpleResponse()
+                    {
+                        Success = false,
+                        Message = string.Join(" | ", res1.Result.Errors.Select(e => e.Description))
+                    };
+                }
+
+                await _unitOfWork.CommitAsync();
+                return new SimpleResponse()
+                {
+                    Success = true,
+                    Message = string.Empty
+                };
             }
             catch (Exception ex)
             {
@@ -121,13 +130,14 @@ namespace KMN_Tontine.Application.Services
 
         private TokenResponse GenerateToken(Member user)
         {
+            var role = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString()) // Ajoutez des rôles si nécessaire
+                new Claim(ClaimTypes.Role, role) // Ajoutez des rôles si nécessaire
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

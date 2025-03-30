@@ -86,7 +86,6 @@ namespace KMN_Tontine.Application.Services
                 member.FullName = request.FullName ?? member.FullName;
                 member.DateOfBirth = request.DateOfBirth ?? member.DateOfBirth;
                 member.IsActive = request.IsActive ?? member.IsActive;
-                member.Role = request.Role ?? member.Role;
 
                 await _memberRepository.UpdateAsync(member);
                 return SimpleResponse.Ok("Member updated successfully");

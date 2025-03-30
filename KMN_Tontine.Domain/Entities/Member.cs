@@ -20,9 +20,6 @@ namespace KMN_Tontine.Domain.Entities
         public DateTime DateOfBirth { get; set; }
         public bool IsActive { get; set; } = true;
 
-        // 👇 Nouveau champ RoleType
-        public RoleType Role { get; set; } = RoleType.Member;
-
         public ICollection<Account> Accounts { get; set; } = [];
         public ICollection<PaymentPromise> PaymentPromises { get; set; } = [];
         public string ConfirmationCode { get; set; }
