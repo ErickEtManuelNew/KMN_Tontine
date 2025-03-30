@@ -33,7 +33,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
             return await _context.PaymentPromises
                 .Where(pp => pp.MemberId == memberId.ToString())
                 .OrderByDescending(pp => pp.PromiseDate) // Tri par date d'échéance
-                .Include(pp => pp.Member)            // Chargement des données du membre
+                .Include(pp => pp.Account) 
                 .AsNoTracking()                      // Pour les requêtes en lecture seule
                 .ToListAsync();
         }

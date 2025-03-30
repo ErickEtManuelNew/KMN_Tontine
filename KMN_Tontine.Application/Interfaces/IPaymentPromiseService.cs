@@ -18,5 +18,6 @@ namespace KMN_Tontine.Application.Interfaces
         Task<SimpleResponse> UpdatePaymentPromiseAsync(int id, UpdatePaymentPromiseRequest request);
         Task<SimpleResponse> DeletePaymentPromiseAsync(int id);
         Task<List<PaymentPromiseResponse>> GetByAccountIdAsync(int accountId);
+        Task<List<PaymentPromiseResponse>> GetByMemberIdAsync(Guid memberId);
     }
 }

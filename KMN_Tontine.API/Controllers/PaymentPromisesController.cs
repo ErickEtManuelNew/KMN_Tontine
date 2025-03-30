@@ -3,10 +3,12 @@ using KMN_Tontine.Application.DTOs.Requests;
 using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KMN_Tontine.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PaymentPromisesController : ControllerBase
@@ -95,6 +97,19 @@ namespace KMN_Tontine.API.Controllers
                 return BadRequest("Invalid account ID.");
 
             var result = await _paymentPromiseService.GetByAccountIdAsync(accountId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("by-member/{memberId}")]
+        [ProducesResponseType(typeof(List<PaymentPromiseResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<PaymentPromiseResponse>>> GetByMember(Guid memberId)
+        {
+            var result = await _paymentPromiseService.GetByMemberIdAsync(memberId);
+
+            if (result == null)
+                result = new List<PaymentPromiseResponse>();
 
             return Ok(result);
         }

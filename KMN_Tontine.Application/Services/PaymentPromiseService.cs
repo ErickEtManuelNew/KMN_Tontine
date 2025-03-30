@@ -45,7 +45,6 @@ namespace KMN_Tontine.Application.Services
             try
             {
                 var promise = _mapper.Map<PaymentPromise>(request);
-                promise.PromiseDate = DateTime.UtcNow; // Définir la date de la promesse
                 await _paymentPromiseRepository.AddAsync(promise);
 
                 return SimpleResponse.Ok("Payment promise created successfully");
@@ -96,6 +95,12 @@ namespace KMN_Tontine.Application.Services
         public async Task<List<PaymentPromiseResponse>> GetByAccountIdAsync(int accountId)
         {
             var list = await _paymentPromiseRepository.GetByAccountIdAsync(accountId);
+            return _mapper.Map<List<PaymentPromiseResponse>>(list);
+        }
+
+        public async Task<List<PaymentPromiseResponse>> GetByMemberIdAsync(Guid memberId)
+        {
+            var list = await _paymentPromiseRepository.GetByMemberIdAsync(memberId);
             return _mapper.Map<List<PaymentPromiseResponse>>(list);
         }
     }

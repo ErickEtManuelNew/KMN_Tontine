@@ -9,6 +9,7 @@ namespace KMN_Tontine.Domain.Entities
     public class PaymentPromise
     {
         public int Id { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public decimal AmountPromised { get; set; }
         public DateTime PromiseDate { get; set; } = DateTime.UtcNow;
         public DateTime? FulfilledDate { get; set; }

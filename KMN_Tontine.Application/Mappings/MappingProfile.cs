@@ -33,8 +33,16 @@ namespace KMN_Tontine.Application.Mappings
             CreateMap<Transaction, TransactionResponse>();
 
             // Mapping PaymentPromise -> PaymentPromiseResponse
+            CreateMap<CreatePaymentPromiseRequest, PaymentPromise>()
+                .ForMember(dest => dest.FulfilledDate, opt => opt.Ignore()) // non fourni à la création
+                .ForMember(dest => dest.IsFulfilled, opt => opt.Ignore())   // calculé automatiquement
+                .ForMember(dest => dest.Account, opt => opt.Ignore())       // navigation, non mappée
+                .ForMember(dest => dest.Member, opt => opt.Ignore());       // navigation, non mappée
+
             CreateMap<PaymentPromise, PaymentPromiseResponse>()
-                .ForMember(dest => dest.IsFulfilled, opt => opt.MapFrom(src => src.IsFulfilled));
+                .ForMember(dest => dest.AccountName,
+                           opt => opt.MapFrom(src => src.Account.Type.ToString())); // ou .Name si string
+
 
             // Mapping RefreshToken -> TokenResponse
             CreateMap<RefreshToken, TokenResponse>()

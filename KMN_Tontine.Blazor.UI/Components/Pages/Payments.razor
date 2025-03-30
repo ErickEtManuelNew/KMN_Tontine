@@ -1,0 +1,146 @@
+﻿@page "/payments"
+@attribute [Authorize]
+@inject KMN_Tontine.Blazor.UI.Services.Base.IClient Client
+@inject CurrentUserService CurrentUser
+@inject NavigationManager Navigation
+@using KMN_Tontine.Blazor.UI.Services.Base
+@using System.Net.Http.Headers
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">💸 Payment Promises</h3>
+
+@if (!isAuthorized)
+{
+    <div class="text-red-600 font-semibold">You must be logged in to access this page.</div>
+}
+else if (promises == null)
+{
+    <p class="text-gray-600">Loading payment promises...</p>
+}
+else
+{
+    <div class="mb-4 flex flex-col md:flex-row md:items-center md:gap-6">
+        <div class="mb-2 md:mb-0">
+            <label class="block mb-1 font-medium text-gray-700">Filter by Account</label>
+            <select class="form-select w-full md:w-64" @onchange="OnFilterChanged">
+                <option value="">-- All accounts --</option>
+                @foreach (var acc in accountNames)
+                {
+                    <option value="@acc">@acc</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="block mb-1 font-medium text-gray-700">Sort by</label>
+            <select class="form-select w-full md:w-48" @onchange="OnSortChanged">
+                <option value="date">📅 Date</option>
+                <option value="amount">💰 Amount</option>
+            </select>
+        </div>
+    </div>
+
+    @if (!filteredPromises.Any())
+    {
+        <p class="text-gray-500">No payment promises found for the selected account.</p>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+                <thead class="bg-indigo-600 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Date</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Account</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Amount</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Expected Date</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @foreach (var p in filteredPromises)
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">@p.CreatedDate.ToShortDateString()</td>
+                            <td class="px-6 py-4 whitespace-nowrap">@p.AccountName</td>
+                            <td class="px-6 py-4 whitespace-nowrap">@p.AmountPromised.ToString("C")</td>
+                            <td class="px-6 py-4 whitespace-nowrap">@p.PromiseDate.ToShortDateString()</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @(p.IsFulfilled ? "✅ Confirmed" : "⏳ Pending")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap space-x-2">
+                                <button class="text-blue-600 hover:underline text-sm" @onclick="() => EditPromise(p.Id)">✏️ Edit</button>
+                                <button class="text-red-600 hover:underline text-sm" @onclick="() => DeletePromise(p.Id)">🗑️ Cancel</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@code {
+    private List<PaymentPromiseResponse>? promises;
+    private List<PaymentPromiseResponse> filteredPromises = new();
+    private HashSet<string> accountNames = new();
+    private bool isAuthorized = false;
+    private string selectedAccount = string.Empty;
+    private string selectedSort = "date";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CurrentUser.LoadUserInfoAsync();
+
+        if (string.IsNullOrEmpty(CurrentUser.UserName))
+        {
+            isAuthorized = false;
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        isAuthorized = true;
+        Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+        promises = (await Client.ByMemberAsync(Guid.Parse(CurrentUser.UserId))).ToList();
+        accountNames = promises.Select(p => p.AccountName.ToString()).ToHashSet();
+        ApplyFilters();
+    }
+
+    private void OnFilterChanged(ChangeEventArgs e)
+    {
+        selectedAccount = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        selectedSort = e.Value?.ToString() ?? "date";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = promises?.AsEnumerable() ?? Enumerable.Empty<PaymentPromiseResponse>();
+
+        if (!string.IsNullOrWhiteSpace(selectedAccount))
+            query = query.Where(p => p.AccountName.ToString() == selectedAccount);
+
+        query = selectedSort switch
+        {
+            "amount" => query.OrderByDescending(p => p.AmountPromised),
+            _ => query.OrderByDescending(p => p.CreatedDate)
+        };
+
+        filteredPromises = query.ToList();
+    }
+
+    private void EditPromise(int id)
+    {
+        Navigation.NavigateTo($"/promise/edit/{id}");
+    }
+
+    private void DeletePromise(int id)
+    {
+        // À implémenter : appel vers API pour suppression (soft delete ou annulation)
+        Console.WriteLine($"Deleting promise ID: {id}");
+    }
+}
