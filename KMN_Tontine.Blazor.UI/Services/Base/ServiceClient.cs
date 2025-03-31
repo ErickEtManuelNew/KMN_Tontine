@@ -3203,6 +3203,9 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public partial class AccountResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public int Id { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         public AccountType Type { get; set; }
 
