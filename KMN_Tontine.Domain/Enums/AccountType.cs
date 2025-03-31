@@ -9,8 +9,8 @@ namespace KMN_Tontine.Domain.Enums
 {
     public enum AccountType
     {
-        [EnumMember(Value = "Privé")]
-        Privé = 0,
+        [EnumMember(Value = "Prive")]
+        Prive = 0,
         [EnumMember(Value = "Aide")]
         Aide = 1,
         [EnumMember(Value = "Retard")]

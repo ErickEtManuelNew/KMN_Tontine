@@ -30,7 +30,7 @@ else
                 @foreach (var a in accounts)
                 {
                     <tr class="hover:bg-gray-50">
-@*                         <td class="px-4 py-2">@(!string.IsNullOrWhiteSpace(a.MemberName) ? a.MemberName : "🏛 Tontine")</td> *@
+                        <td class="px-4 py-2">@(!string.IsNullOrWhiteSpace(a.MemberFullName) ? a.MemberFullName : "🏛 Tontine")</td>
                         <td class="px-4 py-2">@a.Type</td>
                         <td class="px-4 py-2">@a.Balance.ToString("C")</td>
                     </tr>

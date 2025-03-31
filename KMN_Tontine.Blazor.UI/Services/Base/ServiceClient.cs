@@ -3227,7 +3227,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public enum AccountType
     {
 
-        Privé = 0,
+        Prive = 0,
 
         Aide = 1,
 
