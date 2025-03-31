@@ -5,6 +5,7 @@ using KMN_Tontine.Application.Mappings;
 using KMN_Tontine.Application.Seed;
 using KMN_Tontine.Application.Services;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
 using KMN_Tontine.Infrastructure.Interface;
@@ -169,14 +170,32 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
     if (!dbContext.Tontines.Any())
     {
-        dbContext.Tontines.Add(new Tontine
+        var tontine = new Tontine
         {
             Name = "KMN Ndjangui",
             Address = "1, rue de Ngualan",
             Email = "kmn_ndjangui@ndjangui.com",
             CreationDate = DateTime.UtcNow,
             IsActive = true
-        });
+        };
+        dbContext.Tontines.Add(tontine);
+
+        await dbContext.SaveChangesAsync();
+
+        // 🔁 Créer les types de comptes pour la tontine
+        var accountTypes = Enum.GetValues(typeof(AccountType)).Cast<AccountType>();
+
+        foreach (var type in accountTypes)
+        {
+            dbContext.Accounts.Add(new Account
+            {
+                Type = type,
+                Balance = 0,
+                Comment = $"Compte initial {type}",
+                MemberId = null, // compte association
+                TontineId = tontine.Id
+            });
+        }
 
         await dbContext.SaveChangesAsync();
     }

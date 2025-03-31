@@ -3,10 +3,12 @@ using KMN_Tontine.Application.DTOs.Requests;
 using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KMN_Tontine.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TransactionsController : ControllerBase
@@ -58,7 +60,7 @@ namespace KMN_Tontine.API.Controllers
         public async Task<IActionResult> CreateTransaction([FromBody] CreateTransactionRequest request)
         {
             var result = await _transactionService.CreateTransactionAsync(request);
-            return result.Success ? Ok(result) : BadRequest(result);
+            return Ok(result);
         }
 
         /// <summary>

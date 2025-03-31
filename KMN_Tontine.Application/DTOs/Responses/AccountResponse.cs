@@ -15,6 +15,6 @@ namespace KMN_Tontine.Application.DTOs.Responses
         public decimal Balance { get; set; }
         public string Comment { get; set; }
         public string MemberFullName { get; set; }
-        public string TontineName { get; set; }
+        public int TontineId { get; set; }
     }
 }

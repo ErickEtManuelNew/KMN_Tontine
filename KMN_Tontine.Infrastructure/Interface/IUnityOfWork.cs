@@ -11,5 +11,6 @@ namespace KMN_Tontine.Infrastructure.Interface
         Task BeginTransactionAsync();
         Task CommitAsync();
         Task RollbackAsync();
+        Task<int> SaveChangesAsync();
     }
 }

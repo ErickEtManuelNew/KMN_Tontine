@@ -3218,8 +3218,8 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("memberFullName")]
         public string MemberFullName { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("tontineName")]
-        public string TontineName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("tontineId")]
+        public int TontineId { get; set; }
 
     }
 
@@ -3496,7 +3496,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         Member = 2,
 
-        Guest = 3,
+        Guest = 3
 
     }
 
@@ -3591,12 +3591,11 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public enum TransactionType
     {
 
-        _0 = 0,
+        Credit = 0,
 
-        _1 = 1,
+        Retrait = 1,
 
-        _2 = 2,
-
+        Transfert = 2
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]

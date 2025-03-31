@@ -1,6 +1,7 @@
 ﻿using KMN_Tontine.Infrastructure.Data;
 using KMN_Tontine.Infrastructure.Interface;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KMN_Tontine.Infrastructure.Services
@@ -30,6 +31,11 @@ namespace KMN_Tontine.Infrastructure.Services
         {
             if (_transaction != null)
                 await _transaction.RollbackAsync();
+        }
+
+        public Task<int> SaveChangesAsync()
+        {
+            return _context.SaveChangesAsync();
         }
     }
 }

@@ -51,7 +51,7 @@ namespace KMN_Tontine.Application.Services
                     DateOfBirth = request.DateOfBirth,
                     UserName = request.Email,
                     Email = request.Email,
-                    FullName = request.FirstName + request.LastName,
+                    FullName = request.FirstName + ' ' + request.LastName,
                     PasswordHash = request.Password,
                     ConfirmationCode = confirmationToken,
                     EmailConfirmed = false

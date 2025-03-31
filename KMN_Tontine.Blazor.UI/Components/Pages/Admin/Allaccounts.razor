@@ -7,13 +7,27 @@
 
 <h3 class="text-2xl font-bold text-indigo-700 mb-6">📚 Comptes de l'association & de tous les membres</h3>
 
+<div class="mb-4 max-w-md">
+    @* Utilisation de @bind avec une propriété pour la recherche *@
+    <input type="text" class="form-control w-full" placeholder="🔍 Rechercher par membre, commentaire ou type..." @bind="SearchTerm" @bind:event="oninput" />
+</div>
+
 @if (accounts == null)
 {
     <p class="text-gray-500">Chargement des comptes...</p>
 }
-else if (!accounts.Any())
+else if (!displayedAccounts.Any()) // Vérifier la liste affichée
 {
-    <div class="alert alert-warning">Aucun compte trouvé.</div>
+    <div class="alert alert-warning">
+        @if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            <span>Aucun compte ne correspond à votre recherche "@SearchTerm".</span>
+        }
+        else
+        {
+            <span>Aucun compte trouvé.</span>
+        }
+    </div>
 }
 else
 {
@@ -21,18 +35,39 @@ else
         <table class="min-w-full table-auto bg-white shadow rounded">
             <thead class="bg-indigo-600 text-white">
                 <tr>
-                    <th class="px-4 py-2 text-left">Membre</th>
-                    <th class="px-4 py-2 text-left">Type de compte</th>
-                    <th class="px-4 py-2 text-left">Solde</th>
+                    @* En-têtes fusionnés avec tri *@
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("MemberFullName")'>
+                        Membre @(sortColumn == "MemberFullName" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("AccountType")'>
+                        Type @(sortColumn == "AccountType" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("Balance")'>
+                        Solde @(sortColumn == "Balance" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var a in accounts)
+                @* Itération sur la liste filtrée et triée *@
+                @foreach (var a in displayedAccounts)
                 {
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-2">@(!string.IsNullOrWhiteSpace(a.MemberFullName) ? a.MemberFullName : "🏛 Tontine")</td>
+                        @* Utilisation de MemberFullName et gestion du cas "Association" *@
+                        <td class="px-4 py-2">@(!string.IsNullOrWhiteSpace(a.MemberFullName) ? a.MemberFullName : "🏛 Association")</td>
                         <td class="px-4 py-2">@a.Type</td>
                         <td class="px-4 py-2">@a.Balance.ToString("C")</td>
+                        <td class="px-4 py-2 space-x-2">
+                            <button class="btn btn-sm btn-success @(!string.IsNullOrWhiteSpace(a.MemberFullName) ? "opacity-50 cursor-not-allowed" : "")"
+                                    @onclick="() => OpenTransactionDialog(a, true)"
+                                    disabled="@(!string.IsNullOrWhiteSpace(a.MemberFullName))"
+                                    title="@(!string.IsNullOrWhiteSpace(a.MemberFullName) ? "Le crédit direct n'est autorisé que pour les comptes de l'association." : "Créditer ce compte")">
+                                💰 Créditer
+                            </button>
+                            <button class="btn btn-sm btn-warning" @onclick="() => OpenTransactionDialog(a, false)">
+                                💸 Débiter
+                            </button>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -40,12 +75,154 @@ else
     </div>
 }
 
-@code {
-    private List<AccountResponse>? accounts;
+<div class="relative">
+    <TransactionDialog Account="selectedAccount"
+                       IsCredit="isCredit"
+                       IsOpen="isTransactionOpen"
+                       OnClose="CloseTransactionDialog"
+                       OnSuccess="ReloadAccounts" />
+</div>
 
+@code {
+    // Liste originale complète
+    private List<AccountResponse>? accounts;
+    // Liste affichée (filtrée et triée)
+    private List<AccountResponse> displayedAccounts = new();
+
+    // États pour le tri
+    private string sortColumn = "MemberFullName"; // Colonne de tri par défaut
+    private bool sortAscending = true;
+
+    // Champ privé pour le terme de recherche
+    private string _searchTerm = string.Empty;
+
+    // Propriété pour le binding de la recherche
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            if (_searchTerm != value) // Évite les mises à jour inutiles si la valeur n'a pas changé
+            {
+                _searchTerm = value;
+                UpdateDisplayedAccounts(); // Appeler la mise à jour unique
+            }
+        }
+    }
+
+    // États pour la boîte de dialogue de transaction
+    private bool isTransactionOpen = false;
+    private bool isCredit = true;
+    private AccountResponse? selectedAccount;
+
+    // Initialisation du composant
     protected override async Task OnInitializedAsync()
     {
-        Client.HttpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
-        accounts = (await Client.AccountsAllAsync()).ToList();
+        try
+        {
+            Client.HttpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+
+            // Charger les comptes initiaux
+            var allAccounts = await Client.AccountsAllAsync(); // Assurez-vous que cette méthode existe et retourne le type attendu
+            accounts = allAccounts?.ToList() ?? new List<AccountResponse>();
+
+            // Appliquer le filtre et le tri initiaux
+            UpdateDisplayedAccounts();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du chargement des comptes: {ex.Message}"); // Log l'erreur
+            accounts = new List<AccountResponse>(); // Initialiser à vide en cas d'erreur
+            displayedAccounts = new List<AccountResponse>();
+            // Idéalement, informer l'utilisateur de l'erreur
+        }
+    }
+
+    // Méthode pour mettre à jour la liste affichée (filtrage PUIS tri)
+    private void UpdateDisplayedAccounts()
+    {
+        if (accounts == null) return; // Si les comptes n'ont pas encore été chargés
+
+        // 1. Filtrer sur la liste originale complète
+        IEnumerable<AccountResponse> filtered = accounts;
+        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        {
+            string lowerSearchTerm = _searchTerm.ToLowerInvariant();
+            filtered = accounts.Where(a =>
+                // Recherche sur le nom du membre (ou "Association")
+                (!string.IsNullOrWhiteSpace(a.MemberFullName) ? a.MemberFullName.ToLowerInvariant().Contains(lowerSearchTerm) : "association".Contains(lowerSearchTerm)) ||
+                // Recherche sur le type de compte (converti en string, gère null)
+                (a.Type.ToString()?.ToLowerInvariant().Contains(lowerSearchTerm) ?? false) //|| // Décommentez si AccountResponse a une propriété Comment
+            // Recherche sur le commentaire (gère null)
+            // (a.Comment != null && a.Comment.ToLowerInvariant().Contains(lowerSearchTerm))
+            );
+        }
+
+        // 2. Trier la liste filtrée
+        // Gérer le cas "Association" pour le tri par nom (pour qu'il ne soit pas toujours premier à cause de null/empty)
+        Func<AccountResponse, string> memberSortKey = a => !string.IsNullOrWhiteSpace(a.MemberFullName) ? a.MemberFullName : "~~~Association"; // Préfixe pour trier après les noms
+
+        displayedAccounts = sortColumn switch
+        {
+            "Balance" => (sortAscending ? filtered.OrderBy(a => a.Balance) : filtered.OrderByDescending(a => a.Balance)).ToList(),
+            "AccountType" => (sortAscending ? filtered.OrderBy(a => a.Type) : filtered.OrderByDescending(a => a.Type)).ToList(),
+            _ => (sortAscending ? filtered.OrderBy(memberSortKey, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(memberSortKey, StringComparer.OrdinalIgnoreCase)).ToList() // Tri par nom par défaut
+        };
+    }
+
+    // Gère le clic sur les en-têtes pour le tri
+    private void SortBy(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortAscending = true;
+        }
+        UpdateDisplayedAccounts(); // Réappliquer filtre et tri
+    }
+
+    // Ouvre la boîte de dialogue de transaction
+    private void OpenTransactionDialog(AccountResponse account, bool credit)
+    {
+        selectedAccount = account;
+        isCredit = credit;
+        isTransactionOpen = true;
+        // StateHasChanged(); // Normalement pas nécessaire ici, car la modification de isTransactionOpen déclenche le rendu de la Dialog
+    }
+
+    // Ferme la boîte de dialogue
+    private void CloseTransactionDialog()
+    {
+        isTransactionOpen = false;
+        selectedAccount = null;
+        // StateHasChanged(); // Normalement pas nécessaire ici non plus
+    }
+
+    // Recharge les données après une transaction réussie
+    private async Task ReloadAccounts()
+    {
+        isTransactionOpen = false; // Fermer la dialog avant de recharger
+        selectedAccount = null;
+        try
+        {
+            // Recharger les données depuis l'API
+            var allAccounts = await Client.AccountsAllAsync();
+            accounts = allAccounts?.ToList() ?? new List<AccountResponse>();
+            UpdateDisplayedAccounts(); // Appliquer le filtre/tri actuel aux nouvelles données
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du rechargement des comptes: {ex.Message}"); // Log l'erreur
+            // Informer l'utilisateur si possible
+        }
+        finally
+        {
+            // StateHasChanged(); // Normalement géré par Blazor après l'await et la mise à jour de displayedAccounts
+        }
     }
 }

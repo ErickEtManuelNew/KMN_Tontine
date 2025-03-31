@@ -22,7 +22,9 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         }
 
         public async Task<IEnumerable<Account>> GetAllAsync()
-            => await _context.Accounts.ToListAsync();
+            => await _context.Accounts
+            .Include(x => x.Member)
+            .ToListAsync();
 
         public async Task<IEnumerable<Account>> GetByMemberIdAsync(Guid memberId)
         {
