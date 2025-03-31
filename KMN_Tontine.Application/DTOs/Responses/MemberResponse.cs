@@ -17,5 +17,6 @@ namespace KMN_Tontine.Application.DTOs.Responses
         public bool IsActive { get; set; }
         public RoleType Role { get; set; }
         public string Email { get; set; } // Hérité de IdentityUser
+        public bool EmailConfirmed { get; set; } // Hérité de IdentityUser
     }
 }

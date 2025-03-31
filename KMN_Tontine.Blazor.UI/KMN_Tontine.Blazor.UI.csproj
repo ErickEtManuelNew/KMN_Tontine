@@ -8,11 +8,11 @@
 
   <ItemGroup>
     <Content Remove="Components\Pages\Crediter.razor" />
-    <Content Remove="Components\Pages\Tontines\TontineAddMember.razor" />
-    <Content Remove="Components\Pages\Tontines\TontineCreate.razor" />
-    <Content Remove="Components\Pages\Tontines\TontineDetails.razor" />
-    <Content Remove="Components\Pages\Tontines\TontineEdit.razor" />
-    <Content Remove="Components\Pages\Tontines\TontineList.razor" />
+    <Content Remove="Components\Pages\Admin\TontineAddMember.razor" />
+    <Content Remove="Components\Pages\Admin\TontineCreate.razor" />
+    <Content Remove="Components\Pages\Admin\TontineDetails.razor" />
+    <Content Remove="Components\Pages\Admin\TontineEdit.razor" />
+    <Content Remove="Components\Pages\Admin\TontineList.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +21,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.3" />
     <PackageReference Include="MudBlazor" Version="8.3.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Pages\Tontines\" />
   </ItemGroup>
 
 </Project>

@@ -155,7 +155,7 @@
             // Hasher le mot de passe
             // registerRequest.Password = _passwordHelper.HashPassword(registerRequest.Password);
 
-            registerRequest.Role = RoleType._2; // Rôle par défaut pour les utilisateurs
+            registerRequest.Role = RoleType.Member; // Rôle par défaut pour les utilisateurs
 
             // Envoyer les données au backend pour enregistrement
             var response = await AuthService.RegisterAsync(registerRequest);

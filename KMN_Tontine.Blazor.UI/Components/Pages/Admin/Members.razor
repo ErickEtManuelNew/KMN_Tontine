@@ -1,0 +1,157 @@
+﻿@page "/admin/members"
+
+@attribute [Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.SuperAdmin)}")]
+@inject KMN_Tontine.Blazor.UI.Services.Base.IClient Client
+@inject NavigationManager Navigation
+@inject CurrentUserService CurrentUser
+@using KMN_Tontine.Blazor.UI.Services.Base
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">👥 Liste des membres</h3>
+
+<div class="mb-4 max-w-md">
+    <input type="text" class="form-control w-full" placeholder="🔍 Rechercher par nom ou email..." @bind="SearchTerm" @bind:event="oninput" />
+</div>
+
+@if (members == null)
+{
+    <p class="text-gray-500">Chargement des membres...</p>
+}
+else if (!members.Any())
+{
+    <div class="alert alert-warning">Aucun membre inscrit pour le moment.</div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-white shadow rounded">
+            <thead class="bg-indigo-600 text-white">
+                <tr>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("FullName")'>
+                        Nom @(sortColumn == "FullName" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("Email")'>
+                        Email @(sortColumn == "Email" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("DateOfBirth")'>
+                        Date de naissance @(sortColumn == "DateOfBirth" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("EmailConfirmed")'>
+                        Statut @(sortColumn == "EmailConfirmed" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left">Actions</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                @foreach (var m in sortedMembers)
+                {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2">@m.FullName</td>
+                        <td class="px-4 py-2">@m.Email</td>
+                        <td class="px-4 py-2">@m.DateOfBirth.ToShortDateString()</td>
+                        <td class="px-4 py-2">@(m.EmailConfirmed ? "✅ Confirmé" : "⏳ En attente")</td>
+                        <td class="px-4 py-2 space-x-2">
+                            <button class="text-blue-600 hover:underline text-sm" @onclick="() => ViewMember(m.Id)">📄 Détails</button>
+                            <button class="text-red-600 hover:underline text-sm" disabled>🚫 Désactiver</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<MemberResponse>? members;
+    private List<MemberResponse> sortedMembers = new();
+    private string sortColumn = "FullName";
+    private bool sortAscending = true;
+    private string _searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Client.HttpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+        var allMembers = (await Client.MembersAllAsync()).ToList();
+        members = allMembers?.ToList() ?? new List<MemberResponse>(); // S'assurer que members n'est jamais null
+        UpdateDisplayedMembers(); // Appliquer le filtre/tri initial
+    }
+
+    private void ViewMember(string memberId)
+    {
+        Navigation.NavigateTo($"/admin/members/{memberId}");
+    }
+
+    // Propriété publique pour le binding, qui déclenche la mise à jour
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            UpdateDisplayedMembers(); // Appel de la mise à jour à chaque changement
+        }
+    }
+
+    // Méthode centrale pour filtrer PUIS trier
+    private void UpdateDisplayedMembers()
+    {
+        if (members == null) return; // S'assurer que les membres ont été chargés
+
+        // 1. Filtrer d'abord sur la liste originale complète
+        IEnumerable<MemberResponse> filteredMembers = members;
+        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        {
+            filteredMembers = members
+                .Where(m => (m.FullName != null && m.FullName.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase))
+                         || (m.Email != null && m.Email.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // 2. Trier ensuite la liste filtrée
+        sortedMembers = sortColumn switch
+        {
+            "Email" => (sortAscending ? filteredMembers.OrderBy(m => m.Email) : filteredMembers.OrderByDescending(m => m.Email)).ToList(),
+            "DateOfBirth" => (sortAscending ? filteredMembers.OrderBy(m => m.DateOfBirth) : filteredMembers.OrderByDescending(m => m.DateOfBirth)).ToList(),
+            "EmailConfirmed" => (sortAscending ? filteredMembers.OrderBy(m => m.EmailConfirmed) : filteredMembers.OrderByDescending(m => m.EmailConfirmed)).ToList(),
+            _ => (sortAscending ? filteredMembers.OrderBy(m => m.FullName) : filteredMembers.OrderByDescending(m => m.FullName)).ToList()
+        };
+
+        // StateHasChanged(); // Normalement pas nécessaire car déclenché par le @bind, mais peut être ajouté si des problèmes persistent.
+    }
+
+    // private void ApplySorting()
+    // {
+    //     sortedMembers = sortColumn switch
+    //     {
+    //         "Email" => (sortAscending ? members.OrderBy(m => m.Email) : members.OrderByDescending(m => m.Email)).ToList(),
+    //         "DateOfBirth" => (sortAscending ? members.OrderBy(m => m.DateOfBirth) : members.OrderByDescending(m => m.DateOfBirth)).ToList(),
+    //         "EmailConfirmed" => (sortAscending ? members.OrderBy(m => m.EmailConfirmed) : members.OrderByDescending(m => m.EmailConfirmed)).ToList(),
+    //         _ => (sortAscending ? members.OrderBy(m => m.FullName) : members.OrderByDescending(m => m.FullName)).ToList()
+    //     };
+    // }
+
+    // private void ApplyFiltering()
+    // {
+    //     if (!string.IsNullOrWhiteSpace(searchTerm))
+    //     {
+    //         sortedMembers = sortedMembers
+    //             .Where(m => m.FullName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+    //                      || m.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+    //             .ToList();
+    //     }
+    // }
+
+    private void SortBy(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortAscending = true;
+        }
+        // Appliquer le nouveau tri sur les membres actuellement filtrés
+        UpdateDisplayedMembers();
+    }
+}

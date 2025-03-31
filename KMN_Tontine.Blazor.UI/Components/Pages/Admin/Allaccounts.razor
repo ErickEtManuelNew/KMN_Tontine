@@ -1,0 +1,51 @@
+﻿@page "/admin/allaccounts"
+
+@attribute [Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.SuperAdmin)}")]
+@inject KMN_Tontine.Blazor.UI.Services.Base.IClient Client
+@inject CurrentUserService CurrentUser
+@using KMN_Tontine.Blazor.UI.Services.Base
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">📚 Comptes de l'association & de tous les membres</h3>
+
+@if (accounts == null)
+{
+    <p class="text-gray-500">Chargement des comptes...</p>
+}
+else if (!accounts.Any())
+{
+    <div class="alert alert-warning">Aucun compte trouvé.</div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-white shadow rounded">
+            <thead class="bg-indigo-600 text-white">
+                <tr>
+                    <th class="px-4 py-2 text-left">Membre</th>
+                    <th class="px-4 py-2 text-left">Type de compte</th>
+                    <th class="px-4 py-2 text-left">Solde</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in accounts)
+                {
+                    <tr class="hover:bg-gray-50">
+@*                         <td class="px-4 py-2">@(!string.IsNullOrWhiteSpace(a.MemberName) ? a.MemberName : "🏛 Tontine")</td> *@
+                        <td class="px-4 py-2">@a.Type</td>
+                        <td class="px-4 py-2">@a.Balance.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<AccountResponse>? accounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Client.HttpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+        accounts = (await Client.AccountsAllAsync()).ToList();
+    }
+}

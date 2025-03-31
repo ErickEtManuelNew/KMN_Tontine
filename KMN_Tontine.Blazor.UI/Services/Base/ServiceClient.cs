@@ -3203,9 +3203,6 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public partial class AccountResponse
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public int Id { get; set; }
-
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         public AccountType Type { get; set; }
 
@@ -3215,11 +3212,11 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public string Comment { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("memberId")]
-        public string MemberId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("memberFullName")]
+        public string MemberFullName { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("tontineId")]
-        public int TontineId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("tontineName")]
+        public string TontineName { get; set; }
 
     }
 
@@ -3227,13 +3224,13 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public enum AccountType
     {
 
-        Private = 0,
+        Privé = 0,
 
-        Help = 1,
+        Aide = 1,
 
-        Late = 2,
+        Retard = 2,
 
-        Other = 3,
+        Autre = 3,
 
     }
 
@@ -3379,6 +3376,9 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("emailConfirmed")]
+        public bool EmailConfirmed { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -3487,13 +3487,13 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     public enum RoleType
     {
 
-        _0 = 0,
+        SuperAdmin = 0,
 
-        _1 = 1,
+        Admin = 1,
 
-        _2 = 2,
+        Member = 2,
 
-        _3 = 3,
+        Guest = 3,
 
     }
 

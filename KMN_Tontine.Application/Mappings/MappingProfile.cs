@@ -23,7 +23,10 @@ namespace KMN_Tontine.Application.Mappings
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
 
             // Mapping Account -> AccountResponse
-            CreateMap<Account, AccountResponse>();
+            CreateMap<Account, AccountResponse>()
+                .ForMember(dest => dest.MemberFullName, opt => opt.MapFrom(src => src.Member != null ? src.Member.FullName : ""))
+                .ForMember(dest => dest.TontineName, opt => opt.MapFrom(src => src.Tontine != null ? src.Tontine.Name : ""))
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment ?? ""));
 
             // Mapping Tontine -> TontineResponse
             CreateMap<Tontine, TontineResponse>();

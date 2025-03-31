@@ -9,13 +9,13 @@ namespace KMN_Tontine.Domain.Enums
 {
     public enum AccountType
     {
-        [EnumMember(Value = "Private")]
-        Private = 0,
-        [EnumMember(Value = "Help")]
-        Help = 1,
-        [EnumMember(Value = "Late")]
-        Late = 2,
-        [EnumMember(Value = "Other")]
-        Other = 3
+        [EnumMember(Value = "Privé")]
+        Privé = 0,
+        [EnumMember(Value = "Aide")]
+        Aide = 1,
+        [EnumMember(Value = "Retard")]
+        Retard = 2,
+        [EnumMember(Value = "Autre")]
+        Autre = 3
     }
 }

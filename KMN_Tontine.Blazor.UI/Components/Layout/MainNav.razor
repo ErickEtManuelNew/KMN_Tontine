@@ -13,7 +13,7 @@
 
     <!-- Bouton Mobile -->
     <button @onclick="ToggleSidebar"
-            class="md:hidden fixed top-4 left-4 bg-indigo-600 text-white p-2 rounded-md shadow-lg z-50">
+    class="md:hidden fixed top-4 left-4 bg-indigo-600 text-white p-2 rounded-md shadow-lg z-50">
         ☰
     </button>
 </div>
@@ -36,11 +36,11 @@
         {
             NavigationItems.AddRange(new[]
             {
-                new NavItem("➕ Inscrire un membre", "/register-membre", "fas fa-user-plus", "Admin"),
-                new NavItem("🧾 Affecter à des comptes", "/affecter-comptes", "fas fa-user-tag", "Admin"),
-                new NavItem("📂 Tous les comptes", "/comptes", "fas fa-folder-open", "Admin"),
-                new NavItem("💸 Créditer un compte", "/crediter", "fas fa-hand-holding-usd", "Admin"),
-                new NavItem("📊 Solde global", "/solde-global", "fas fa-chart-pie", "Admin")
+                new NavItem("👥 Membres", "/admin/members", "fas fa-users", "Admin"),
+                new NavItem("💼 Comptes", "/admin/allaccounts", "fas fa-university", "Admin"),
+                new NavItem("🔄 Transactions", "/admin/transactions", "fas fa-exchange-alt", "Admin"),
+                new NavItem("📊 Rapports", "/admin/reports", "fas fa-chart-bar", "Admin"),
+                new NavItem("⚙️ Paramètres", "/admin/settings", "fas fa-cog", "Admin")
             });
         }
 
@@ -48,12 +48,14 @@
         {
             NavigationItems.AddRange(new[]
             {
-                new NavItem("📈 Mes comptes", "/myaccounts", "fas fa-wallet", "Member"),
-                new NavItem("💼 Transactions", "/transactions", "fas fa-coins", "Member"),
-                new NavItem("💸 Paiements / Promesses", "/payments", "fas fa-money-check-alt", "Member")
+                new NavItem("🏠 Tableau de bord", "/dashboard", "fas fa-home", "Member"),
+                new NavItem("💼 Mes comptes", "/myaccounts", "fas fa-wallet", "Member"),
+                new NavItem("🔄 Mes transactions", "/transactions", "fas fa-history", "Member"),
+                new NavItem("💸 Paiements / Promesses", "/payments", "fas fa-money-check-alt", "Member"),
+                new NavItem("⚙️ Mon profil", "/profile", "fas fa-user-cog", "Member")
             });
         }
-    }
+}
 
     private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
 
