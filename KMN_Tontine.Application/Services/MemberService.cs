@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,8 +12,10 @@ using KMN_Tontine.Application.DTOs.Requests;
 using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Domain.Enums;
 using KMN_Tontine.Domain.Interfaces;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace KMN_Tontine.Application.Services
@@ -21,13 +24,15 @@ namespace KMN_Tontine.Application.Services
     {
         private readonly UserManager<Member> _userManager;
         private readonly IMemberRepository _memberRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
 
-        public MemberService(UserManager<Member> userManager, IMemberRepository memberRepository, IMapper mapper)
+        public MemberService(UserManager<Member> userManager, IMemberRepository memberRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _userManager = userManager;
             _mapper = mapper;
             _memberRepository = memberRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<MemberResponse> GetMemberByIdAsync(Guid id)
@@ -110,6 +115,51 @@ namespace KMN_Tontine.Application.Services
             catch (Exception ex)
             {
                 return SimpleResponse.Error($"Failed to delete member: {ex.Message}");
+            }
+        }
+
+        public async Task<SimpleResponse> DeactivateMemberAsync(Guid id)
+        {
+            // Accéder à l'utilisateur via HttpContext
+            var userPrincipal = _httpContextAccessor.HttpContext?.User;
+            if (userPrincipal == null)
+            {
+                return SimpleResponse.Error("User not authenticated");
+            }
+
+            var user = await _userManager.FindByIdAsync(id.ToString()); // Convertir Guid en string pour Identity
+
+            if (user == null)
+            {
+                return new SimpleResponse { Success = false, Message = "Membre non trouvé." };
+            }
+
+            // Vérification supplémentaire : Empêcher l'auto-désactivation ? Empêcher la désactivation du dernier admin ?
+            var currentUserId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (user.Id.ToString() == currentUserId)
+            {
+                return new SimpleResponse { Success = false, Message = "Vous ne pouvez pas vous désactiver vous-même." };
+            }
+
+            try
+            {
+                // Alternative : Si vous avez un champ booléen IsActive
+                user.IsActive = false;
+                var updateResult = await _userManager.UpdateAsync(user);
+
+                if (updateResult.Succeeded)
+                {
+                    return new SimpleResponse { Success = true, Message = "Membre désactivé avec succès." };
+                }
+                else
+                {
+                    // Renvoyer les erreurs Identity peut exposer des détails internes, soyez prudent.
+                    return new SimpleResponse { Success = false, Message = "Échec de la mise à jour du statut du membre." /*, Errors = lockoutResult.Errors.Select(e => e.Description).ToList()*/ };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new SimpleResponse { Success = false, Message = "Une erreur serveur est survenue." };
             }
         }
     }

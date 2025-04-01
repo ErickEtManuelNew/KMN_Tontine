@@ -28,7 +28,9 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
 
         public async Task<IEnumerable<Member>> GetAllAsync()
         {
-            return await _context.Members.ToListAsync();
+            return await _context.Members
+                .Where(x => x.IsActive)
+                .ToListAsync();
         }
 
         public async Task AddAsync(Member member)

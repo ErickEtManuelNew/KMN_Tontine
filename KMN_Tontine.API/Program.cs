@@ -101,6 +101,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -234,26 +235,6 @@ else
     // En prod, Docker ou Railway : écouter sur HTTP
     app.Urls.Clear();
     app.Urls.Add($"http://0.0.0.0:{port}");
-}
-
-// Appeler les seeders
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    try
-    {
-        var roleSeeder = services.GetRequiredService<RoleSeeder>();
-        await roleSeeder.SeedRolesAsync();
-
-        var superAdminSeeder = services.GetRequiredService<SuperAdminSeeder>();
-        await superAdminSeeder.SeedSuperAdminAsync();
-    }
-    catch (Exception ex)
-    {
-        // Gérer les erreurs lors du seeding
-        Console.WriteLine($"An error occurred while seeding: {ex.Message}");
-    }
 }
 
 app.UseRouting();

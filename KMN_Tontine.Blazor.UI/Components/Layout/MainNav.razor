@@ -29,18 +29,18 @@
 
         NavigationItems = new()
         {
-            new NavItem("🏠 Accueil", "/", "fas fa-home", "Tous")
+            new NavItem("Accueil", "/dashboard", "fas fa-home", "Tous")
         };
 
         if (CurrentUserServ.IsAdmin)
         {
             NavigationItems.AddRange(new[]
             {
-                new NavItem("👥 Membres", "/admin/members", "fas fa-users", "Admin"),
-                new NavItem("💼 Comptes", "/admin/allaccounts", "fas fa-university", "Admin"),
-                new NavItem("🔄 Transactions", "/admin/transactions", "fas fa-exchange-alt", "Admin"),
-                new NavItem("📊 Rapports", "/admin/reports", "fas fa-chart-bar", "Admin"),
-                new NavItem("⚙️ Paramètres", "/admin/settings", "fas fa-cog", "Admin")
+                new NavItem("Membres", "/admin/members", "fas fa-users", "Admin"),
+                new NavItem("Comptes", "/admin/allaccounts", "fas fa-university", "Admin"),
+                new NavItem("Transactions", "/admin/transactions", "fas fa-exchange-alt", "Admin"),
+                new NavItem("Rapports", "/admin/reports", "fas fa-chart-bar", "Admin"),
+                new NavItem("Paramètres", "/admin/settings", "fas fa-cog", "Admin")
             });
         }
 
@@ -48,11 +48,10 @@
         {
             NavigationItems.AddRange(new[]
             {
-                new NavItem("🏠 Tableau de bord", "/dashboard", "fas fa-home", "Member"),
-                new NavItem("💼 Mes comptes", "/myaccounts", "fas fa-wallet", "Member"),
-                new NavItem("🔄 Mes transactions", "/transactions", "fas fa-history", "Member"),
-                new NavItem("💸 Paiements / Promesses", "/payments", "fas fa-money-check-alt", "Member"),
-                new NavItem("⚙️ Mon profil", "/profile", "fas fa-user-cog", "Member")
+                new NavItem("Mes comptes", "/myaccounts", "fas fa-wallet", "Member"),
+                new NavItem("Mes transactions", "/transactions", "fas fa-history", "Member"),
+                new NavItem("Paiements / Promesses", "/payments", "fas fa-money-check-alt", "Member"),
+                new NavItem("Mon profil", "/profile", "fas fa-user-cog", "Member")
             });
         }
 }

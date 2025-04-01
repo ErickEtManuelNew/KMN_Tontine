@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /KMN_Tontine.API/KMN_Tontine_DB_Dev.sqlite-wal
+/KMN_Tontine.API/KMN_Tontine_DB_Dev.sqlite-shm
+/KMN_Tontine.API/KMN_Tontine_DB_Dev.sqlite

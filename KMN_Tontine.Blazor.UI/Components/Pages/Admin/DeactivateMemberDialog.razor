@@ -1,0 +1,107 @@
+﻿@* DeactivateMemberDialog.razor *@
+
+@if (IsOpen)
+{
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-10 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @onclick="AttemptCloseOutside">
+        <div class="relative mx-auto p-6 border w-full max-w-md shadow-lg rounded-md bg-white" @onclick:stopPropagation>
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    Confirmation de Désactivation
+                </h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Êtes-vous sûr de vouloir désactiver le membre <strong>@MemberFullName</strong> ?
+                        <br />
+                        Cette action empêchera le membre de se connecter et est irréversible via cette interface.
+                    </p>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="my-3 p-3 bg-red-100 text-red-700 rounded text-sm">
+                        @ErrorMessage
+                    </div>
+                }
+
+                <div class="items-center px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t mt-4">
+                    <button type="button"
+                            class="inline-flex justify-center w-full sm:w-auto rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:text-sm disabled:opacity-50"
+                            @onclick="Confirm" disabled="@IsLoading">
+                        @if (IsLoading)
+                        {
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Désactivation...</span>
+                        }
+                        else
+                        {
+                            <span>Oui, désactiver</span>
+                        }
+                    </button>
+                    <button type="button"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50"
+                            @onclick="Close" disabled="@IsLoading">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; } // Pour @bind-IsOpen
+    [Parameter] public EventCallback OnConfirmed { get; set; } // Pour notifier le parent
+    [Parameter] public string? MemberFullName { get; set; } // Pour afficher le nom
+
+    // État interne pour gérer le chargement et les erreurs de l'action de confirmation
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    private async Task Close()
+    {
+        if (IsLoading) return; // Ne pas fermer pendant le chargement
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private async Task Confirm()
+    {
+        if (IsLoading) return;
+        // L'action réelle (appel API) sera gérée par le parent via OnConfirmed.
+        // La dialog ne fait qu'invoquer le callback.
+        await OnConfirmed.InvokeAsync();
+        // Le parent gérera la fermeture après la fin de l'opération (succès ou échec)
+        // ou on peut choisir de fermer immédiatement : await Close();
+        // Dans le modèle fourni, la dialog se ferme après confirmation :
+        // await Close(); // => Déplacé, le parent décidera quand fermer.
+    }
+
+    // Fermer en cliquant à l'extérieur
+    private async Task AttemptCloseOutside()
+    {
+        if (!IsLoading) // Ne pas fermer si une opération est en cours
+        {
+            await Close();
+        }
+    }
+
+    // Réinitialiser l'état quand on ouvre/ferme pourrait être utile
+    protected override void OnParametersSet()
+    {
+        if (!IsOpen)
+        {
+            // Optionnel : S'assurer que l'état est propre quand la dialog n'est pas visible
+            ErrorMessage = null; // Le parent doit gérer ça s'il passe l'erreur en paramètre
+            IsLoading = false;  // Idem
+        }
+    }
+}

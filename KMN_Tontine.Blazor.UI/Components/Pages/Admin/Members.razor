@@ -5,11 +5,20 @@
 @inject NavigationManager Navigation
 @inject CurrentUserService CurrentUser
 @using KMN_Tontine.Blazor.UI.Services.Base
+@using System.Net.Http.Headers
 
 <h3 class="text-2xl font-bold text-indigo-700 mb-6">👥 Liste des membres</h3>
 
 <div class="mb-4 max-w-md">
     <input type="text" class="form-control w-full" placeholder="🔍 Rechercher par nom ou email..." @bind="SearchTerm" @bind:event="oninput" />
+</div>
+
+<div class="relative">
+    <DeactivateMemberDialog @bind-IsOpen="isDeactivateDialogOpen"
+                            MemberFullName=@selectedMemberForDialog?.FullName
+                            OnConfirmed="HandleDeactivateConfirmed"
+                            IsLoading="isDeactivationLoading"
+                            ErrorMessage=@deactivationErrorMessage />
 </div>
 
 @if (members == null)
@@ -52,7 +61,13 @@ else
                         <td class="px-4 py-2">@(m.EmailConfirmed ? "✅ Confirmé" : "⏳ En attente")</td>
                         <td class="px-4 py-2 space-x-2">
                             <button class="text-blue-600 hover:underline text-sm" @onclick="() => ViewMember(m.Id)">📄 Détails</button>
-                            <button class="text-red-600 hover:underline text-sm" disabled>🚫 Désactiver</button>
+                            <button class="text-red-600 hover:underline text-sm disabled:opacity-50"
+                            @onclick="() => OpenDeactivateDialog(m)"
+                            disabled="@isLoading">
+                                @* Désactivé pendant toute opération globale *@
+                                🚫 Désactiver
+                            </button>
+
                         </td>
                     </tr>
                 }
@@ -68,12 +83,21 @@ else
     private bool sortAscending = true;
     private string _searchTerm = string.Empty;
 
+    private bool isDeactivateDialogOpen = false;
+    private MemberResponse? selectedMemberForDialog;
+    private bool isDeactivationLoading = false; // Chargement spécifique à la désactivation
+    private string? deactivationErrorMessage;
+
+    private bool isLoading = false; // Indicateur de chargement global (pour chargement initial, rechargement...)
+
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true; // Indiquer chargement initial
         Client.HttpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
         var allMembers = (await Client.MembersAllAsync()).ToList();
         members = allMembers?.ToList() ?? new List<MemberResponse>(); // S'assurer que members n'est jamais null
         UpdateDisplayedMembers(); // Appliquer le filtre/tri initial
+        isLoading = false; // Fin du chargement initial
     }
 
     private void ViewMember(string memberId)
@@ -118,28 +142,6 @@ else
         // StateHasChanged(); // Normalement pas nécessaire car déclenché par le @bind, mais peut être ajouté si des problèmes persistent.
     }
 
-    // private void ApplySorting()
-    // {
-    //     sortedMembers = sortColumn switch
-    //     {
-    //         "Email" => (sortAscending ? members.OrderBy(m => m.Email) : members.OrderByDescending(m => m.Email)).ToList(),
-    //         "DateOfBirth" => (sortAscending ? members.OrderBy(m => m.DateOfBirth) : members.OrderByDescending(m => m.DateOfBirth)).ToList(),
-    //         "EmailConfirmed" => (sortAscending ? members.OrderBy(m => m.EmailConfirmed) : members.OrderByDescending(m => m.EmailConfirmed)).ToList(),
-    //         _ => (sortAscending ? members.OrderBy(m => m.FullName) : members.OrderByDescending(m => m.FullName)).ToList()
-    //     };
-    // }
-
-    // private void ApplyFiltering()
-    // {
-    //     if (!string.IsNullOrWhiteSpace(searchTerm))
-    //     {
-    //         sortedMembers = sortedMembers
-    //             .Where(m => m.FullName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-    //                      || m.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-    //             .ToList();
-    //     }
-    // }
-
     private void SortBy(string column)
     {
         if (sortColumn == column)
@@ -153,5 +155,58 @@ else
         }
         // Appliquer le nouveau tri sur les membres actuellement filtrés
         UpdateDisplayedMembers();
+    }
+
+    private void OpenDeactivateDialog(MemberResponse member)
+    {
+        if (isLoading || isDeactivationLoading) return; // Ne pas ouvrir si une autre op est en cours
+
+        selectedMemberForDialog = member;
+        deactivationErrorMessage = null; // Reset error message
+        isDeactivateDialogOpen = true;
+        StateHasChanged(); // Mettre à jour l'UI pour afficher la dialog
+    }
+
+    private async Task HandleDeactivateConfirmed()
+    {
+        if (selectedMemberForDialog == null || isDeactivationLoading)
+        {
+            return;
+        }
+
+        isDeactivationLoading = true; // Démarrer le chargement spécifique
+        deactivationErrorMessage = null;
+        StateHasChanged(); // Mettre à jour la dialog (spinner)
+
+        try
+        {
+            Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+            await Client.MembersDELETEAsync(Guid.Parse(selectedMemberForDialog.Id)); // Assure-toi que cette méthode existe
+            await Task.Delay(1500); // Simuler un appel API
+            Console.WriteLine($"Membre {selectedMemberForDialog.FullName} (ID: {selectedMemberForDialog.Id}) désactivé (simulation).");
+
+            // Succès: Fermer la dialog et recharger la liste
+            isDeactivateDialogOpen = false;
+            selectedMemberForDialog = null;
+            UpdateDisplayedMembers(); // Recharger la liste pour refléter le changement
+            // Optionnel: Afficher une notification de succès
+        }
+        catch (ApiException ex)
+        {
+            Console.WriteLine($"API Error Deactivating: {ex.StatusCode} - {ex.Response}");
+            deactivationErrorMessage = $"Erreur API ({ex.StatusCode}): Impossible de désactiver le membre.";
+            // Laisser la dialog ouverte pour afficher l'erreur
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Generic Error Deactivating: {ex.Message}");
+            deactivationErrorMessage = "Une erreur inattendue est survenue lors de la désactivation.";
+            // Laisser la dialog ouverte pour afficher l'erreur
+        }
+        finally
+        {
+            isDeactivationLoading = false; // Fin du chargement spécifique
+            StateHasChanged(); // Mettre à jour l'UI (arrêter spinner, afficher erreur si besoin)
+        }
     }
 }

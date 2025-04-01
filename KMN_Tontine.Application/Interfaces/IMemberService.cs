@@ -17,5 +17,6 @@ namespace KMN_Tontine.Application.Interfaces
         Task<SimpleResponse> CreateMemberAsync(CreateMemberRequest request);
         Task<SimpleResponse> UpdateMemberAsync(Guid id, UpdateMemberRequest request);
         Task<SimpleResponse> DeleteMemberAsync(Guid id);
+        Task<SimpleResponse> DeactivateMemberAsync(Guid id);
     }
 }

@@ -2,6 +2,8 @@
 using KMN_Tontine.Application.DTOs.Requests;
 using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KMN_Tontine.API.Controllers
@@ -75,12 +77,13 @@ namespace KMN_Tontine.API.Controllers
         /// <summary>
         /// Supprimer un membre
         /// </summary>
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMember(Guid id)
         {
-            var result = await _memberService.DeleteMemberAsync(id);
+            var result = await _memberService.DeactivateMemberAsync(id);
             return result.Success ? NoContent() : NotFound(result);
         }
     }
