@@ -5,13 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using AutoMapper;
+
 using KMN_Tontine.Application.Common;
 using KMN_Tontine.Application.DTOs.Requests;
-using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
-using KMN_Tontine.Domain.Enums;
+using KMN_Tontine.Shared.Enums;
 using KMN_Tontine.Domain.Interfaces;
+using KMN_Tontine.Shared.DTOs.Requests;
+using KMN_Tontine.Shared.DTOs.Responses;
 using KMN_Tontine.Infrastructure.Interface;
 using KMN_Tontine.Infrastructure.Repositories.Implementations;
 

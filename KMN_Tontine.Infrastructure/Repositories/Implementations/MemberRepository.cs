@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using KMN_Tontine.Domain.Entities;
+﻿using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Shared.DTOs.Responses;
+using KMN_Tontine.Shared.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -23,14 +19,30 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
 
         public async Task<Member?> GetByIdAsync(Guid id)
         {
-            return await _context.Members.FindAsync(id);
+            return await _context.Members.FindAsync(id.ToString());
         }
 
-        public async Task<IEnumerable<Member>> GetAllAsync()
+        public async Task<IEnumerable<MemberResponse>> GetAllAsync()
         {
             return await _context.Members
-                .Where(x => x.IsActive)
-                .ToListAsync();
+            .Where(x => x.IsActive)
+            .Select(user => new MemberResponse
+            {
+                Id = Guid.Parse(user.Id),
+                FullName = user.FullName,
+                Email = user.Email,
+                DateOfBirth = user.DateOfBirth,
+                EmailConfirmed = user.EmailConfirmed,
+                // Requête EF pour obtenir les noms des rôles associés
+                Role = Enum.Parse<RoleType>(_context.UserRoles
+                            .Where(ur => ur.UserId == user.Id)
+                            .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                            .FirstOrDefault()),
+                IsActive = user.IsActive,
+                JoinDate = user.JoinDate
+
+            })
+            .ToListAsync();
         }
 
         public async Task AddAsync(Member member)

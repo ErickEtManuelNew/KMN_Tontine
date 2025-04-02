@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KMN_Tontine.Application.Common;
-using KMN_Tontine.Application.DTOs.Requests;
-using KMN_Tontine.Application.DTOs.Responses;
+using KMN_Tontine.Shared.DTOs.Requests;
+using KMN_Tontine.Shared.DTOs.Responses;
 
 namespace KMN_Tontine.Application.Interfaces
 {

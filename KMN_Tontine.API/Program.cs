@@ -5,7 +5,7 @@ using KMN_Tontine.Application.Mappings;
 using KMN_Tontine.Application.Seed;
 using KMN_Tontine.Application.Services;
 using KMN_Tontine.Domain.Entities;
-using KMN_Tontine.Domain.Enums;
+using KMN_Tontine.Shared.Enums;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
 using KMN_Tontine.Infrastructure.Interface;

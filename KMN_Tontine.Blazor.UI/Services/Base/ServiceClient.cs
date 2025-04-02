@@ -3359,7 +3359,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("fullName")]
         public string FullName { get; set; }
@@ -3610,6 +3610,8 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class UpdateMemberRequest
     {
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public Guid Id { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("fullName")]
         public string FullName { get; set; }

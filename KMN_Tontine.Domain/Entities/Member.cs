@@ -1,6 +1,4 @@
-﻿using KMN_Tontine.Domain.Enums;
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace KMN_Tontine.Domain.Entities
 {

@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 
 using KMN_Tontine.Shared.Enums;
 
-namespace KMN_Tontine.Domain.Entities
+namespace KMN_Tontine.Shared.DTOs.Responses
 {
-    public class Transaction
+    public class TransactionResponse
     {
         public int Id { get; set; }
         public TransactionType Type { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime Date { get; set; }
         public string Description { get; set; }
-
         public int AccountId { get; set; }
-        public Account Account { get; set; }
-
         public int TontineId { get; set; }
-        public Tontine Tontine { get; set; }
     }
 }

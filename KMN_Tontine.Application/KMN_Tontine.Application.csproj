@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\KMN_Tontine.Domain\KMN_Tontine.Domain.csproj" />
     <ProjectReference Include="..\KMN_Tontine.Infrastructure\KMN_Tontine.Infrastructure.csproj" />
+    <ProjectReference Include="..\KMN_Tontine.Shared\KMN_Tontine.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,8 @@
 ﻿using KMN_Tontine.Application.Common;
 using KMN_Tontine.Application.DTOs.Requests;
-using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
+using KMN_Tontine.Shared.DTOs.Requests;
+using KMN_Tontine.Shared.DTOs.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

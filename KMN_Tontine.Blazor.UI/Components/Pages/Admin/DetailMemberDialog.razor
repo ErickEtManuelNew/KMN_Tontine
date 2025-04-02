@@ -1,0 +1,216 @@
+﻿@* Components/DetailMemberDialog.razor *@
+@using KMN_Tontine.Blazor.UI.Services.Base
+@inject IClient Client
+@inject CurrentUserService CurrentUser // Pour l'authentification de l'appel API
+
+@if (IsOpen && Member != null)
+{
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @onclick="AttemptCloseOutside">
+        <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white" @onclick:stopPropagation>
+            <div class="mt-3">
+                <h3 class="text-xl leading-6 font-medium text-gray-900 mb-6 text-center">
+                    📄 Détails du Membre
+                </h3>
+
+                <div class="space-y-4 px-4 py-3 mb-4">
+                    @* --- Informations Non Modifiables --- *@
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Nom Complet:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.FullName</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Email:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.Email</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Date Naissance:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.DateOfBirth.ToShortDateString()</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Statut Email:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@(Member.EmailConfirmed ? "✅ Confirmé" : "⏳ En attente")</span>
+                    </div>
+                    @*                     <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Adresse :</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.Ad)</span>
+                    </div> *@
+                    <hr class="my-4" />
+
+                    @* --- Section Rôle Modifiable --- *@
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <label for="role-select" class="block text-sm font-medium text-gray-700 col-span-1">Rôle:</label>
+                        <div class="col-span-2">
+                            <select id="role-select" @bind="selectedRole" disabled="@isLoading"
+                            class="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100">
+                                @if (availableRoles != null)
+                                {
+                                    @foreach (var role in availableRoles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="my-3 mx-4 p-3 bg-red-100 text-red-700 rounded text-sm">
+                        @errorMessage
+                    </div>
+                }
+
+                <div class="items-center px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t mt-4">
+                    <button type="button"
+                    class="inline-flex justify-center w-full sm:w-auto rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:text-sm disabled:opacity-50"
+                    @onclick="HandleSaveRole" disabled="@(isLoading || !HasRoleChanged())">
+                        @if (isLoading)
+                        {
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Mise à jour...</span>
+                        }
+                        else
+                        {
+                            <span>💾 Mettre à jour Rôle</span>
+                        }
+                    </button>
+                    <button type="button"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50"
+                    @onclick="HandleClose" disabled="@isLoading">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public MemberResponse? Member { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; } // Pour @bind-IsOpen
+    [Parameter] public EventCallback<RoleType> OnRoleChanged { get; set; } // Notifier le parent du succès
+
+    private List<string> availableRoles = new();
+    private RoleType? originalRole; // Pour détecter si le rôle a changé
+    private RoleType selectedRole; // Le rôle actuellement sélectionné
+    private bool isLoading = false;
+    private string? errorMessage;
+
+    protected override void OnInitialized()
+    {
+        // Charger la liste des rôles disponibles depuis l'enum RoleType
+        availableRoles = Enum.GetNames(typeof(RoleType)).ToList();
+    }
+
+    // S'exécute chaque fois que les paramètres sont définis (y compris à l'ouverture)
+    protected override void OnParametersSet()
+    {
+        if (IsOpen && Member != null)
+        {
+            // Initialiser le rôle sélectionné avec le rôle actuel du membre
+            // Supposons que MemberResponse a une propriété 'Role' (string)
+            // Adaptez si Member.Role est une List<string> ou autre chose
+            RoleType currentMemberRoleAsString = Member.Role;
+            originalRole = currentMemberRoleAsString; // Stocker l'original
+            selectedRole = currentMemberRoleAsString; // Mettre à jour la sélection
+            errorMessage = null; // Réinitialiser les erreurs précédentes
+            isLoading = false; // S'assurer que le chargement est à false
+        }
+        else if (!IsOpen)
+        {
+            // Optionnel: Nettoyer quand fermé
+            errorMessage = null;
+            isLoading = false;
+            originalRole = null;
+        }
+    }
+
+    private bool HasRoleChanged()
+    {
+        return originalRole != selectedRole;
+    }
+
+    private async Task HandleSaveRole()
+    {
+        if (Member == null || isLoading || !HasRoleChanged())
+        {
+            return; // Ne rien faire si pas prêt, en chargement, ou si le rôle n'a pas changé
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            // Préparez la commande pour l'API (adaptez selon votre DTO réel)
+            var command = new UpdateMemberRequest
+                {
+                    FullName = Member.FullName, // Assurez-vous que MemberResponse a 'FullName' (string)
+                    IsActive = Member.IsActive, // Assurez-vous que MemberResponse a 'IsActive' (bool)
+                    DateOfBirth = Member.DateOfBirth, // Assurez-vous que MemberResponse a 'DateOfBirth' (DateTime)
+                    Role = selectedRole, // Utilisez le rôle sélectionné
+                    Id = Member.Id, // Assurez-vous que MemberResponse a 'Id' (string ou Guid?)
+                };
+
+            // Ajouter l'authentification
+            Client.HttpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+
+            // *** REMPLACER PAR VOTRE VRAI APPEL API ***
+            var response = await Client.MembersPUTAsync(Member.Id, command); // Décommentez et adaptez
+            await Task.Delay(1000); // Simuler un appel API
+
+            if (response.Success)
+            {
+                await OnRoleChanged.InvokeAsync(selectedRole); // Notifier le parent du succès
+                await CloseDialog(); // Fermer la dialog après succès
+            }
+            else
+            {
+                errorMessage = response.Message ?? "Échec de la mise à jour du rôle.";
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+        catch (ApiException ex) // Adaptez si vous n'utilisez pas ApiException
+        {
+            Console.WriteLine($"API Error Updating Role: {ex.StatusCode} - {ex.Response}");
+            errorMessage = $"Erreur API ({ex.StatusCode}): Impossible de mettre à jour le rôle.";
+            isLoading = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Generic Error Updating Role: {ex.Message}");
+            errorMessage = "Une erreur inattendue est survenue.";
+            isLoading = false;
+            StateHasChanged();
+        }
+        // 'finally' n'est pas nécessaire ici car isLoading est géré dans les blocs catch/success
+    }
+
+    // Méthode pour fermer la dialog et notifier le parent
+    private async Task CloseDialog()
+    {
+        if (isLoading) return; // Ne pas fermer si en cours de chargement
+        await IsOpenChanged.InvokeAsync(false); // Utilise le @bind pour fermer
+    }
+
+    // Gère le clic sur Annuler/Fermer
+    private async Task HandleClose()
+    {
+        await CloseDialog();
+    }
+
+    // Gère le clic en dehors de la dialog
+    private async Task AttemptCloseOutside()
+    {
+        await CloseDialog();
+    }
+}

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KMN_Tontine.Domain.Entities;
+using KMN_Tontine.Shared.DTOs.Responses;
 
 namespace KMN_Tontine.Domain.Interfaces
 {
@@ -12,7 +13,7 @@ namespace KMN_Tontine.Domain.Interfaces
     {
         Task<Member?> GetByIdAsync(Guid id);
         Task<Member?> GetByEmailAsync(string email);
-        Task<IEnumerable<Member>> GetAllAsync();
+        Task<IEnumerable<MemberResponse>> GetAllAsync();
         Task AddAsync(Member member);
         Task UpdateAsync(Member member);
         Task DeleteAsync(Guid id);

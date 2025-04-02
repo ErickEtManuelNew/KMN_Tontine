@@ -1,4 +1,4 @@
-﻿using KMN_Tontine.Domain.Enums;
+﻿using KMN_Tontine.Shared.Enums;
 
 namespace KMN_Tontine.Domain.Entities
 {

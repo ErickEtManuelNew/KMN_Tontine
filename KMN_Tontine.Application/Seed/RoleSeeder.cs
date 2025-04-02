@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using KMN_Tontine.Domain.Enums;
+using KMN_Tontine.Shared.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace KMN_Tontine.Application.Seed

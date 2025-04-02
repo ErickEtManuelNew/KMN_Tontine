@@ -22,87 +22,89 @@
                             <strong>Félicitations !</strong> Vous êtes maintenant inscrit sur KMN Tontine. Un e-mail de confirmation a été envoyé à <strong>@registerRequest.Email</strong>. Veuillez vérifier votre boîte de réception.
                         </div>
                     }
-                    <EditForm Model="@registerRequest" OnValidSubmit="HandleRegistration">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
+                    else
+                    {
+                        <EditForm Model="@registerRequest" OnValidSubmit="HandleRegistration">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
 
-                        <!-- Prénom -->
-                        <div class="mb-3">
-                            <label for="firstName" class="form-label">Prénom</label>
-                            <InputText id="firstName" @bind-Value="registerRequest.FirstName" class="form-control" placeholder="Entrez votre prénom" />
-                            <ValidationMessage For="@(() => registerRequest.FirstName)" class="text-danger" />
-                        </div>
+                            <!-- Prénom -->
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">Prénom</label>
+                                <InputText id="firstName" @bind-Value="registerRequest.FirstName" class="form-control" placeholder="Entrez votre prénom" />
+                                <ValidationMessage For="@(() => registerRequest.FirstName)" class="text-danger" />
+                            </div>
 
-                        <!-- Nom -->
-                        <div class="mb-3">
-                            <label for="lastName" class="form-label">Nom</label>
-                            <InputText id="lastName" @bind-Value="registerRequest.LastName" class="form-control" placeholder="Entrez votre nom" />
-                            <ValidationMessage For="@(() => registerRequest.LastName)" class="text-danger" />
-                        </div>
+                            <!-- Nom -->
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Nom</label>
+                                <InputText id="lastName" @bind-Value="registerRequest.LastName" class="form-control" placeholder="Entrez votre nom" />
+                                <ValidationMessage For="@(() => registerRequest.LastName)" class="text-danger" />
+                            </div>
 
-                        <!-- Date de naissance -->
-                        <div class="mb-3">
-                            <label for="dateOfBirth" class="form-label">Date de naissance</label>
-                            <InputDate id="dateOfBirth" @bind-Value="registerRequest.DateOfBirth" class="form-control" placeholder="Sélectionnez votre date de naissance" />
-                            <ValidationMessage For="@(() => registerRequest.DateOfBirth)" class="text-danger" />
-                            <small class="form-text text-muted">Votre âge doit être supérieur à 18 ans pour vous inscrire.</small>
-                        </div>
+                            <!-- Date de naissance -->
+                            <div class="mb-3">
+                                <label for="dateOfBirth" class="form-label">Date de naissance</label>
+                                <InputDate id="dateOfBirth" @bind-Value="registerRequest.DateOfBirth" class="form-control" placeholder="Sélectionnez votre date de naissance" />
+                                <ValidationMessage For="@(() => registerRequest.DateOfBirth)" class="text-danger" />
+                                <small class="form-text text-muted">Votre âge doit être supérieur à 18 ans pour vous inscrire.</small>
+                            </div>
 
-                        <!-- E-mail -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Adresse e-mail</label>
-                            <InputText id="email" @bind-Value="registerRequest.Email" class="form-control" placeholder="Entrez votre adresse e-mail" />
-                            <ValidationMessage For="@(() => registerRequest.Email)" class="text-danger" />
-                            <small class="form-text text-muted">Nous ne partagerons jamais votre e-mail. Il sera utilisé uniquement pour confirmer votre inscription.</small>
-                        </div>
+                            <!-- E-mail -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adresse e-mail</label>
+                                <InputText id="email" @bind-Value="registerRequest.Email" class="form-control" placeholder="Entrez votre adresse e-mail" />
+                                <ValidationMessage For="@(() => registerRequest.Email)" class="text-danger" />
+                                <small class="form-text text-muted">Nous ne partagerons jamais votre e-mail. Il sera utilisé uniquement pour confirmer votre inscription.</small>
+                            </div>
 
-                        <!-- Mot de passe -->
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mot de passe</label>
-                            <InputText id="password" @bind-Value="registerRequest.Password" type="password" class="form-control" placeholder="Entrez un mot de passe (minimum 8 caractères)" />
-                            <ValidationMessage For="@(() => registerRequest.Password)" class="text-danger" />
-                            <small class="form-text text-muted">
-                                Pour protéger votre compte, votre mot de passe doit contenir au moins :
-                                <ul>
-                                    <li>8 caractères</li>
-                                    <li>1 majuscule</li>
-                                    <li>1 minuscule</li>
-                                    <li>1 chiffre</li>
-                                    <li>1 caractère spécial</li>
-                                </ul>
-                                <strong>Avec KMN Tontine, votre sécurité est notre priorité.</strong>
-                            </small>
-                        </div>
+                            <!-- Mot de passe -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <InputText id="password" @bind-Value="registerRequest.Password" type="password" class="form-control" placeholder="Entrez un mot de passe (minimum 8 caractères)" />
+                                <ValidationMessage For="@(() => registerRequest.Password)" class="text-danger" />
+                                <small class="form-text text-muted">
+                                    Pour protéger votre compte, votre mot de passe doit contenir au moins :
+                                    <ul>
+                                        <li>8 caractères</li>
+                                        <li>1 majuscule</li>
+                                        <li>1 minuscule</li>
+                                        <li>1 chiffre</li>
+                                        <li>1 caractère spécial</li>
+                                    </ul>
+                                    <strong>Avec KMN Tontine, votre sécurité est notre priorité.</strong>
+                                </small>
+                            </div>
 
-                        <!-- Confirmation du mot de passe -->
-                        <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">Confirmez le mot de passe</label>
-                            <InputText id="confirmPassword" @bind-Value="confirmPassword" type="password" class="form-control" placeholder="Confirmez votre mot de passe" />
-                            <ValidationMessage For="@(() => confirmPassword)" class="text-danger" />
-                        </div>
+                            <!-- Confirmation du mot de passe -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirmez le mot de passe</label>
+                                <InputText id="confirmPassword" @bind-Value="confirmPassword" type="password" class="form-control" placeholder="Confirmez votre mot de passe" />
+                                <ValidationMessage For="@(() => confirmPassword)" class="text-danger" />
+                            </div>
 
-                        <!-- Adresse (optionnel) -->
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Adresse (optionnel)</label>
-                            <InputText id="address" @bind-Value="registerRequest.Address" class="form-control" placeholder="Entrez votre adresse" />
-                            <small class="form-text text-muted">Cette information est facultative mais peut être utile pour les correspondances officielles.</small>
-                        </div>
+                            <!-- Adresse (optionnel) -->
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Adresse (optionnel)</label>
+                                <InputText id="address" @bind-Value="registerRequest.Address" class="form-control" placeholder="Entrez votre adresse" />
+                                <small class="form-text text-muted">Cette information est facultative mais peut être utile pour les correspondances officielles.</small>
+                            </div>
 
-                        <!-- Bouton d'envoi -->
-                        <button type="submit" class="btn btn-primary w-100">
-                            @if (_loading)
-                            {
-                                <span class="spinner-border spinner-border-sm"></span>
-                            }
-                            S'inscrire
-                        </button>
+                            <!-- Bouton d'envoi -->
+                            <button type="submit" class="btn btn-primary w-100">
+                                @if (_loading)
+                                {
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                }
+                                S'inscrire
+                            </button>
 
-                        <p class="mt-4 text-sm text-center text-gray-600">
-                            Déjà inscrit ?
-                            <a href="/login" class="text-indigo-600 hover:underline">Cliquez ici pour vous connecter</a>.
-                        </p>
-                    </EditForm>
-
+                            <p class="mt-4 text-sm text-center text-gray-600">
+                                Déjà inscrit ?
+                                <a href="/login" class="text-indigo-600 hover:underline">Cliquez ici pour vous connecter</a>.
+                            </p>
+                        </EditForm>
+                    }
                     <!-- Message d'erreur -->
                     @if (!string.IsNullOrEmpty(errorMessage))
                     {
@@ -167,7 +169,7 @@
                 StateHasChanged(); // Forcer le rafraîchissement
 
                 // Optionnel : Rediriger vers une page de confirmation ou de connexion après un délai
-                await Task.Delay(6000); // Attendre 3 secondes
+                await Task.Delay(3000); // Attendre 3 secondes
                 Navigation.NavigateTo("/login");
             }
             else

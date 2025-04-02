@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using KMN_Tontine.Application.Common;
-using KMN_Tontine.Application.DTOs.Requests;
-using KMN_Tontine.Application.DTOs.Responses;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Domain.Entities;
-using KMN_Tontine.Domain.Enums;
+using KMN_Tontine.Shared.Enums;
 using KMN_Tontine.Domain.Interfaces;
+using KMN_Tontine.Shared.DTOs.Requests;
+using KMN_Tontine.Shared.DTOs.Responses;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -46,8 +46,7 @@ namespace KMN_Tontine.Application.Services
 
         public async Task<IEnumerable<MemberResponse>> GetAllMembersAsync()
         {
-            var members = await _memberRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<MemberResponse>>(members);
+            return await _memberRepository.GetAllAsync();
         }
 
         public async Task<SimpleResponse> CreateMemberAsync(CreateMemberRequest request)
@@ -87,10 +86,14 @@ namespace KMN_Tontine.Application.Services
                 if (member == null)
                     return SimpleResponse.Error("Member not found");
 
+                
                 // Mettre à jour les propriétés
                 member.FullName = request.FullName ?? member.FullName;
                 member.DateOfBirth = request.DateOfBirth ?? member.DateOfBirth;
                 member.IsActive = request.IsActive ?? member.IsActive;
+                var currentRole = _userManager.GetRolesAsync(member).Result.FirstOrDefault();
+                await _userManager.RemoveFromRoleAsync(member, currentRole);
+                await _userManager.AddToRoleAsync(member, request.Role.ToString());
 
                 await _memberRepository.UpdateAsync(member);
                 return SimpleResponse.Ok("Member updated successfully");
