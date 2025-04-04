@@ -1,10 +1,16 @@
 ﻿@page "/myaccounts"
 @inject IClient Client
 @inject CurrentUserService CurrentUser
-@using KMN_Tontine.Blazor.UI.Services.Base
 @inject NavigationManager Navigation
 
 <h3 class="text-2xl font-bold text-indigo-700 mb-6">📂 My Accounts</h3>
+
+<div class="relative">
+    <PromiseDialog AccountId="@selectedAccountId"
+                   IsOpen="@isPromiseDialogOpen"
+                   IsOpenChanged="HandlePromiseDialogClosed"
+                   OnPromiseCreated="RefreshAccounts" />
+</div>
 
 @if (isLoading)
 {
@@ -38,12 +44,8 @@ else
                         <td class="px-6 py-4 whitespace-nowrap text-gray-700">@account.Balance.ToString("C")</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@account.Comment</td>
                         <td class="px-6 py-4 whitespace-nowrap space-x-2">
-                            <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
-                                    @onclick="() => ViewDetails(account.Id)">
-                                📊 Details
-                            </button>
                             <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
-                                    @onclick="() => MakePromise(account.Id)">
+                                    @onclick="() => ShowPromiseDialog(account.Id)">
                                 🤝 Promise
                             </button>
                         </td>
@@ -57,9 +59,19 @@ else
 @code {
     private bool isLoading = true;
     private List<AccountResponse> accounts = new();
+    private bool isPromiseDialogOpen = false;
+    private int selectedAccountId;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAccounts();
+    }
+
+    private async Task LoadAccounts()
+    {
+        isLoading = true;
+        StateHasChanged();
+
         await CurrentUser.LoadUserInfoAsync();
 
         if (string.IsNullOrEmpty(CurrentUser.UserName)) return;
@@ -69,13 +81,19 @@ else
         isLoading = false;
     }
 
-    private void ViewDetails(int accountId)
+    private void ShowPromiseDialog(int accountId)
     {
-        Navigation.NavigateTo($"/account-details/{accountId}");
+        selectedAccountId = accountId;
+        isPromiseDialogOpen = true;
     }
 
-    private void MakePromise(int accountId)
+    private void HandlePromiseDialogClosed(bool isOpen)
     {
-        Navigation.NavigateTo($"/promise/{accountId}");
+        isPromiseDialogOpen = isOpen;
+    }
+
+    private async Task RefreshAccounts()
+    {
+        await LoadAccounts();
     }
 }
