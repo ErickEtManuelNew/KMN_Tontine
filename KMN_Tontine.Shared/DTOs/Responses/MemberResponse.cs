@@ -18,5 +18,6 @@ namespace KMN_Tontine.Shared.DTOs.Responses
         public RoleType Role { get; set; }
         public string Email { get; set; } // Hérité de IdentityUser
         public bool EmailConfirmed { get; set; } // Hérité de IdentityUser
+        public bool LockoutEnabled { get; set; } // Hérité de IdentityUser
     }
 }

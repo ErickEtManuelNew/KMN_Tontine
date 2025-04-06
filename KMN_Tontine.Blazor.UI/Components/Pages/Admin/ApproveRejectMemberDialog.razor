@@ -1,0 +1,65 @@
+@using KMN_Tontine.Blazor.UI.Services.Base
+
+@if (IsOpen && Member != null)
+{
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @onclick="() => OnConfirmed.InvokeAsync(false)">
+        <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white" @onclick:stopPropagation>
+            <div class="mt-3">
+                <h3 class="text-xl leading-6 font-medium text-gray-900 mb-6 text-center">
+                    @(IsApproving ? "✅ Approuver l'inscription" : "❌ Rejeter l'inscription")
+                </h3>
+
+                <div class="space-y-4 px-4 py-3 mb-4">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Nom Complet:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.FullName</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Email:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.Email</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Date Naissance:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.DateOfBirth.ToShortDateString()</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Date d'inscription:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@Member.JoinDate.ToShortDateString()</span>
+                    </div>
+                </div>
+
+                <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 rounded-b">
+                    <p class="text-left mb-4 text-sm text-gray-600">
+                        @if (IsApproving)
+                        {
+                            <span>En confirmant, vous approuvez l'inscription de ce membre. Il recevra un email lui permettant de confirmer son inscription.</span>
+                        }
+                        else
+                        {
+                            <span>En confirmant, vous rejetez définitivement l'inscription de ce membre.</span>
+                        }
+                    </p>
+                    
+                    <button type="button" 
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white @(IsApproving ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700") focus:outline-none mr-2"
+                            @onclick="() => OnConfirmed.InvokeAsync(true)">
+                        Confirmer
+                    </button>
+                    <button type="button" 
+                            class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                            @onclick="() => OnConfirmed.InvokeAsync(false)">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public MemberResponse? Member { get; set; }
+    [Parameter] public bool IsApproving { get; set; }
+    [Parameter] public EventCallback<bool> OnConfirmed { get; set; }
+} 

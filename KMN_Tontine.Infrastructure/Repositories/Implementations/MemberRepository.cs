@@ -25,7 +25,6 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         public async Task<IEnumerable<MemberResponse>> GetAllAsync()
         {
             return await _context.Members
-            .Where(x => x.IsActive)
             .Select(user => new MemberResponse
             {
                 Id = Guid.Parse(user.Id),

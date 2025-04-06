@@ -42,7 +42,19 @@ namespace KMN_Tontine.Application.Services
 
             try
             {
-                // Créer un jeton de confirmation
+                // Vérifier si l'email existe déjà
+                var existingUser = await _userManager.FindByEmailAsync(request.Email);
+                if (existingUser != null)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new SimpleResponse
+                    {
+                        Success = false,
+                        Message = "Un compte existe déjà avec cette adresse email."
+                    };
+                }
+
+                // Créer un jeton de confirmation (sera utilisé plus tard pour la validation email)
                 var confirmationToken = Guid.NewGuid().ToString();
 
                 var user = new Member
@@ -52,17 +64,22 @@ namespace KMN_Tontine.Application.Services
                     DateOfBirth = request.DateOfBirth,
                     UserName = request.Email,
                     Email = request.Email,
-                    FullName = request.FirstName + ' ' + request.LastName,
-                    PasswordHash = request.Password,
+                    FullName = $"{request.FirstName} {request.LastName}".Trim(),
+                    JoinDate = DateTime.UtcNow,
                     ConfirmationCode = confirmationToken,
-                    EmailConfirmed = false
+                    // État initial du membre
+                    EmailConfirmed = false,     // L'email n'est pas encore confirmé
+                    IsActive = false,           // En attente d'approbation par un admin
+                    LockoutEnabled = false,     // Pas encore rejeté
+                    PhoneNumberConfirmed = false
                 };
 
+                // Créer l'utilisateur avec Identity
                 var result = await _userManager.CreateAsync(user, request.Password);
                 if (!result.Succeeded)
                 {
                     await _unitOfWork.RollbackAsync();
-                    return new SimpleResponse()
+                    return new SimpleResponse
                     {
                         Success = false,
                         Message = string.Join(" | ", result.Errors.Select(e => e.Description))
@@ -70,49 +87,84 @@ namespace KMN_Tontine.Application.Services
                 }
 
                 // Créer les comptes associés à l'utilisateur
-                // Affecter tous les types de comptes (enum) à l'utilisateur
-                var res = _accountService.CreateAccountForMemberAsync(user.Id).Result;
-                if (!res.Success)
+                var accountResult = await _accountService.CreateAccountForMemberAsync(user.Id);
+                if (!accountResult.Success)
                 {
                     await _unitOfWork.RollbackAsync();
-                    return new SimpleResponse()
+                    return new SimpleResponse
                     {
                         Success = false,
-                        Message = res.Message
+                        Message = accountResult.Message
                     };
                 }
 
-                // Ajouter le rôle spécifié (ou par défaut)
-                var res1 = _userManager.AddToRoleAsync(user, request.Role.ToString());
-                if (!res1.Result.Succeeded)
+                // Ajouter le rôle Member par défaut
+                // Note: même si l'utilisateur a demandé un autre rôle, on force le rôle Member
+                var roleResult = await _userManager.AddToRoleAsync(user, RoleType.Member.ToString());
+                if (!roleResult.Succeeded)
                 {
                     await _unitOfWork.RollbackAsync();
-                    return new SimpleResponse()
+                    return new SimpleResponse
                     {
                         Success = false,
-                        Message = string.Join(" | ", res1.Result.Errors.Select(e => e.Description))
+                        Message = string.Join(" | ", roleResult.Errors.Select(e => e.Description))
                     };
                 }
 
                 await _unitOfWork.CommitAsync();
-                return new SimpleResponse()
+
+                // Retourner un message de succès personnalisé
+                return new SimpleResponse
                 {
                     Success = true,
-                    Message = string.Empty
+                    Message = "Inscription réussie ! Votre compte est en attente d'approbation par un administrateur. " +
+                             "Vous recevrez un email de confirmation une fois votre compte approuvé."
                 };
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return new SimpleResponse { Success = false, Message = ex.Message };
+                return new SimpleResponse 
+                { 
+                    Success = false, 
+                    Message = $"Une erreur est survenue lors de l'inscription : {ex.Message}" 
+                };
             }
         }
 
         public async Task<TokenResponse> LoginAsync(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+            
+            if (user == null)
+            {
                 return new TokenResponse { IsSuccess = false, Message = "Invalid email or password" };
+            }
+            
+            // Vérifier si le compte est verrouillé (rejeté)
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                return new TokenResponse { IsSuccess = false, Message = "Your account has been rejected" };
+            }
+            
+            // Vérifier si le compte est actif (approuvé)
+            if (!user.IsActive)
+            {
+                return new TokenResponse { IsSuccess = false, Message = "Your account is pending approval by an administrator" };
+            }
+            
+            // Vérifier si l'email est confirmé (après approbation)
+            if (!user.EmailConfirmed)
+            {
+                return new TokenResponse { IsSuccess = false, Message = "Please confirm your email address" };
+            }
+            
+            // La vérification du mot de passe
+            var result = await _userManager.CheckPasswordAsync(user, request.Password);
+            if (!result)
+            {
+                return new TokenResponse { IsSuccess = false, Message = "Invalid email or password" };
+            }
 
             return GenerateToken(user);
         }

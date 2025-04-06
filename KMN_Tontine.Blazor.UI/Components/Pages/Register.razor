@@ -19,7 +19,7 @@
                     @if (showConfirmationMessage)
                     {
                         <div class="alert alert-success mt-3 text-center">
-                            <strong>Félicitations !</strong> Vous êtes maintenant inscrit sur KMN Tontine. Un e-mail de confirmation a été envoyé à <strong>@registerRequest.Email</strong>. Veuillez vérifier votre boîte de réception.
+                            <strong>Félicitations !</strong> @responseMessage
                         </div>
                     }
                     else
@@ -125,6 +125,7 @@
     private bool _loading;
     private string confirmPassword;
     private PasswordHelper _passwordHelper = new PasswordHelper();
+    private string responseMessage = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -166,6 +167,7 @@
             {
                 // Afficher le message de confirmation
                 showConfirmationMessage = true;
+                responseMessage = response.Message;
                 StateHasChanged(); // Forcer le rafraîchissement
 
                 // Optionnel : Rediriger vers une page de confirmation ou de connexion après un délai

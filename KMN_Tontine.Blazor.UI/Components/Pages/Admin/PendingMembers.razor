@@ -1,0 +1,214 @@
+@page "/admin/pending-members"
+
+@attribute [Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.SuperAdmin)}")]
+@inject KMN_Tontine.Blazor.UI.Services.Base.IClient Client
+@inject NavigationManager Navigation
+@inject CurrentUserService CurrentUser
+@using KMN_Tontine.Blazor.UI.Services.Base
+@using System.Net.Http.Headers
+
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">👥 Inscriptions en attente d'approbation</h3>
+
+<div class="mb-4 max-w-md">
+    <input type="text" class="form-control w-full" placeholder="🔍 Rechercher par nom ou email..." @bind="SearchTerm" @bind:event="oninput" />
+</div>
+
+<div class="relative">
+    <ApproveRejectMemberDialog @bind-IsOpen="isApproveRejectDialogOpen"
+                              Member="selectedMemberForDialog"
+                              IsApproving="isApproving"
+                              OnConfirmed="HandleActionConfirmed" />
+</div>
+
+@if (isLoading)
+{
+    <p class="text-gray-500">Chargement des inscriptions en attente...</p>
+}
+else if (!sortedMembers.Any())
+{
+    <div class="alert alert-info p-4 bg-blue-50 text-blue-700 rounded">
+        Aucune inscription en attente d'approbation pour le moment.
+    </div>
+}
+else
+{
+    <div class="overflow-x-auto">
+        <table class="min-w-full table-auto bg-white shadow rounded">
+            <thead class="bg-indigo-600 text-white">
+                <tr>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("FullName")'>
+                        Nom @(sortColumn == "FullName" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("Email")'>
+                        Email @(sortColumn == "Email" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("DateOfBirth")'>
+                        Date de naissance @(sortColumn == "DateOfBirth" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left cursor-pointer" @onclick='() => SortBy("JoinDate")'>
+                        Date d'inscription @(sortColumn == "JoinDate" ? (sortAscending ? "▲" : "▼") : "")
+                    </th>
+                    <th class="px-4 py-2 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in sortedMembers)
+                {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2">@m.FullName</td>
+                        <td class="px-4 py-2">@m.Email</td>
+                        <td class="px-4 py-2">@m.DateOfBirth.ToShortDateString()</td>
+                        <td class="px-4 py-2">@m.JoinDate.ToShortDateString()</td>
+                        <td class="px-4 py-2 space-x-2">
+                            <button class="text-green-600 hover:underline text-sm" 
+                                    @onclick="() => OpenApproveRejectDialog(m, true)">
+                                ✅ Approuver
+                            </button>
+                            <button class="text-red-600 hover:underline text-sm" 
+                                    @onclick="() => OpenApproveRejectDialog(m, false)">
+                                ❌ Rejeter
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<MemberResponse>? allMembers;
+    private List<MemberResponse> sortedMembers = new();
+    private string sortColumn = "JoinDate";
+    private bool sortAscending = false; // Plus récent en premier par défaut
+    private string _searchTerm = string.Empty;
+    private bool isLoading = true;
+
+    private bool isApproveRejectDialogOpen = false;
+    private MemberResponse? selectedMemberForDialog;
+    private bool isApproving = false; // true pour approuver, false pour rejeter
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPendingMembers();
+    }
+
+    private async Task LoadPendingMembers()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            Client.HttpClient.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+            
+            var members = (await Client.MembersAllAsync()).ToList();
+            
+            // Filtrer pour ne garder que les membres non encore approuvés (IsActive = false)
+            // mais qui n'ont pas encore été rejetés (LockoutEnabled = false)
+            allMembers = members.Where(m => !m.IsActive && !m.LockoutEnabled).ToList();
+            
+            UpdateDisplayedMembers();
+        }
+        catch (Exception)
+        {
+            // Gérer les erreurs
+            allMembers = new List<MemberResponse>();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            UpdateDisplayedMembers();
+        }
+    }
+
+    private void UpdateDisplayedMembers()
+    {
+        if (allMembers == null) return;
+
+        // Filtrer d'abord
+        IEnumerable<MemberResponse> filteredMembers = allMembers;
+        if (!string.IsNullOrWhiteSpace(_searchTerm))
+        {
+            filteredMembers = allMembers
+                .Where(m => (m.FullName != null && m.FullName.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase))
+                         || (m.Email != null && m.Email.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // Trier ensuite
+        sortedMembers = sortColumn switch
+        {
+            "Email" => (sortAscending ? filteredMembers.OrderBy(m => m.Email) : filteredMembers.OrderByDescending(m => m.Email)).ToList(),
+            "DateOfBirth" => (sortAscending ? filteredMembers.OrderBy(m => m.DateOfBirth) : filteredMembers.OrderByDescending(m => m.DateOfBirth)).ToList(),
+            "JoinDate" => (sortAscending ? filteredMembers.OrderBy(m => m.JoinDate) : filteredMembers.OrderByDescending(m => m.JoinDate)).ToList(),
+            _ => (sortAscending ? filteredMembers.OrderBy(m => m.FullName) : filteredMembers.OrderByDescending(m => m.FullName)).ToList()
+        };
+    }
+
+    private void SortBy(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortAscending = true;
+        }
+        UpdateDisplayedMembers();
+    }
+
+    private void OpenApproveRejectDialog(MemberResponse member, bool approve)
+    {
+        selectedMemberForDialog = member;
+        isApproving = approve;
+        isApproveRejectDialogOpen = true;
+    }
+
+    private async Task HandleActionConfirmed(bool confirmed)
+    {
+        if (confirmed && selectedMemberForDialog != null)
+        {
+            var updateRequest = new UpdateMemberRequest
+            {
+                Id = selectedMemberForDialog.Id,
+                FullName = selectedMemberForDialog.FullName,
+                DateOfBirth = selectedMemberForDialog.DateOfBirth,
+                Role = RoleType.Member,
+            };
+
+            if (isApproving)
+            {
+                // Approuver = activer le compte
+                updateRequest.IsActive = true;
+                // EmailConfirmed reste false jusqu'à ce que l'utilisateur confirme son email
+            }
+            else
+            {
+                // Rejeter = verrouiller le compte
+                updateRequest.LockoutEnabled = true;
+                updateRequest.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100); // Verrouillé pour très longtemps
+            }
+
+            Client.HttpClient.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+            
+            await Client.MembersPUTAsync(selectedMemberForDialog.Id, updateRequest);
+            await LoadPendingMembers(); // Recharger la liste
+        }
+        
+        isApproveRejectDialogOpen = false;
+    }
+} 

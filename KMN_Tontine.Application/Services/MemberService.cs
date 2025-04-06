@@ -86,14 +86,42 @@ namespace KMN_Tontine.Application.Services
                 if (member == null)
                     return SimpleResponse.Error("Member not found");
 
-                
-                // Mettre à jour les propriétés
+                // Mettre à jour les propriétés de base
                 member.FullName = request.FullName ?? member.FullName;
                 member.DateOfBirth = request.DateOfBirth ?? member.DateOfBirth;
-                member.IsActive = request.IsActive ?? member.IsActive;
+                
+                // Gérer l'approbation/rejet
+                if (request.IsActive.HasValue)
+                {
+                    member.IsActive = request.IsActive.Value;
+                }
+                
+                // Gérer le verrouillage (rejet)
+                if (request.LockoutEnabled.HasValue)
+                {
+                    member.LockoutEnabled = request.LockoutEnabled.Value;
+                    
+                    if (request.LockoutEnd.HasValue)
+                    {
+                        member.LockoutEnd = request.LockoutEnd.Value;
+                    }
+                }
+                
+                // Gérer les rôles
                 var currentRole = _userManager.GetRolesAsync(member).Result.FirstOrDefault();
-                await _userManager.RemoveFromRoleAsync(member, currentRole);
+                if (currentRole != null)
+                {
+                    await _userManager.RemoveFromRoleAsync(member, currentRole);
+                }
                 await _userManager.AddToRoleAsync(member, request.Role.ToString());
+
+                // Si le compte est approuvé, envoyer un email avec le lien de confirmation
+                if (request.IsActive == true && !member.EmailConfirmed)
+                {
+                    // Code pour envoyer l'email de confirmation
+                    // Utiliser le ConfirmationCode existant ou en générer un nouveau
+                    // Ce code devrait être implémenté selon la logique d'envoi d'emails de votre application
+                }
 
                 await _memberRepository.UpdateAsync(member);
                 return SimpleResponse.Ok("Member updated successfully");

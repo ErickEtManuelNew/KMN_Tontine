@@ -3382,6 +3382,9 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("emailConfirmed")]
         public bool EmailConfirmed { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("lockoutenabled")]
+        public bool LockoutEnabled { get; set; }
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -3624,6 +3627,12 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         [System.Text.Json.Serialization.JsonPropertyName("role")]
         public RoleType Role { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("lockoutenabled")]
+        public bool? LockoutEnabled { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("lockoutend")]
+        public DateTimeOffset? LockoutEnd { get; set; }
 
     }
 
