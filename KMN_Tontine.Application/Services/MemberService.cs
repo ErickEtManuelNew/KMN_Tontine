@@ -138,7 +138,7 @@ namespace KMN_Tontine.Application.Services
                         var token = await _userManager.GenerateEmailConfirmationTokenAsync(member);
 
                         // Construire le lien de confirmation
-                        var confirmationLink = $"{_configuration["ApiSettings:BaseUrl"]}{request.PortClient}/confirm-email?userId={member.Id}&token={WebUtility.UrlEncode(token)}";
+                        var confirmationLink = $"{_configuration["ApiSettings:ConfirmationUrl"]}{request.PortClient}/confirm-email?userId={member.Id}&token={WebUtility.UrlEncode(token)}";
 
                         // Envoyer l'email
                         var emailSent = await _emailService.SendAccountApprovedAsync(
