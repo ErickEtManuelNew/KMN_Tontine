@@ -2,10 +2,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 80
 
-# Installer openssl pour générer certificat
+# Installer openssl pour gÃ©nÃ©rer certificat
 RUN apt-get update && apt-get install -y openssl
 
-# Générer certificat auto-signé (valide 365 jours)
+# GÃ©nÃ©rer certificat auto-signÃ© (valide 365 jours)
 RUN mkdir /https && \
     openssl req -x509 -nodes -days 365 \
     -newkey rsa:2048 \
@@ -20,7 +20,7 @@ RUN openssl pkcs12 -export \
     -in /https/dev.crt \
     -passout pass:SuperSecret!
 
-# Définir les variables utilisées par Kestrel pour charger le certificat
+# DÃ©finir les variables utilisÃ©es par Kestrel pour charger le certificat
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/devcert.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecret!
 
@@ -32,6 +32,7 @@ COPY ["KMN_Tontine.API/KMN_Tontine.API.csproj", "KMN_Tontine.API/"]
 COPY ["KMN_Tontine.Application/KMN_Tontine.Application.csproj", "KMN_Tontine.Application/"]
 COPY ["KMN_Tontine.Domain/KMN_Tontine.Domain.csproj", "KMN_Tontine.Domain/"]
 COPY ["KMN_Tontine.Infrastructure/KMN_Tontine.Infrastructure.csproj", "KMN_Tontine.Infrastructure/"]
+COPY ["KMN_Tontine.Shared/KMN_Tontine.Shared.csproj", "KMN_Tontine.Shared/"]
 RUN dotnet restore "KMN_Tontine.API/KMN_Tontine.API.csproj"
 COPY . .
 WORKDIR "/src/KMN_Tontine.API"
@@ -43,7 +44,7 @@ RUN dotnet publish "KMN_Tontine.API.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 
-# Copier les fichiers publiés et le certificat dans le conteneur final
+# Copier les fichiers publiÃ©s et le certificat dans le conteneur final
 COPY --from=publish /app/publish .
 COPY --from=base /https /https
 
