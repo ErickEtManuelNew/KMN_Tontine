@@ -11,5 +11,6 @@ namespace KMN_Tontine.Shared.DTOs.Requests
         public RoleType Role { get; set; }
         public bool? LockoutEnabled { get; set; }
         public DateTimeOffset? LockoutEnd { get; set; }
+        public int PortClient { get; set; }
     }
 }

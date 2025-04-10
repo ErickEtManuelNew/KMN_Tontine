@@ -57,6 +57,7 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPaymentPromiseService, PaymentPromiseService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddAutoMapper(typeof(TransactionProfile));
@@ -155,6 +156,9 @@ builder.Services.AddSwaggerGen(c => // Ajouté pour configurer Swagger
     });
 });
 
+var baseUrl = builder.Configuration["ApiSettings:BaseUrl"]
+              ?? Environment.GetEnvironmentVariable("BaseUrl");
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -228,13 +232,13 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
-    app.Urls.Add($"https://localhost:{port}");
+    app.Urls.Add($"{baseUrl}{port}");
 }
 else
 {
     // En prod, Docker ou Railway : écouter sur HTTP
     app.Urls.Clear();
-    app.Urls.Add($"http://0.0.0.0:{port}");
+    app.Urls.Add($"{baseUrl}{port}");
 }
 
 app.UseRouting();

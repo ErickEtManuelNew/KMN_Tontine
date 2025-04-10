@@ -177,8 +177,24 @@ namespace KMN_Tontine.Application.Services
 
         public async Task<SimpleResponse> LogoutAsync(Guid memberId)
         {
-            // Implémentez ici la logique de déconnexion (par exemple, invalider le token)
             return SimpleResponse.Ok("Logged out successfully");
+        }
+
+        public async Task<SimpleResponse> ConfirmEmailAsync(Guid userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return SimpleResponse.Error("User not found");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return SimpleResponse.Error("Invalid confirmation token");
+            }
+
+            return SimpleResponse.Ok("Email confirmed successfully");
         }
 
         private TokenResponse GenerateToken(Member user)

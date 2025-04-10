@@ -45,5 +45,10 @@ namespace KMN_Tontine.Blazor.UI.Services
             await _localStorage.RemoveItemAsync("accessToken");
             await ((ApiAuthenticationStateProvider)_authenticationStateProvider).LoggedOut();
         }
+
+        public async Task<SimpleResponse> ConfirmEmailAsync(Guid userId, string token)
+        {
+            return await _client.ConfirmEmailAsync(userId, token);
+        }
     }
 } 

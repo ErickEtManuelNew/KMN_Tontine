@@ -1,5 +1,6 @@
 ﻿@page "/confirm-email"
 @inject NavigationManager Navigation
+@inject IAuthService AuthService
 
 <h3>Confirmation de compte</h3>
 
@@ -17,30 +18,40 @@ else if (errorMessage != null)
 }
 
 @code {
-    [Parameter]
-    public string Token { get; set; }
-
     private bool isConfirmed = false;
     private string errorMessage = null;
+    private Guid userId;
+    private string token;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        if (!string.IsNullOrEmpty(Token))
-        {
-            // var response = await Http.PostAsJsonAsync("api/confirm-email", new { token = Token });
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        
+        var userIdStr = query["userId"];
+        token = query["token"];
 
-            // if (response.IsSuccessStatusCode)
-            // {
-            //     isConfirmed = true;
-            // }
-            // else
-            // {
-            //     errorMessage = "Le lien de confirmation est invalide ou a expiré.";
-            // }
+        if (string.IsNullOrEmpty(userIdStr) || string.IsNullOrEmpty(token))
+        {
+            errorMessage = "Paramètres de confirmation manquants.";
+            return;
+        }
+
+        if (!Guid.TryParse(userIdStr, out userId))
+        {
+            errorMessage = "Identifiant utilisateur invalide.";
+            return;
+        }
+
+        var response = await AuthService.ConfirmEmailAsync(userId, token);
+
+        if (response.Success)
+        {
+            isConfirmed = true;
         }
         else
         {
-            errorMessage = "Aucun jeton de confirmation fourni.";
+            errorMessage = "Le lien de confirmation est invalide ou a expiré.";
         }
     }
 }

@@ -65,5 +65,22 @@ namespace KMN_Tontine.API.Controllers
             var result = await _authService.LogoutAsync(memberId);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+
+        /// <summary>
+        /// Confirmer l'email d'un utilisateur
+        /// </summary>
+        /// <param name="userId">Identifiant unique de l'utilisateur</param>
+        /// <param name="token">Token de confirmation d'email</param>
+        /// <returns>Une réponse simple indiquant le succès ou l'échec de l'opération</returns>
+        /// <response code="200">Email confirmé avec succès</response>
+        /// <response code="400">Échec de la confirmation de l'email</response>
+        [HttpPost("confirm-email")]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] Guid userId, [FromQuery] string token)
+        {
+            var result = await _authService.ConfirmEmailAsync(userId, token);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

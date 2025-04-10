@@ -199,8 +199,10 @@ else
             {
                 // Rejeter = verrouiller le compte
                 updateRequest.LockoutEnabled = true;
-                updateRequest.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100); // Verrouillé pour très longtemps
+                updateRequest.LockoutEnd = DateTime.UtcNow.AddYears(100); // Verrouillé pour très longtemps
             }
+
+            updateRequest.PortClient = new Uri(Navigation.BaseUri).Port;
 
             Client.HttpClient.DefaultRequestHeaders.Authorization = 
                 new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);

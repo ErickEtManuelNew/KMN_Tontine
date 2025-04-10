@@ -1,10 +1,9 @@
-﻿using System.Net.Http.Headers;
+﻿using Blazored.LocalStorage;
 
-using Blazored.LocalStorage;
-using KMN_Tontine.Blazor.UI;
 using KMN_Tontine.Blazor.UI.Services;
 using KMN_Tontine.Blazor.UI.Services.Authentication;
 using KMN_Tontine.Blazor.UI.Services.Base;
+
 using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);

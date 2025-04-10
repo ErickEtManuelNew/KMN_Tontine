@@ -10,5 +10,6 @@ namespace KMN_Tontine.Application.Interfaces
         Task<TokenResponse> LoginAsync(LoginRequest request);
         Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
         Task<SimpleResponse> LogoutAsync(Guid memberId);
+        Task<SimpleResponse> ConfirmEmailAsync(Guid userId, string token);
     }
 }
