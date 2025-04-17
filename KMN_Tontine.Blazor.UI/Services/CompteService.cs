@@ -7,7 +7,7 @@ namespace KMN_Tontine.Blazor.UI.Services
 {
     public interface ICompteService
     {
-        Task<List<AccountResponse>> GetComptesAsync(string membreId);
+        Task<List<AccountResponse>> GetComptesAsync(Guid membreId);
         Task<AccountResponse> GetCompteAsync(int compteId);
         Task CrediterCompteAsync(CreateTransactionRequest transaction);
     }
@@ -24,13 +24,13 @@ namespace KMN_Tontine.Blazor.UI.Services
             _logger = logger;
         }
 
-        public async Task<List<AccountResponse>> GetComptesAsync(string membreId)
+        public async Task<List<AccountResponse>> GetComptesAsync(Guid membreId)
         {
             try
             {
                 _logger.LogInformation($"Tentative de récupération des comptes pour le membre {membreId}");
 
-                var response = await _client.MemberAsync(Guid.Parse(membreId));
+                var response = await _client.MemberAsync(membreId);
 
                 return (List<AccountResponse>)(response ?? []);
             }

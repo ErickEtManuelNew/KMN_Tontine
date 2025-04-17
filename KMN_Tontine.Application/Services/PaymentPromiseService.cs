@@ -12,6 +12,7 @@ using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Shared.DTOs.Requests;
 using KMN_Tontine.Shared.DTOs.Responses;
+using Microsoft.EntityFrameworkCore;
 
 namespace KMN_Tontine.Application.Services
 {
@@ -46,8 +47,8 @@ namespace KMN_Tontine.Application.Services
             try
             {
                 var promise = _mapper.Map<PaymentPromise>(request);
+                
                 await _paymentPromiseRepository.AddAsync(promise);
-
                 return SimpleResponse.Ok("Payment promise created successfully");
             }
             catch (Exception ex)
@@ -64,9 +65,20 @@ namespace KMN_Tontine.Application.Services
                 if (promise == null)
                     return SimpleResponse.Error("Payment promise not found");
 
-                // Mettre à jour les propriétés
-                promise.AmountPromised = request.AmountPromised;
+                // Mettre à jour les propriétés de base
                 promise.PromiseDate = request.PromiseDate;
+
+                // Mettre à jour les montants promis pour chaque compte
+                foreach (var accountUpdate in request.Accounts)
+                {
+                    var promiseAccount = promise.PaymentPromiseAccounts
+                        .FirstOrDefault(pa => pa.AccountId == accountUpdate.AccountId);
+
+                    if (promiseAccount != null)
+                    {
+                        promiseAccount.AmountPromised = accountUpdate.AmountPromised;
+                    }
+                }
 
                 await _paymentPromiseRepository.UpdateAsync(promise);
                 return SimpleResponse.Ok("Payment promise updated successfully");

@@ -16,6 +16,7 @@ namespace KMN_Tontine.Infrastructure.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<PaymentPromise> PaymentPromises { get; set; }
+        public DbSet<PaymentPromiseAccount> PaymentPromiseAccounts { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -25,9 +26,29 @@ namespace KMN_Tontine.Infrastructure.Data
             builder.Entity<Account>().Property(a => a.Type).HasConversion<string>();
             builder.Entity<Transaction>().Property(t => t.Type).HasConversion<string>();
 
-            builder.Entity<PaymentPromise>()
-                .Property(p => p.AmountPromised)
-                .HasColumnType("decimal(18,2)");
+            builder.Entity<PaymentPromise>(entity =>
+            {
+                entity.HasOne(p => p.Member)
+                      .WithMany(m => m.PaymentPromises)
+                      .HasForeignKey(p => p.MemberId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(p => p.PaymentPromiseAccounts)
+                      .WithOne(pa => pa.PaymentPromise)
+                      .HasForeignKey(pa => pa.PaymentPromiseId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<PaymentPromiseAccount>(entity =>
+            {
+                entity.Property(pa => pa.AmountPromised)
+                      .HasColumnType("decimal(18,2)");
+
+                entity.HasOne(pa => pa.Account)
+                      .WithMany(a => a.PaymentPromiseAccounts)
+                      .HasForeignKey(pa => pa.AccountId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

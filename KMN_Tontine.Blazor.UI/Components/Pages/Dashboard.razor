@@ -85,10 +85,7 @@ else
         {
             _userName = CurrentUser.UserName ?? "Baramine";
 
-            if (!string.IsNullOrEmpty(CurrentUser.UserId))
-            {
-                _comptes = await CompteService.GetComptesAsync(CurrentUser.UserId);
-            }
+            _comptes = await CompteService.GetComptesAsync(CurrentUser.UserId);
         }
         catch (Exception)
         {

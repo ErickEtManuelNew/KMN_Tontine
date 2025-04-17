@@ -143,12 +143,6 @@ namespace KMN_Tontine.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("AmountPromised")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
@@ -164,11 +158,33 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
                     b.HasIndex("MemberId");
 
                     b.ToTable("PaymentPromises");
+                });
+
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromiseAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("AmountPromised")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentPromiseId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("PaymentPromiseId");
+
+                    b.ToTable("PaymentPromiseAccounts");
                 });
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.RefreshToken", b =>
@@ -405,21 +421,32 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromise", b =>
                 {
-                    b.HasOne("KMN_Tontine.Domain.Entities.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("KMN_Tontine.Domain.Entities.Member", "Member")
                         .WithMany("PaymentPromises")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromiseAccount", b =>
+                {
+                    b.HasOne("KMN_Tontine.Domain.Entities.Account", "Account")
+                        .WithMany("PaymentPromiseAccounts")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KMN_Tontine.Domain.Entities.PaymentPromise", "PaymentPromise")
+                        .WithMany("PaymentPromiseAccounts")
+                        .HasForeignKey("PaymentPromiseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Account");
 
-                    b.Navigation("Member");
+                    b.Navigation("PaymentPromise");
                 });
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.RefreshToken", b =>
@@ -505,6 +532,8 @@ namespace KMN_Tontine.Infrastructure.Migrations
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.Account", b =>
                 {
+                    b.Navigation("PaymentPromiseAccounts");
+
                     b.Navigation("Transactions");
                 });
 
@@ -513,6 +542,11 @@ namespace KMN_Tontine.Infrastructure.Migrations
                     b.Navigation("Accounts");
 
                     b.Navigation("PaymentPromises");
+                });
+
+            modelBuilder.Entity("KMN_Tontine.Domain.Entities.PaymentPromise", b =>
+                {
+                    b.Navigation("PaymentPromiseAccounts");
                 });
 
             modelBuilder.Entity("KMN_Tontine.Domain.Entities.Tontine", b =>

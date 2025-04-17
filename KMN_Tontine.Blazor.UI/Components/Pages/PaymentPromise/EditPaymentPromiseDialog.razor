@@ -14,14 +14,17 @@
                 <ValidationSummary class="text-red-600" />
 
                 <div class="mb-3">
-                    <label class="block">Amount</label>
-                    <InputNumber @bind-Value="Promise.AmountPromised" class="form-input w-full" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="block">Promisse Date</label>
+                    <label class="block">Promise Date</label>
                     <InputDate @bind-Value="Promise.PromiseDate" class="form-input w-full" />
                 </div>
+
+                @foreach (var account in Promise.Accounts)
+                {
+                    <div class="mb-3">
+                        @* <label class="block">@account.AccountName</label> *@
+                        <InputNumber @bind-Value="account.AmountPromised" class="form-input w-full" />
+                    </div>
+                }
 
                 <div class="flex justify-end gap-2 mt-4">
                     <button type="button" @onclick="Close" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
@@ -48,15 +51,8 @@
     {
         if (Promise is null) return;
 
-        var request = new UpdatePaymentPromiseRequest
-            {
-                Id = Promise.Id,
-                AmountPromised = Promise.AmountPromised,
-                PromiseDate = Promise.PromiseDate
-            };
-
         Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
-        var result = await Client.PaymentPromisesPUTAsync(Promise.Id, request);
+        var result = await Client.PaymentPromisesPUTAsync(Promise.Id, Promise);
 
         if (result.Success)
         {

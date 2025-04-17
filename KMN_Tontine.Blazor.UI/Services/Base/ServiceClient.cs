@@ -3693,7 +3693,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         public AccountType Type { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("balance")]
-        public double Balance { get; set; }
+        public decimal Balance { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
         public string Comment { get; set; }
@@ -3769,20 +3769,29 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class CreatePaymentPromiseRequest
+    public partial class CreatePaymentPromiseAccountRequest
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("accountId")]
+        public int AccountId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
-        public double AmountPromised { get; set; }
+        public decimal AmountPromised { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CreatePaymentPromiseRequest
+    {
 
         [System.Text.Json.Serialization.JsonPropertyName("promiseDate")]
         public System.DateTime PromiseDate { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("memberId")]
-        public string MemberId { get; set; }
+        public Guid MemberId { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("accountId")]
-        public int AccountId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("accounts")]
+        public System.Collections.Generic.ICollection<CreatePaymentPromiseAccountRequest> Accounts { get; set; }
 
     }
 
@@ -3871,14 +3880,29 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PaymentPromiseAccountResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountId")]
+        public int AccountId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountType")]
+        public AccountType AccountType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountName")]
+        public string AccountName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
+        public decimal AmountPromised { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PaymentPromiseResponse
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
-        public double AmountPromised { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("createdDate")]
         public System.DateTime CreatedDate { get; set; }
@@ -3892,8 +3916,11 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("isFulfilled")]
         public bool IsFulfilled { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("accountName")]
-        public AccountType AccountName { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("accounts")]
+        public System.Collections.Generic.ICollection<PaymentPromiseAccountResponse> Accounts { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalAmountPromised")]
+        public double TotalAmountPromised { get; set; }
 
     }
 
@@ -4122,6 +4149,18 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class UpdatePaymentPromiseAccountRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountId")]
+        public int AccountId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
+        public decimal AmountPromised { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class UpdatePaymentPromiseRequest
     {
 
@@ -4131,8 +4170,8 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("promiseDate")]
         public System.DateTime PromiseDate { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
-        public double AmountPromised { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("accounts")]
+        public System.Collections.Generic.ICollection<UpdatePaymentPromiseAccountRequest> Accounts { get; set; }
 
     }
 

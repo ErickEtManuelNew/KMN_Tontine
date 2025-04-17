@@ -1,166 +1,260 @@
 @using KMN_Tontine.Blazor.UI.Services.Base
+@using System.Net.Http.Headers
 @inject IClient Client
 @inject CurrentUserService CurrentUser
 
 @if (IsOpen)
 {
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-10 overflow-y-auto h-full w-full z-50 flex items-center justify-center" @onclick="AttemptCloseOutside">
-        <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white" @onclick:stopPropagation>
-            <div class="mt-3">
-                <h3 class="text-xl leading-6 font-medium text-gray-900 mb-6 text-center">
-                    🤝 Make a Promise
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">
+                    @(IsEdit ? "Modifier la promesse" : "Nouvelle promesse de paiement")
                 </h3>
-
-                @if (account != null)
-                {
-                    <div class="bg-white rounded p-4 mb-6">
-                        <h4 class="text-lg font-semibold text-gray-800">Account: @account.Type.ToString()</h4>
-                        <p class="text-sm text-gray-500">Balance: @account.Balance.ToString("C")</p>
+                <button class="text-gray-500 hover:text-gray-700" @onclick="Close">
+                    ✕
+                </button>
                     </div>
 
-                    <EditForm Model="promiseRequest" OnValidSubmit="HandleSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary class="mb-4 text-red-600" />
-
+            @if (isLoading)
+            {
+                <div class="text-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-600">Chargement...</p>
+                        </div>
+            }
+            else
+            {
                         <div class="mb-4">
-                            <label class="block font-medium text-gray-700">Amount</label>
-                            <InputNumber class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" @bind-Value="promiseRequest.AmountPromised" />
+                    <p class="text-gray-600">
+                        Membre : <span class="font-semibold">@memberName</span>
+                    </p>
+                    <p class="text-gray-600">
+                        Tontine : <span class="font-semibold">@tontineName</span>
+                    </p>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block font-medium text-gray-700">Planned date (optional)</label>
-                            <InputDate class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" @bind-Value="promiseRequest.PromiseDate" />
-                        </div>
+                <EditForm Model="@promiseEntries" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
 
-                        @if (!string.IsNullOrWhiteSpace(message))
-                        {
-                            <div class="my-3 p-3 @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700") rounded text-sm">
-                                @message
-                            </div>
-                        }
-
-                        <div class="items-center py-3 sm:flex sm:flex-row-reverse border-t mt-4">
-                            <button type="submit" 
-                                class="inline-flex justify-center w-full sm:w-auto rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-500 text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:ml-3 sm:text-sm @(isLoading ? "opacity-50" : "")" disabled="@isLoading">
-                                @if (isLoading)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Comptes</th>
+                                    <th class="px-4 py-2 text-left">Solde</th>
+                                    <th class="px-4 py-2 text-left">Montant promis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entry in promiseEntries)
                                 {
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    <span>Submitting...</span>
+                                    <tr>
+                                        <td class="px-4 py-2">@entry.AccountType.ToString()</td>
+                                        <td class="px-4 py-2">@entry.Balance.ToString("N0")</td>
+                                        <td class="px-4 py-2">
+                                            @if (entry.AccountType == AccountType.Prive)
+                                            {
+                                                <span class="text-gray-500">(non editable)</span>
                                 }
                                 else
                                 {
-                                    <span>Submit Promise</span>
+                                                <InputNumber class="w-24 px-2 py-1 border rounded" 
+                                                           @bind-Value="entry.Amount" />
+                                            }
+                                        </td>
+                                    </tr>
                                 }
-                            </button>
-                            <button type="button"
-                                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm @(isLoading ? "opacity-50" : "")"
-                                @onclick="HandleClose" disabled="@isLoading">
-                                Cancel
-                            </button>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" class="px-4 py-2 text-right font-semibold">Total :</td>
+                                    <td class="px-4 py-2 font-semibold">@TotalPromiseAmount.ToString("N0")</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Date prévue</label>
+                        <InputDate class="form-input mt-1 block w-full" @bind-Value="promiseDate" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="mt-4 p-3 rounded @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")">
+                            @message
+                        </div>
+                    }
+
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                                @onclick="Close">
+                            Annuler
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                            @(IsEdit ? "Modifier" : "Créer")
+                        </button>
                         </div>
                     </EditForm>
                 }
-            </div>
         </div>
     </div>
 }
 
 @code {
-    [Parameter] public int AccountId { get; set; }
+    public class PromiseEntry
+    {
+        public int AccountId { get; set; }
+        public AccountType AccountType { get; set; }
+        public decimal Balance { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    [Parameter] public Guid MemberId { get; set; }
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
     [Parameter] public EventCallback OnPromiseCreated { get; set; }
+    [Parameter] public int? PromiseId { get; set; }
+    [Parameter] public bool IsEdit { get; set; }
 
-    private CreatePaymentPromiseRequest promiseRequest = new();
-    private string? message;
-    private bool isLoading = false;
-    private bool isSuccess = false;
-    private AccountResponse? account;
+    private List<PromiseEntry> promiseEntries = new();
+    private string memberName;
+    private string tontineName;
+    private string message;
+    private bool isLoading;
+    private bool isSuccess;
+    private DateTime promiseDate = DateTime.Today;
+
+    private decimal TotalPromiseAmount => promiseEntries.Sum(e => e.Amount);
 
     protected override async Task OnParametersSetAsync()
     {
-        if (IsOpen && AccountId > 0)
+        if (IsOpen && (MemberId != Guid.Empty || IsEdit))
         {
-            promiseRequest = new CreatePaymentPromiseRequest
-            {
-                AccountId = AccountId,
-                MemberId = CurrentUser.UserId,
-                PromiseDate = DateTime.Today
-            };
-            
             message = null;
             isSuccess = false;
-            isLoading = false;
-            
+            isLoading = true;
+            promiseEntries.Clear();
+
             try
             {
-                account = await Client.AccountsGETAsync(AccountId);
+                // Charger les informations du membre
+                memberName = CurrentUser.FullName;
+
+                if (IsEdit && PromiseId.HasValue)
+                {
+                    // Mode édition : charger la promesse existante
+                    Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+                    var promise = await Client.PaymentPromisesGETAsync(PromiseId.Value);
+                    promiseDate = promise.PromiseDate;
+                    
+                    // Charger les comptes du membre pour avoir les soldes actuels
+                    var accounts = (await Client.MemberAsync(MemberId)).ToList();
+                    
+                    // Créer les entrées à partir des comptes de la promesse
+                    promiseEntries = promise.Accounts.Select(pa => new PromiseEntry
+                    {
+                        AccountId = pa.AccountId,
+                        AccountType = pa.AccountType,
+                        Balance = accounts.FirstOrDefault(a => a.Id == pa.AccountId)?.Balance ?? 0,
+                        Amount = pa.AmountPromised
+                    }).ToList();
+                }
+                else
+                {
+                    // Mode création : charger les comptes du membre
+                    var accounts = (await Client.MemberAsync(MemberId)).ToList();
+                    promiseEntries = accounts.Select(a => new PromiseEntry
+                    {
+                        AccountId = a.Id,
+                        AccountType = a.Type,
+                        Balance = a.Balance,
+                        Amount = 0
+                    }).ToList();
+                }
+
+                // TODO: Charger le nom de la tontine
+                tontineName = "Foreur"; // À remplacer par l'appel API approprié
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                message = "Failed to load account information.";
+                message = $"Erreur lors du chargement : {ex.Message}";
                 isSuccess = false;
+            }
+            finally
+            {
+                isLoading = false;
             }
         }
     }
 
-    private async Task HandleSubmit()
+    private async Task HandleValidSubmit()
     {
-        if (isLoading) return;
-        
-        isLoading = true;
-        message = null;
-        StateHasChanged();
-        
         try
         {
-            Client.HttpClient.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
-            
-            var result = await Client.PaymentPromisesPOSTAsync(promiseRequest);
-            
+            if (IsEdit)
+            {
+                var updateRequest = new UpdatePaymentPromiseRequest
+                {
+                    Id = PromiseId.Value,
+                    PromiseDate = promiseDate,
+                    Accounts = promiseEntries.Select(e => new UpdatePaymentPromiseAccountRequest
+                    {
+                        AccountId = e.AccountId,
+                        AmountPromised = e.Amount
+                    }).ToList()
+                };
+
+                Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+                var result = await Client.PaymentPromisesPUTAsync(PromiseId.Value, updateRequest);
             if (result.Success)
             {
-                message = "Promise registered successfully!";
-                isSuccess = true;
-                await Task.Delay(2000);
                 await OnPromiseCreated.InvokeAsync();
-                await CloseDialog();
+                    await Close();
             }
             else
             {
                 message = result.Message;
                 isSuccess = false;
+                }
+            }
+            else
+            {
+                var createRequest = new CreatePaymentPromiseRequest
+                {
+                    MemberId = MemberId,
+                    PromiseDate = promiseDate,
+                    Accounts = promiseEntries.Select(e => new CreatePaymentPromiseAccountRequest
+                    {
+                        AccountId = e.AccountId,
+                        AmountPromised = e.Amount
+                    }).ToList()
+                };
+
+                Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+                var result = await Client.PaymentPromisesPOSTAsync(createRequest);
+                if (result.Success)
+                {
+                    await OnPromiseCreated.InvokeAsync();
+                    await Close();
+                }
+                else
+                {
+                    message = result.Message;
+                    isSuccess = false;
+                }
             }
         }
         catch (Exception ex)
         {
-            message = $"An error occurred: {ex.Message}";
+            message = $"Erreur lors de la sauvegarde : {ex.Message}";
             isSuccess = false;
         }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
     }
 
-    private async Task CloseDialog()
+    private async Task Close()
     {
-        if (isLoading) return;
         await IsOpenChanged.InvokeAsync(false);
-    }
-
-    private async Task HandleClose()
-    {
-        await CloseDialog();
-    }
-
-    private async Task AttemptCloseOutside()
-    {
-        await CloseDialog();
     }
 } 

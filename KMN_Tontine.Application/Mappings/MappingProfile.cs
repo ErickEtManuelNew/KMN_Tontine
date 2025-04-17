@@ -12,10 +12,10 @@ namespace KMN_Tontine.Application.Mappings
         {
             // Mapping CreateMemberRequest -> Member
             CreateMap<CreateMemberRequest, Member>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString())) // Générer un ID unique
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}")) // Concaténer FirstName et LastName
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid().ToString())) // GÃ©nÃ©rer un ID unique
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}")) // ConcatÃ©ner FirstName et LastName
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email)) // Utiliser Email comme UserName
-                .ForMember(dest => dest.JoinDate, opt => opt.MapFrom(src => DateTime.UtcNow)); // Définir JoinDate automatiquement
+                .ForMember(dest => dest.JoinDate, opt => opt.MapFrom(src => DateTime.UtcNow)); // DÃ©finir JoinDate automatiquement
 
             // Mapping Member -> MemberResponse
             CreateMap<Member, MemberResponse>()
@@ -35,16 +35,24 @@ namespace KMN_Tontine.Application.Mappings
             // Mapping Transaction -> TransactionResponse
             CreateMap<Transaction, TransactionResponse>();
 
-            // Mapping PaymentPromise -> PaymentPromiseResponse
-            CreateMap<CreatePaymentPromiseRequest, PaymentPromise>()
-                .ForMember(dest => dest.FulfilledDate, opt => opt.Ignore()) // non fourni à la création
-                .ForMember(dest => dest.IsFulfilled, opt => opt.Ignore())   // calculé automatiquement
-                .ForMember(dest => dest.Account, opt => opt.Ignore())       // navigation, non mappée
-                .ForMember(dest => dest.Member, opt => opt.Ignore());       // navigation, non mappée
-
+            // Mapping PaymentPromise <-> PaymentPromiseResponse
             CreateMap<PaymentPromise, PaymentPromiseResponse>()
-                .ForMember(dest => dest.AccountName,
-                           opt => opt.MapFrom(src => src.Account.Type.ToString())); // ou .Name si string
+                .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.PaymentPromiseAccounts))
+                .ForMember(dest => dest.TotalAmountPromised, opt => opt.MapFrom(src => src.TotalAmountPromised));
+
+            CreateMap<PaymentPromiseAccount, PaymentPromiseAccountResponse>()
+                .ForMember(dest => dest.AccountType, opt => opt.MapFrom(src => src.Account.Type))
+                .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account.Type.ToString()));
+
+            // Mapping pour la crÃ©ation
+            CreateMap<CreatePaymentPromiseRequest, PaymentPromise>()
+                .ForMember(dest => dest.PaymentPromiseAccounts, opt => opt.MapFrom(src => src.Accounts))
+                .ForMember(dest => dest.FulfilledDate, opt => opt.Ignore())
+                .ForMember(dest => dest.Member, opt => opt.Ignore());
+
+            CreateMap<CreatePaymentPromiseAccountRequest, PaymentPromiseAccount>()
+                .ForMember(dest => dest.Account, opt => opt.Ignore())
+                .ForMember(dest => dest.PaymentPromise, opt => opt.Ignore());
 
             CreateMap<CreateTransactionRequest, Transaction>()
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.UtcNow));

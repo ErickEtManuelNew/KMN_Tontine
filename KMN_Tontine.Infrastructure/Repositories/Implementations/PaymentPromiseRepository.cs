@@ -22,7 +22,10 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         }
 
         public async Task<IEnumerable<PaymentPromise>> GetAllAsync()
-            => await _context.PaymentPromises.ToListAsync();
+            => await _context.PaymentPromises
+                .Include(pp => pp.PaymentPromiseAccounts)
+                    .ThenInclude(ppa => ppa.Account)
+                .ToListAsync();
 
         public async Task<IEnumerable<PaymentPromise>> GetByMemberIdAsync(Guid memberId)
         {
@@ -33,13 +36,17 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
             return await _context.PaymentPromises
                 .Where(pp => pp.MemberId == memberId.ToString())
                 .OrderByDescending(pp => pp.PromiseDate) // Tri par date d'échéance
-                .Include(pp => pp.Account) 
+                .Include(pp => pp.PaymentPromiseAccounts)
+                    .ThenInclude(ppa => ppa.Account)
                 .AsNoTracking()                      // Pour les requêtes en lecture seule
                 .ToListAsync();
         }
 
         public async Task<PaymentPromise?> GetByIdAsync(int id)
-            => await _context.PaymentPromises.FindAsync(id);
+            => await _context.PaymentPromises
+                .Include(pp => pp.PaymentPromiseAccounts)
+                    .ThenInclude(ppa => ppa.Account)
+                .FirstOrDefaultAsync(pp => pp.Id == id);
 
         public async Task AddAsync(PaymentPromise promise)
         {
@@ -66,7 +73,9 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         public async Task<List<PaymentPromise>> GetByAccountIdAsync(int accountId)
         {
             return await _context.PaymentPromises
-                //.Where(p => p.AccountId == accountId)
+                .Include(pp => pp.PaymentPromiseAccounts)
+                    .ThenInclude(ppa => ppa.Account)
+                .Where(pp => pp.PaymentPromiseAccounts.Any(ppa => ppa.AccountId == accountId))
                 .ToListAsync();
         }
     }

@@ -27,7 +27,6 @@ else
                     <th class="px-6 py-3 text-left text-sm font-semibold">Account Name</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold">Balance</th>
                     <th class="px-6 py-3 text-left text-sm font-semibold">Notes</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -37,25 +36,29 @@ else
                         <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">@account.Type.ToString()</td>
                         <td class="px-6 py-4 whitespace-nowrap text-gray-700">@account.Balance.ToString("C")</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@account.Comment</td>
-                        <td class="px-6 py-4 whitespace-nowrap space-x-2">
-                            @* <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
+                        @*<td class="px-6 py-4 whitespace-nowrap space-x-2">
+                             <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
                                     @onclick="() => ViewDetails(account.Id)">
                                 📊 Details
-                            </button> *@
-                            <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
-                                    @onclick="() => ShowPromiseDialog(account.Id)">
-                                🤝 Promise
-                            </button>
-                        </td>
+                            </button> 
+                        </td>*@
                     </tr>
                 }
+                <tr>
+                    <td colspan="4" class="text-center">
+                        <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                @onclick="ShowPromiseDialog">
+                            💰 Make a Payment Promise
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 }
 
 <div class="relative">
-    <PromiseDialog AccountId="selectedAccountId"
+    <PromiseDialog MemberId="@CurrentUser.UserId"
                    IsOpen="isPromiseDialogOpen"
                    IsOpenChanged="HandlePromiseDialogClosed"
                    OnPromiseCreated="RefreshAccounts" />
@@ -65,7 +68,6 @@ else
     private bool isLoading = true;
     private List<AccountResponse> accounts = new();
     private bool isPromiseDialogOpen = false;
-    private int selectedAccountId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,14 +83,13 @@ else
 
         if (string.IsNullOrEmpty(CurrentUser.UserName)) return;
 
-        var result = await Client.MemberAsync(Guid.Parse(CurrentUser.UserId));
+        var result = await Client.MemberAsync(CurrentUser.UserId);
         accounts = result.ToList();
         isLoading = false;
     }
 
-    private void ShowPromiseDialog(int accountId)
+    private void ShowPromiseDialog()
     {
-        selectedAccountId = accountId;
         isPromiseDialogOpen = true;
     }
 

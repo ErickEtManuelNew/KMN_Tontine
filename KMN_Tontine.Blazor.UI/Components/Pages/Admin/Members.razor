@@ -64,7 +64,7 @@ else
                 @foreach (var m in sortedMembers)
                 {
                     // --- Déterminer si c'est l'utilisateur connecté ---
-                    bool isCurrentUser = (CurrentUser.UserId != null && m.Id.ToString() == CurrentUser.UserId);
+                    bool isCurrentUser = (CurrentUser.UserId != null && m.Id == CurrentUser.UserId);
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-2">@m.FullName</td>
                         <td class="px-4 py-2">@m.Email</td>
