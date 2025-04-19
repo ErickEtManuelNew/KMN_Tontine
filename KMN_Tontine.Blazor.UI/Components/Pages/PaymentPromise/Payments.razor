@@ -17,16 +17,6 @@ else if (promises == null)
 else
 {
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:gap-6">
-        <div class="mb-2 md:mb-0">
-            <label class="block mb-1 font-medium text-gray-700">Filtrer par compte</label>
-            <select class="form-select w-full md:w-64" @onchange="OnFilterChanged">
-                <option value="">-- Tous les comptes --</option>
-                @foreach (var acc in accountNames)
-                {
-                    <option value="@acc">@acc</option>
-                }
-            </select>
-        </div>
         <div>
             <label class="block mb-1 font-medium text-gray-700">Trier par</label>
             <select class="form-select w-full md:w-48" @onchange="OnSortChanged">
@@ -89,17 +79,40 @@ else
                                             <span class="text-lg font-semibold">
                                                 @account.AmountPromised.ToString("C")
                                             </span>
-                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-sm">
-                                                @(promise.IsFulfilled ? "✅ Confirmée" : "⏳ En attente")
-                                            </span>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                @if (promise.IsFulfilled)
+                                                {
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        Validée
+                                                    </span>
+                                                }
+                                                else if (promise.AmountPaid > 0 && promise.AmountPaid < promise.TotalAmountPromised)
+                                                {
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                                        Incomplet (@((promise.AmountPaid / promise.TotalAmountPromised * 100).ToString("0"))%)
+                                                    </span>
+                                                }
+                                                else if (promise.AmountPaid > 0)
+                                                {
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                        Paiement partiel
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        En attente
+                                                    </span>
+                                                }
+                                            </td>
                                         </div>
-                            </td>
+                                    </td>
                                 }
-                        </tr>
+                            </tr>
                         </table>
                     </div>
                 </div>
-                    }
+            }
         </div>
     }
 }
@@ -159,12 +172,6 @@ else
 
         isAuthorized = true;
         await ReloadPromises();
-    }
-
-    private void OnFilterChanged(ChangeEventArgs e)
-    {
-        selectedAccount = e.Value?.ToString() ?? string.Empty;
-        ApplyFilters();
     }
 
     private void OnSortChanged(ChangeEventArgs e)

@@ -57,10 +57,10 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         }
 
         public async Task<List<Transaction>> GetByMemberIdAsync(string memberId)
-        {
-            return await _context.Transactions
+            => await _context.Transactions
+                .Include(t => t.PaymentPromise)
+                .Include(t => t.Account)
                 .Where(t => t.Account.MemberId == memberId)
                 .ToListAsync();
-        }
     }
 }

@@ -40,6 +40,7 @@
                 new NavItem("Membres en attente", "/admin/pending-members", "fas fa-user-clock", "Admin"),
                 new NavItem("Comptes", "/admin/allaccounts", "fas fa-university", "Admin"),
                 new NavItem("Transactions", "/admin/transactions", "fas fa-exchange-alt", "Admin"),
+                new NavItem("Paiements / Promesses", "/admin/payment-promises", "fas fa-money-check-alt", "Admin"),
                 new NavItem("Rapports", "/admin/reports", "fas fa-chart-bar", "Admin"),
                 new NavItem("Paramètres", "/admin/settings", "fas fa-cog", "Admin")
             });
@@ -55,7 +56,7 @@
                 new NavItem("Mon profil", "/profile", "fas fa-user-cog", "Member")
             });
         }
-}
+    }
 
     private void ToggleSidebar() => isSidebarOpen = !isSidebarOpen;
 

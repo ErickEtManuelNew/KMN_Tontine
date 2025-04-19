@@ -1,0 +1,300 @@
+@page "/admin/payment-promises"
+@attribute [Authorize(Roles = $"{nameof(RoleType.Admin)},{nameof(RoleType.SuperAdmin)}")]
+@using System.Net.Http.Headers
+@inject IClient Client
+@inject CurrentUserService CurrentUser
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">💰 Paiements et Promesses</h1>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center items-center h-64">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+    }
+    else
+    {
+        <div class="mb-4">
+            <div class="flex space-x-4">
+                <div class="relative">
+                    <select @onchange="OnStatusFilterChanged" class="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="">Tous les statuts</option>
+                        <option value="false">En attente</option>
+                        <option value="true">Validées</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Membre
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date de promesse
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Montant total
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Montant payé
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Statut
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var promise in filteredPromises)
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @promise.MemberFullName
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @promise.PromiseDate.ToShortDateString()
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @promise.TotalAmountPromised.ToString("C")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @(promise.AmountPaid.ToString("C") ?? "0")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if (promise.IsFulfilled)
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Validée
+                                    </span>
+                                }
+                                else if (promise.AmountPaid > 0 && promise.AmountPaid < promise.TotalAmountPromised)
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                        Incomplet (@((promise.AmountPaid / promise.TotalAmountPromised * 100).ToString("0"))%)
+                                    </span>
+                                }
+                                else if (promise.AmountPaid > 0)
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        Paiement partiel
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        En attente
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex space-x-2">
+                                    @if (!promise.IsFulfilled)
+                                    {
+                                        <button @onclick='() => OpenActionDialog(promise, "validate")' 
+                                                class="text-indigo-600 hover:text-indigo-900">
+                                            Valider
+                                        </button>
+                                    }
+                                    @* <button @onclick='() => OpenActionDialog(promise, "cancel")' 
+                                            class="text-red-600 hover:text-red-900">
+                                        Annuler
+                                    </button> *@
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="mt-4 p-4 @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700") rounded">
+                @message
+            </div>
+        }
+    }
+</div>
+
+@if (showActionDialog)
+{
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="relative mx-auto p-6 border w-full max-w-lg shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-xl leading-6 font-medium text-gray-900 mb-6 text-center">
+                    @(selectedAction == "validate" ? "Validation de la promesse" : "Annulation de la promesse")
+                </h3>
+
+                <div class="space-y-4 px-4 py-3 mb-4">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Membre:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@selectedPromise?.MemberFullName</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Date:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@selectedPromise?.PromiseDate.ToShortDateString()</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-medium text-gray-500 col-span-1">Montant:</span>
+                        <span class="text-sm text-gray-900 col-span-2">@selectedPromise?.TotalAmountPromised.ToString("C")</span>
+                    </div>
+                    @if (selectedAction == "validate")
+                    {
+                        <div class="grid grid-cols-3 gap-4 items-center">
+                            <span class="text-sm font-medium text-gray-500 col-span-1">Montant payé:</span>
+                            <div class="col-span-2">
+                                <input type="number" @bind="amountPaid" class="form-input w-full" step="0.01" min="0" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button @onclick="CloseActionDialog" 
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Annuler
+                    </button>
+                    <button @onclick="ExecuteAction" 
+                            class="px-4 py-2 @(selectedAction == "validate" ? "bg-indigo-600" : "bg-red-600") text-white rounded hover:bg-opacity-90">
+                        @(selectedAction == "validate" ? "Valider" : "Annuler la promesse")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<PaymentPromiseResponse> promises = new();
+    private List<PaymentPromiseResponse> filteredPromises = new();
+    private bool isLoading = true;
+    private string message = string.Empty;
+    private bool isSuccess = true;
+    private bool? showFulfilled = null;
+    private bool showActionDialog = false;
+    private PaymentPromiseResponse? selectedPromise;
+    private string selectedAction = string.Empty;
+    private decimal amountPaid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPromises();
+    }
+
+    private async Task LoadPromises()
+    {
+        try
+        {
+            isLoading = true;
+            Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+            promises = (await Client.PaymentPromisesAllAsync()).ToList();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            message = $"Erreur lors du chargement des promesses : {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnStatusFilterChanged(ChangeEventArgs e)
+    {
+        if (e.Value?.ToString() == "")
+        {
+            showFulfilled = null;
+        }
+        else if (bool.TryParse(e.Value?.ToString(), out var isFulfilled))
+        {
+            showFulfilled = isFulfilled;
+        }
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var query = promises.AsQueryable();
+
+        if (showFulfilled.HasValue)
+        {
+            query = query.Where(p => p.IsFulfilled == showFulfilled.Value);
+        }
+
+        filteredPromises = query.OrderByDescending(p => p.PromiseDate).ToList();
+    }
+
+    private void OpenActionDialog(PaymentPromiseResponse promise, string action)
+    {
+        selectedPromise = promise;
+        selectedAction = action;
+        amountPaid = promise.TotalAmountPromised;
+        showActionDialog = true;
+    }
+
+    private void CloseActionDialog()
+    {
+        showActionDialog = false;
+        selectedPromise = null;
+        selectedAction = string.Empty;
+        amountPaid = 0;
+    }
+
+    private async Task ExecuteAction()
+    {
+        if (selectedPromise == null) return;
+
+        try
+        {
+            if (selectedAction == "validate")
+            {
+                var request = new ValidatePaymentPromiseRequest
+                {
+                    PaymentPromiseId = selectedPromise.Id,
+                    AmountPaid = amountPaid,
+                    PaymentDate = DateTime.UtcNow
+                };
+
+                Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+                var result = await Client.ValidateAsync(request);
+
+                if (result.Success)
+                {
+                    message = "Promesse validée avec succès";
+                    isSuccess = true;
+                }
+                else
+                {
+                    message = result.Message;
+                    isSuccess = false;
+                }
+            }
+            // else if (selectedAction == "cancel")
+            // {
+                // TODO: Implémenter l'annulation de la promesse
+            //     message = "Annulation de la promesse non implémentée";
+            //     isSuccess = false;
+            // }
+
+            await LoadPromises();
+        }
+        catch (Exception ex)
+        {
+            message = $"Erreur lors de l'opération : {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            CloseActionDialog();
+        }
+    }
+} 

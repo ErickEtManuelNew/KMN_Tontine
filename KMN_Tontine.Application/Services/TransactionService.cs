@@ -62,7 +62,7 @@ namespace KMN_Tontine.Application.Services
                     return new SimpleResponse { Success = false, Message = "Solde insuffisant pour cette opération." };
 
                 var transaction = _mapper.Map<Transaction>(request);
-                transaction.Date = DateTime.UtcNow;
+                transaction.CreatedDate = DateTime.UtcNow;
 
                 // Mise à jour du solde
                 if (request.Type == TransactionType.Credit)

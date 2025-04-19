@@ -25,7 +25,17 @@ namespace KMN_Tontine.Blazor.UI.Services
             var user = authState.User;
 
             UserName = user.Identity?.Name;
-            UserId = Guid.Parse(user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+            var userIdClaim = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (Guid.TryParse(userIdClaim, out var userId))
+            {
+                UserId = userId;
+            }
+            else
+            {
+                UserId = Guid.Empty; // ou lève une erreur contrôlée
+                Console.WriteLine("⚠️ L'identifiant de l'utilisateur est introuvable ou invalide.");
+            }
             var firstName = user.FindFirst(c => c.Type == ClaimTypes.Name)?.Value ?? "";
             var lastName = user.FindFirst(c => c.Type == ClaimTypes.Surname)?.Value ?? "";
             FullName = $"{firstName} {lastName}".Trim() ?? "Utilisateur";

@@ -14,6 +14,7 @@ namespace KMN_Tontine.Domain.Entities
         public PaymentPromise()
         {
             PaymentPromiseAccounts = new HashSet<PaymentPromiseAccount>();
+            Transactions = new HashSet<Transaction>();
         }
 
         public int Id { get; set; }
@@ -39,6 +40,11 @@ namespace KMN_Tontine.Domain.Entities
         /// Liste des comptes associés à cette promesse avec leurs montants respectifs
         /// </summary>
         public virtual ICollection<PaymentPromiseAccount> PaymentPromiseAccounts { get; set; }
+
+        /// <summary>
+        /// Liste des transactions associées à cette promesse
+        /// </summary>
+        public virtual ICollection<Transaction> Transactions { get; set; }
 
         /// <summary>
         /// Montant total de la promesse (somme des montants promis pour chaque compte)

@@ -1,7 +1,6 @@
 ﻿@* Components/TransactionDialog.razor *@
-@inject KMN_Tontine.Blazor.UI.Services.Base.IClient Client
+@inject IClient Client
 @inject CurrentUserService CurrentUser
-@using KMN_Tontine.Blazor.UI.Services.Base
 
 @if (IsOpen)
 {
@@ -92,7 +91,7 @@
     [Parameter] public EventCallback OnClose { get; set; } // Pour notifier le parent de fermer
     [Parameter] public EventCallback OnSuccess { get; set; } // Pour notifier le parent du succès
 
-    private double amount;
+    private decimal amount;
     private string comment = string.Empty;
     private bool isLoading = false;
     private string? errorMessage;

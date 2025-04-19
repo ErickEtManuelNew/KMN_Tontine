@@ -15,8 +15,10 @@ namespace KMN_Tontine.Shared.DTOs.Responses
         public DateTime PromiseDate { get; set; }
         public DateTime? FulfilledDate { get; set; }
         public bool IsFulfilled { get; set; }
+        public string MemberFullName { get; set; }
         public List<PaymentPromiseAccountResponse> Accounts { get; set; } = new();
         public decimal TotalAmountPromised { get; set; }
+        public decimal AmountPaid { get; set; }
     }
 
     public class PaymentPromiseAccountResponse

@@ -38,7 +38,7 @@ namespace KMN_Tontine.Application.Services
 
         public async Task<IEnumerable<AccountResponse>> GetAccountsByMemberIdAsync(Guid memberid)
         {
-            var accounts = await _accountRepository.GetByMemberIdAsync(memberid);
+            var accounts = await _accountRepository.GetByMemberIdAsync(memberid.ToString());
             return _mapper.Map<IEnumerable<AccountResponse>>(accounts);
         }
 

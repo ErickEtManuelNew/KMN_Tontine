@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using KMN_Tontine.Domain.Entities;
 using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Infrastructure.Data;
+using KMN_Tontine.Shared.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -26,15 +27,17 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
             .Include(x => x.Member)
             .ToListAsync();
 
-        public async Task<IEnumerable<Account>> GetByMemberIdAsync(Guid memberId)
-        {
-            return await _context.Accounts
-                .Where(a => a.MemberId == memberId.ToString())
+        public async Task<List<Account>> GetByMemberIdAsync(string memberId)
+            => await _context.Accounts
+                .Where(a => a.MemberId == memberId)
                 .ToListAsync();
-        }
 
         public async Task<Account?> GetByIdAsync(int id)
             => await _context.Accounts.FindAsync(id);
+
+        public async Task<Account?> GetPrivateAccountAsync(string memberId)
+            => await _context.Accounts
+                .FirstOrDefaultAsync(a => a.MemberId == memberId && a.Type == AccountType.Prive);
 
         public async Task AddAsync(Account account)
         {

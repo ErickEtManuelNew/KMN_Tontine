@@ -22,8 +22,4 @@
     <ProjectReference Include="..\KMN_Tontine.Shared\KMN_Tontine.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

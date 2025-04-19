@@ -33,7 +33,10 @@ namespace KMN_Tontine.Application.Mappings
             CreateMap<Tontine, TontineResponse>();
 
             // Mapping Transaction -> TransactionResponse
-            CreateMap<Transaction, TransactionResponse>();
+            CreateMap<Transaction, TransactionResponse>()
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.CreatedDate))
+                .ForMember(dest => dest.AccountType, opt => opt.MapFrom(src => src.Account.Type))
+                .ForMember(dest => dest.PaymentPromiseId, opt => opt.MapFrom(src => src.PaymentPromiseId));
 
             // Mapping PaymentPromise <-> PaymentPromiseResponse
             CreateMap<PaymentPromise, PaymentPromiseResponse>()
@@ -55,7 +58,7 @@ namespace KMN_Tontine.Application.Mappings
                 .ForMember(dest => dest.PaymentPromise, opt => opt.Ignore());
 
             CreateMap<CreateTransactionRequest, Transaction>()
-                .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.UtcNow));
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
             // Mapping RefreshToken -> TokenResponse
             CreateMap<RefreshToken, TokenResponse>()

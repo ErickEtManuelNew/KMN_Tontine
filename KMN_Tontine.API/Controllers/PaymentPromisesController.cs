@@ -1,10 +1,14 @@
-﻿using KMN_Tontine.Application.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using KMN_Tontine.Application.Common;
 using KMN_Tontine.Application.Interfaces;
 using KMN_Tontine.Shared.DTOs.Requests;
 using KMN_Tontine.Shared.DTOs.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace KMN_Tontine.API.Controllers
 {
@@ -112,6 +116,25 @@ namespace KMN_Tontine.API.Controllers
                 result = new List<PaymentPromiseResponse>();
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Valider une promesse de paiement
+        /// </summary>
+        [HttpPost("validate")]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SimpleResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<SimpleResponse>> ValidatePaymentPromise([FromBody] ValidatePaymentPromiseRequest request)
+        {
+            try
+            {
+                var result = await _paymentPromiseService.ValidatePaymentPromiseAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(SimpleResponse.Error($"Erreur lors de la validation : {ex.Message}"));
+            }
         }
     }
 }

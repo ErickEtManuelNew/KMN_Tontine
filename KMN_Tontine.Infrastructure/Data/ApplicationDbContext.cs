@@ -49,6 +49,24 @@ namespace KMN_Tontine.Infrastructure.Data
                       .HasForeignKey(pa => pa.AccountId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            builder.Entity<Transaction>(entity =>
+            {
+                entity.HasOne(t => t.Account)
+                      .WithMany(a => a.Transactions)
+                      .HasForeignKey(t => t.AccountId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(t => t.PaymentPromise)
+                      .WithMany(p => p.Transactions)
+                      .HasForeignKey(t => t.PaymentPromiseId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Tontine)
+                      .WithMany(t => t.Transactions)
+                      .HasForeignKey(t => t.TontineId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

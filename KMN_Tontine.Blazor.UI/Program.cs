@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🌍 Détection de l’environnement
+// 🌍 Détection de l'environnement
 var environment = builder.Environment.EnvironmentName;
 Console.WriteLine($"🚀 Blazor Server démarre en mode : {environment}");
 

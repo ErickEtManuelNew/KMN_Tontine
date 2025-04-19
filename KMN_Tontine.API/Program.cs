@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using Serilog;
+using KMN_Tontine.Shared.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,15 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPaymentPromiseService, PaymentPromiseService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+builder.Services.Configure<EmailCheckerOptions>(
+    builder.Configuration.GetSection("EmailChecker"));
+
+builder.Services.AddSingleton<IEmailCheckerService, EmailCheckerService>();
+//builder.Services.AddHostedService<EmailCheckerBackgroundService>();
+
+
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddAutoMapper(typeof(TransactionProfile));

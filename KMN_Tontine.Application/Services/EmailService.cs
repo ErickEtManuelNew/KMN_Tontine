@@ -121,4 +121,27 @@ public class EmailService : IEmailService
 
         return await SendEmailAsync(to, subject, htmlContent);
     }
+
+    public async Task<bool> SendPaymentReminderAsync(string to, string userName, decimal remainingAmount, int promiseId)
+    {
+        var subject = "Rappel de paiement - KMN Tontine";
+        var htmlContent = $@"
+            <html>
+            <body style='font-family: Arial, sans-serif; padding: 20px;'>
+                <h2>Cher(e) {userName},</h2>
+                <p>Nous avons reçu un paiement partiel pour votre promesse #{promiseId}.</p>
+                <p>Il reste un montant de <strong>{remainingAmount:N0} FCFA</strong> à régler.</p>
+                <p>Veuillez effectuer le paiement du montant restant dès que possible pour éviter tout retard.</p>
+                <p style='background-color: #f8f9fa; padding: 15px; border-left: 4px solid #ffc107;'>
+                    <strong>Détails de la promesse :</strong><br>
+                    - Numéro de promesse : #{promiseId}<br>
+                    - Montant restant : {remainingAmount:N0} FCFA
+                </p>
+                <p>Si vous avez déjà effectué ce paiement, veuillez ignorer cet email.</p>
+                <p>Cordialement,<br>L'équipe KMN Tontine</p>
+            </body>
+            </html>";
+
+        return await SendEmailAsync(to, subject, htmlContent);
+    }
 } 

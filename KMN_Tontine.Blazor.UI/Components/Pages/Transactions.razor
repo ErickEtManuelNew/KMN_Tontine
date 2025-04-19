@@ -1,66 +1,220 @@
 ﻿@page "/transactions"
 @attribute [Authorize]
+@using System.Net.Http.Headers
 @inject IClient Client
 @inject CurrentUserService CurrentUser
-@inject NavigationManager Navigation
 
-<h3 class="text-2xl font-bold text-indigo-700 mb-6">💼 My Transactions</h3>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">📊 Mes Transactions</h1>
 
-@if (!isAuthorized)
-{
-    <div class="text-red-600 font-semibold">You must be logged in to access this page.</div>
-}
-else if (transactions == null)
-{
-    <div class="text-gray-500">Loading transactions...</div>
-}
-else if (!transactions.Any())
-{
-    <div class="text-gray-500">You have no transactions yet.</div>
+    @if (isLoading)
+    {
+        <div class="flex justify-center items-center h-64">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
 }
 else
 {
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead class="bg-indigo-600 text-white">
-                <tr>
-                    <th class="px-6 py-3 text-left text-sm font-semibold">Date</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold">Account</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold">Description</th>
-                    <th class="px-6 py-3 text-left text-sm font-semibold">Amount</th>
+        <div class="mb-4 flex justify-between items-center">
+            <div class="flex space-x-4">
+                <div class="relative">
+                    <select @onchange="OnAccountTypeChanged" class="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="">Tous les comptes</option>
+                        @foreach (var accountType in Enum.GetValues<AccountType>())
+                        {
+                            <option value="@accountType">@accountType</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="relative">
+                    <select @onchange="OnTransactionTypeChanged" class="block appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="">Tous les types</option>
+                        @foreach (var transactionType in Enum.GetValues<TransactionType>())
+                        {
+                            <option value="@transactionType">@transactionType</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <input type="date" @bind="startDate" @bind:event="onchange" @bind:after="ApplyFilters" class="border rounded px-3 py-2" />
+                <input type="date" @bind="endDate" @bind:event="onchange" @bind:after="ApplyFilters" class="border rounded px-3 py-2" />
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @onclick='() => SortBy("Date")'>
+                            Date @(sortColumn == "Date" ? (sortAscending ? "↑" : "↓") : "")
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @onclick='() => SortBy("Type")'>
+                            Type @(sortColumn == "Type" ? (sortAscending ? "↑" : "↓") : "")
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @onclick='() => SortBy("Account")'>
+                            Compte @(sortColumn == "Account" ? (sortAscending ? "↑" : "↓") : "")
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" @onclick='() => SortBy("Amount")'>
+                            Montant @(sortColumn == "Amount" ? (sortAscending ? "↑" : "↓") : "")
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Promesse
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Description
+                        </th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach (var tx in transactions)
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var transaction in sortedTransactions)
                 {
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">@tx.Date.ToShortDateString()</td>
-                        <td class="px-6 py-4 whitespace-nowrap">@* @tx.CompteNom *@</td>
-                        <td class="px-6 py-4 whitespace-nowrap">@tx.Description</td>
-                        <td class="px-6 py-4 whitespace-nowrap">@tx.Amount.ToString("C")</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @transaction.Date.ToShortDateString()
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @transaction.Type
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @transaction.AccountType.ToString()
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm @(transaction.Type == TransactionType.Credit ? "text-green-600" : "text-red-600")">
+                                @transaction.Amount.ToString("C")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @(transaction.PaymentPromiseId?.ToString() ?? "-")
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                @transaction.Description
+                            </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-}
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="mt-4 p-4 @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700") rounded">
+                @message
+            </div>
+        }
+    }
+</div>
 
 @code {
-    private List<TransactionResponse>? transactions;
-    private bool isAuthorized = false;
+    private List<TransactionResponse> transactions = new();
+    private List<TransactionResponse> sortedTransactions = new();
+    private bool isLoading = true;
+    private string message = string.Empty;
+    private bool isSuccess = true;
+    private string sortColumn = "Date";
+    private bool sortAscending = false;
+    private AccountType? selectedAccountType;
+    private TransactionType? selectedTransactionType;
+    private DateTime? startDate;
+    private DateTime? endDate;
 
     protected override async Task OnInitializedAsync()
     {
-        await CurrentUser.LoadUserInfoAsync();
+        await LoadTransactions();
+    }
 
-        if (string.IsNullOrEmpty(CurrentUser.UserName))
+    private async Task LoadTransactions()
+    {
+        try
         {
-            isAuthorized = false;
-            Navigation.NavigateTo("/login");
-            return;
+            isLoading = true;
+            Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
+            transactions = (await Client.ByMember2Async(CurrentUser.UserId.ToString())).ToList();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            message = $"Erreur lors du chargement des transactions : {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnAccountTypeChanged(ChangeEventArgs e)
+    {
+        if (e.Value?.ToString() == "")
+        {
+            selectedAccountType = null;
+        }
+        else if (Enum.TryParse<AccountType>(e.Value?.ToString(), out var accountType))
+        {
+            selectedAccountType = accountType;
+        }
+        ApplyFilters();
+    }
+
+    private void OnTransactionTypeChanged(ChangeEventArgs e)
+    {
+        if (e.Value?.ToString() == "")
+        {
+            selectedTransactionType = null;
+        }
+        else if (Enum.TryParse<TransactionType>(e.Value?.ToString(), out var transactionType))
+        {
+            selectedTransactionType = transactionType;
+        }
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filteredTransactions = transactions.AsQueryable();
+
+        if (selectedAccountType.HasValue)
+        {
+            filteredTransactions = filteredTransactions.Where(t => t.AccountType == selectedAccountType.Value);
         }
 
-        isAuthorized = true;
-        // transactions = (await Client.Tr.MembreTransactionsAsync(CurrentUser.UserName)).ToList();
+        if (selectedTransactionType.HasValue)
+        {
+            filteredTransactions = filteredTransactions.Where(t => t.Type == selectedTransactionType.Value);
+        }
+
+        if (startDate.HasValue)
+        {
+            filteredTransactions = filteredTransactions.Where(t => t.Date >= startDate.Value);
+        }
+
+        if (endDate.HasValue)
+        {
+            filteredTransactions = filteredTransactions.Where(t => t.Date <= endDate.Value);
+        }
+
+        // Trier ensuite
+        sortedTransactions = sortColumn switch
+        {
+            "Date" => (sortAscending ? filteredTransactions.OrderBy(t => t.Date) : filteredTransactions.OrderByDescending(t => t.Date)).ToList(),
+            "Type" => (sortAscending ? filteredTransactions.OrderBy(t => t.Type) : filteredTransactions.OrderByDescending(t => t.Type)).ToList(),
+            "Account" => (sortAscending ? filteredTransactions.OrderBy(t => t.AccountType.ToString()) : filteredTransactions.OrderByDescending(t => t.AccountType.ToString())).ToList(),
+            "Amount" => (sortAscending ? filteredTransactions.OrderBy(t => t.Amount) : filteredTransactions.OrderByDescending(t => t.Amount)).ToList(),
+            _ => (sortAscending ? filteredTransactions.OrderBy(t => t.Date) : filteredTransactions.OrderByDescending(t => t.Date)).ToList()
+        };
+    }
+
+    private void SortBy(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortAscending = true;
+        }
+        ApplyFilters();
     }
 }

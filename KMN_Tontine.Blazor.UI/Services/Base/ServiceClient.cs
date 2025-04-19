@@ -27,21 +27,21 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial interface IClient
     {
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<AccountResponse> AccountsGETAsync(int id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<AccountResponse> AccountsGETAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> AccountsPUTAsync(int id, UpdateAccountRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> AccountsPUTAsync(int id, UpdateAccountRequest body, System.Threading.CancellationToken cancellationToken);
 
@@ -54,93 +54,93 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task AccountsDELETEAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> AccountsAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> AccountsAllAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> AccountsPOSTAsync(CreateAccountRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> AccountsPOSTAsync(CreateAccountRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> MemberAsync(System.Guid memberId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> MemberAsync(System.Guid memberId, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> RegisterAsync(RegisterRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> RegisterAsync(RegisterRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TokenResponse> LoginAsync(LoginRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TokenResponse> LoginAsync(LoginRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task LogoutAsync(System.Guid? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task LogoutAsync(System.Guid? body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> ConfirmEmailAsync(System.Guid? userId, string token);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> ConfirmEmailAsync(System.Guid? userId, string token, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<MemberResponse> MembersGETAsync(System.Guid id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<MemberResponse> MembersGETAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> MembersPUTAsync(System.Guid id, UpdateMemberRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> MembersPUTAsync(System.Guid id, UpdateMemberRequest body, System.Threading.CancellationToken cancellationToken);
 
@@ -153,39 +153,39 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task MembersDELETEAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MemberResponse>> MembersAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MemberResponse>> MembersAllAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> MembersPOSTAsync(CreateMemberRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> MembersPOSTAsync(CreateMemberRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<PaymentPromiseResponse> PaymentPromisesGETAsync(int id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<PaymentPromiseResponse> PaymentPromisesGETAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPUTAsync(int id, UpdatePaymentPromiseRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPUTAsync(int id, UpdatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken);
 
@@ -198,57 +198,66 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task PaymentPromisesDELETEAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> PaymentPromisesAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> PaymentPromisesAllAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPOSTAsync(CreatePaymentPromiseRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPOSTAsync(CreatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByAccountAsync(int accountId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByAccountAsync(int accountId, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByMemberAsync(System.Guid memberId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByMemberAsync(System.Guid memberId, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<SimpleResponse> ValidateAsync(ValidatePaymentPromiseRequest body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<SimpleResponse> ValidateAsync(ValidatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TontineResponse> TontinesGETAsync(int id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TontineResponse> TontinesGETAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TontinesPUTAsync(int id, UpdateTontineRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TontinesPUTAsync(int id, UpdateTontineRequest body, System.Threading.CancellationToken cancellationToken);
 
@@ -261,39 +270,39 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task TontinesDELETEAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TontineResponse>> TontinesAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TontineResponse>> TontinesAllAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TontinesPOSTAsync(CreateTontineRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TontinesPOSTAsync(CreateTontineRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TransactionResponse> TransactionsGETAsync(int id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<TransactionResponse> TransactionsGETAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TransactionsPUTAsync(int id, UpdateTransactionRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TransactionsPUTAsync(int id, UpdateTransactionRequest body, System.Threading.CancellationToken cancellationToken);
 
@@ -306,39 +315,39 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task TransactionsDELETEAsync(int id, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> TransactionsAllAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> TransactionsAllAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TransactionsPOSTAsync(CreateTransactionRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<SimpleResponse> TransactionsPOSTAsync(CreateTransactionRequest body, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByAccount2Async(int accountId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByAccount2Async(int accountId, System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByMember2Async(string memberId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByMember2Async(string memberId, System.Threading.CancellationToken cancellationToken);
 
@@ -376,7 +385,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<AccountResponse> AccountsGETAsync(int id)
         {
@@ -384,7 +393,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<AccountResponse> AccountsGETAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
@@ -468,7 +477,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> AccountsPUTAsync(int id, UpdateAccountRequest body)
         {
@@ -476,7 +485,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> AccountsPUTAsync(int id, UpdateAccountRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -650,7 +659,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> AccountsAllAsync()
         {
@@ -658,7 +667,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> AccountsAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -734,7 +743,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> AccountsPOSTAsync(CreateAccountRequest body)
         {
@@ -742,7 +751,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> AccountsPOSTAsync(CreateAccountRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -826,7 +835,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> MemberAsync(System.Guid memberId)
         {
@@ -834,7 +843,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountResponse>> MemberAsync(System.Guid memberId, System.Threading.CancellationToken cancellationToken)
         {
@@ -914,7 +923,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> RegisterAsync(RegisterRequest body)
         {
@@ -922,7 +931,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> RegisterAsync(RegisterRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1006,7 +1015,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TokenResponse> LoginAsync(LoginRequest body)
         {
@@ -1014,7 +1023,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TokenResponse> LoginAsync(LoginRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1098,7 +1107,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest body)
         {
@@ -1106,7 +1115,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1190,7 +1199,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task LogoutAsync(System.Guid? body)
         {
@@ -1198,7 +1207,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task LogoutAsync(System.Guid? body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1276,7 +1285,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> ConfirmEmailAsync(System.Guid? userId, string token)
         {
@@ -1284,7 +1293,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> ConfirmEmailAsync(System.Guid? userId, string token, System.Threading.CancellationToken cancellationToken)
         {
@@ -1375,7 +1384,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<MemberResponse> MembersGETAsync(System.Guid id)
         {
@@ -1383,7 +1392,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<MemberResponse> MembersGETAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
@@ -1467,7 +1476,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> MembersPUTAsync(System.Guid id, UpdateMemberRequest body)
         {
@@ -1475,7 +1484,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> MembersPUTAsync(System.Guid id, UpdateMemberRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1649,7 +1658,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MemberResponse>> MembersAllAsync()
         {
@@ -1657,7 +1666,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MemberResponse>> MembersAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -1733,7 +1742,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> MembersPOSTAsync(CreateMemberRequest body)
         {
@@ -1741,7 +1750,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> MembersPOSTAsync(CreateMemberRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -1825,7 +1834,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<PaymentPromiseResponse> PaymentPromisesGETAsync(int id)
         {
@@ -1833,7 +1842,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<PaymentPromiseResponse> PaymentPromisesGETAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
@@ -1917,7 +1926,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPUTAsync(int id, UpdatePaymentPromiseRequest body)
         {
@@ -1925,7 +1934,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPUTAsync(int id, UpdatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -2099,7 +2108,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> PaymentPromisesAllAsync()
         {
@@ -2107,7 +2116,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> PaymentPromisesAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -2183,7 +2192,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPOSTAsync(CreatePaymentPromiseRequest body)
         {
@@ -2191,7 +2200,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> PaymentPromisesPOSTAsync(CreatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -2275,7 +2284,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByAccountAsync(int accountId)
         {
@@ -2283,7 +2292,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByAccountAsync(int accountId, System.Threading.CancellationToken cancellationToken)
         {
@@ -2377,7 +2386,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByMemberAsync(System.Guid memberId)
         {
@@ -2385,7 +2394,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentPromiseResponse>> ByMemberAsync(System.Guid memberId, System.Threading.CancellationToken cancellationToken)
         {
@@ -2469,7 +2478,99 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<SimpleResponse> ValidateAsync(ValidatePaymentPromiseRequest body)
+        {
+            return ValidateAsync(body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<SimpleResponse> ValidateAsync(ValidatePaymentPromiseRequest body, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/PaymentPromises/validate"
+                    urlBuilder_.Append("api/PaymentPromises/validate");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<SimpleResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<SimpleResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ApiException<SimpleResponse>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TontineResponse> TontinesGETAsync(int id)
         {
@@ -2477,7 +2578,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TontineResponse> TontinesGETAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
@@ -2561,7 +2662,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> TontinesPUTAsync(int id, UpdateTontineRequest body)
         {
@@ -2569,7 +2670,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> TontinesPUTAsync(int id, UpdateTontineRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -2743,7 +2844,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TontineResponse>> TontinesAllAsync()
         {
@@ -2751,7 +2852,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TontineResponse>> TontinesAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -2827,7 +2928,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> TontinesPOSTAsync(CreateTontineRequest body)
         {
@@ -2835,7 +2936,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> TontinesPOSTAsync(CreateTontineRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -2919,7 +3020,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<TransactionResponse> TransactionsGETAsync(int id)
         {
@@ -2927,7 +3028,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<TransactionResponse> TransactionsGETAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
@@ -3011,7 +3112,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> TransactionsPUTAsync(int id, UpdateTransactionRequest body)
         {
@@ -3019,7 +3120,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> TransactionsPUTAsync(int id, UpdateTransactionRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -3193,7 +3294,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> TransactionsAllAsync()
         {
@@ -3201,7 +3302,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> TransactionsAllAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -3277,7 +3378,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<SimpleResponse> TransactionsPOSTAsync(CreateTransactionRequest body)
         {
@@ -3285,7 +3386,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<SimpleResponse> TransactionsPOSTAsync(CreateTransactionRequest body, System.Threading.CancellationToken cancellationToken)
         {
@@ -3369,7 +3470,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByAccount2Async(int accountId)
         {
@@ -3377,7 +3478,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByAccount2Async(int accountId, System.Threading.CancellationToken cancellationToken)
         {
@@ -3471,7 +3572,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByMember2Async(string memberId)
         {
@@ -3479,7 +3580,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<TransactionResponse>> ByMember2Async(string memberId, System.Threading.CancellationToken cancellationToken)
         {
@@ -3716,7 +3817,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         Retard = 2,
 
-        Autre = 3,
+        Autre = 3
 
     }
 
@@ -3728,7 +3829,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         public AccountType Type { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("initialBalance")]
-        public double InitialBalance { get; set; }
+        public decimal InitialBalance { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("memberId")]
         public string MemberId { get; set; }
@@ -3788,7 +3889,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         public System.DateTime PromiseDate { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("memberId")]
-        public Guid MemberId { get; set; }
+        public string MemberId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accounts")]
         public System.Collections.Generic.ICollection<CreatePaymentPromiseAccountRequest> Accounts { get; set; }
@@ -3821,7 +3922,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         public TransactionType Type { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("amount")]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
@@ -3916,11 +4017,17 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("isFulfilled")]
         public bool IsFulfilled { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("memberFullName")]
+        public string MemberFullName { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("accounts")]
         public System.Collections.Generic.ICollection<PaymentPromiseAccountResponse> Accounts { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("totalAmountPromised")]
-        public double TotalAmountPromised { get; set; }
+        public decimal TotalAmountPromised { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amountPaid")]
+        public decimal AmountPaid { get; set; }
 
     }
 
@@ -4081,7 +4188,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         public TransactionType Type { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("amount")]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("date")]
         public System.DateTime Date { get; set; }
@@ -4092,8 +4199,14 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
         [System.Text.Json.Serialization.JsonPropertyName("accountId")]
         public int AccountId { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("accountType")]
+        public AccountType AccountType { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("tontineId")]
         public int TontineId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("paymentPromiseId")]
+        public int? PaymentPromiseId { get; set; }
 
     }
 
@@ -4114,7 +4227,7 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("balance")]
-        public double? Balance { get; set; }
+        public decimal? Balance { get; set; }
 
     }
 
@@ -4154,6 +4267,9 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         [System.Text.Json.Serialization.JsonPropertyName("accountId")]
         public int AccountId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("accountName")]
+        public AccountType AccountName { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("amountPromised")]
         public decimal AmountPromised { get; set; }
@@ -4199,6 +4315,21 @@ namespace KMN_Tontine.Blazor.UI.Services.Base
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string Description { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.3.0.0 (NJsonSchema v11.2.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ValidatePaymentPromiseRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("paymentPromiseId")]
+        public int PaymentPromiseId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("amountPaid")]
+        public decimal AmountPaid { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("paymentDate")]
+        public System.DateTime PaymentDate { get; set; }
 
     }
 

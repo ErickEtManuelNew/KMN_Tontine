@@ -23,6 +23,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
 
         public async Task<IEnumerable<PaymentPromise>> GetAllAsync()
             => await _context.PaymentPromises
+                .Include(pp => pp.Member)
                 .Include(pp => pp.PaymentPromiseAccounts)
                     .ThenInclude(ppa => ppa.Account)
                 .ToListAsync();
@@ -36,6 +37,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
             return await _context.PaymentPromises
                 .Where(pp => pp.MemberId == memberId.ToString())
                 .OrderByDescending(pp => pp.PromiseDate) // Tri par date d'échéance
+                .Include(pp => pp.Member)
                 .Include(pp => pp.PaymentPromiseAccounts)
                     .ThenInclude(ppa => ppa.Account)
                 .AsNoTracking()                      // Pour les requêtes en lecture seule
@@ -44,6 +46,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
 
         public async Task<PaymentPromise?> GetByIdAsync(int id)
             => await _context.PaymentPromises
+                .Include(pp => pp.Member)
                 .Include(pp => pp.PaymentPromiseAccounts)
                     .ThenInclude(ppa => ppa.Account)
                 .FirstOrDefaultAsync(pp => pp.Id == id);
@@ -73,6 +76,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         public async Task<List<PaymentPromise>> GetByAccountIdAsync(int accountId)
         {
             return await _context.PaymentPromises
+                .Include(pp => pp.Member)
                 .Include(pp => pp.PaymentPromiseAccounts)
                     .ThenInclude(ppa => ppa.Account)
                 .Where(pp => pp.PaymentPromiseAccounts.Any(ppa => ppa.AccountId == accountId))
