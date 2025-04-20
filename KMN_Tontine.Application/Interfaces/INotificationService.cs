@@ -6,6 +6,6 @@ namespace KMN_Tontine.Application.Interfaces
 {
     public interface INotificationService
     {
-        Task<SimpleResponse> SendPaymentReminderAsync(string memberId, decimal remainingAmount, int promiseId);
+        Task<SimpleResponse> SendPaymentReminderAsync(string memberId, decimal remainingAmount, string promiseReference);
     }
 } 

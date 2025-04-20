@@ -67,7 +67,8 @@ builder.Services.Configure<EmailCheckerOptions>(
 builder.Services.AddSingleton<IEmailCheckerService, EmailCheckerService>();
 //builder.Services.AddHostedService<EmailCheckerBackgroundService>();
 
-
+// Configure Currency Options
+builder.Services.Configure<CurrencyOptions>(builder.Configuration.GetSection("Currency"));
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //builder.Services.AddAutoMapper(typeof(TransactionProfile));

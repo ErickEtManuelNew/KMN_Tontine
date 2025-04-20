@@ -17,7 +17,7 @@ namespace KMN_Tontine.Application.Services
             _emailService = emailService;
         }
 
-        public async Task<SimpleResponse> SendPaymentReminderAsync(string memberId, decimal remainingAmount, int promiseId)
+        public async Task<SimpleResponse> SendPaymentReminderAsync(string memberId, decimal remainingAmount, string promiseReference)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace KMN_Tontine.Application.Services
                     member.Email,
                     member.FullName,
                     remainingAmount,
-                    promiseId
+                    promiseReference
                 );
 
                 if (!emailSent)

@@ -30,6 +30,10 @@ namespace KMN_Tontine.Domain.Entities
         public bool IsFulfilled => FulfilledDate.HasValue;
 
         [Required]
+        [StringLength(7)]
+        public string Reference { get; set; }
+
+        [Required]
         [ForeignKey(nameof(Member))]
         public string MemberId { get; set; }
 

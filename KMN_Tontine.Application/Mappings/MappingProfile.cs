@@ -36,10 +36,11 @@ namespace KMN_Tontine.Application.Mappings
             CreateMap<Transaction, TransactionResponse>()
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.CreatedDate))
                 .ForMember(dest => dest.AccountType, opt => opt.MapFrom(src => src.Account.Type))
-                .ForMember(dest => dest.PaymentPromiseId, opt => opt.MapFrom(src => src.PaymentPromiseId));
+                .ForMember(dest => dest.PaymentPromiseReference, opt => opt.MapFrom(src => src.PaymentPromise.Reference));
 
             // Mapping PaymentPromise <-> PaymentPromiseResponse
             CreateMap<PaymentPromise, PaymentPromiseResponse>()
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(src => src.Reference))
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.PaymentPromiseAccounts))
                 .ForMember(dest => dest.TotalAmountPromised, opt => opt.MapFrom(src => src.TotalAmountPromised));
 
@@ -50,6 +51,7 @@ namespace KMN_Tontine.Application.Mappings
             // Mapping pour la création
             CreateMap<CreatePaymentPromiseRequest, PaymentPromise>()
                 .ForMember(dest => dest.PaymentPromiseAccounts, opt => opt.MapFrom(src => src.Accounts))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(src => src.Reference))
                 .ForMember(dest => dest.FulfilledDate, opt => opt.Ignore())
                 .ForMember(dest => dest.Member, opt => opt.Ignore());
 

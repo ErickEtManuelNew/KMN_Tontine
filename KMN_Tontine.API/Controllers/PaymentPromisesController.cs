@@ -52,7 +52,7 @@ namespace KMN_Tontine.API.Controllers
         public async Task<IActionResult> GetAllPaymentPromises()
         {
             var result = await _paymentPromiseService.GetAllPaymentPromisesAsync();
-            return result.Any() ? Ok(result) : NoContent();
+            return Ok(result);
         }
 
         /// <summary>

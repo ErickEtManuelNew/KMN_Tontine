@@ -1,103 +1,122 @@
-@using KMN_Tontine.Blazor.UI.Services.Base
 @using System.Net.Http.Headers
 @inject IClient Client
 @inject CurrentUserService CurrentUser
 
 @if (IsOpen)
 {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl">
-            <div class="flex justify-between items-center mb-4">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto py-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-xl mx-4">
+            <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-lg font-semibold">
                     @(IsEdit ? "Modifier la promesse" : "Nouvelle promesse de paiement")
                 </h3>
                 <button class="text-gray-500 hover:text-gray-700" @onclick="Close">
                     ✕
                 </button>
-                    </div>
+            </div>
 
             @if (isLoading)
             {
-                <div class="text-center py-4">
+                <div class="p-4 text-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
                     <p class="mt-2 text-gray-600">Chargement...</p>
-                        </div>
+                </div>
             }
             else
             {
-                        <div class="mb-4">
-                    <p class="text-gray-600">
-                        Membre : <span class="font-semibold">@memberName</span>
-                    </p>
-                    <p class="text-gray-600">
-                        Tontine : <span class="font-semibold">@tontineName</span>
-                    </p>
+                <div class="p-4">
+                    <EditForm Model="@promiseEntries" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <div class="overflow-x-auto mb-4">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-3 py-2 text-left">Comptes</th>
+                                        <th class="px-3 py-2 text-left">Solde</th>
+                                        <th class="px-3 py-2 text-left">Montant promis</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach (var entry in promiseEntries)
+                                    {
+                                        <tr>
+                                            <td class="px-3 py-2">@entry.AccountType.ToString()</td>
+                                            <td class="px-3 py-2">@entry.Balance.ToString("N0")</td>
+                                            <td class="px-3 py-2">
+                                                @if (entry.AccountType == AccountType.Prive)
+                                                {
+                                                    <span class="text-gray-500 text-sm">(non editable)</span>
+                                                }
+                                                else
+                                                {
+                                                    <InputNumber class="w-24 px-2 py-1 border rounded text-sm" 
+                                                               @bind-Value="entry.Amount" />
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr class="bg-gray-50 font-semibold">
+                                        <td colspan="2" class="px-3 py-2 text-right">Total :</td>
+                                        <td class="px-3 py-2">@TotalPromiseAmount.ToString("N0")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                <EditForm Model="@promiseEntries" OnValidSubmit="HandleValidSubmit">
-                    <DataAnnotationsValidator />
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date prévue</label>
+                            <InputDate class="w-full px-3 py-2 border rounded text-sm" @bind-Value="promiseDate" />
+                        </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Comptes</th>
-                                    <th class="px-4 py-2 text-left">Solde</th>
-                                    <th class="px-4 py-2 text-left">Montant promis</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var entry in promiseEntries)
+                        @if (showConfirmation)
+                        {
+                            <div class="space-y-4 mb-4 text-center">
+                                <div class="bg-gray-50 p-3 rounded-lg text-sm">
+                                    <p class="text-gray-700 mb-2">Utilisez votre institution bancaire pour le paiement.</p>
+                                    <p class="text-gray-700 mb-2">
+                                        Référence : <span class="font-mono font-bold">@reference</span>
+                                    </p>
+                                    <p class="text-gray-700">Cette référence doit être indiquée lors du paiement.</p>
+                                </div>
+
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-600">
+                                        Cliquez sur Payer pour valider (délai 2 jours) ou Annuler pour supprimer.
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(message))
+                        {
+                            <div class="p-3 mb-4 rounded text-sm @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")">
+                                @message
+                            </div>
+                        }
+
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+                                    @onclick="Close">
+                                Annuler
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">
+                                @if (IsEdit)
                                 {
-                                    <tr>
-                                        <td class="px-4 py-2">@entry.AccountType.ToString()</td>
-                                        <td class="px-4 py-2">@entry.Balance.ToString("N0")</td>
-                                        <td class="px-4 py-2">
-                                            @if (entry.AccountType == AccountType.Prive)
-                                            {
-                                                <span class="text-gray-500">(non editable)</span>
+                                    <text>Modifier</text>
+                                }
+                                else if (showConfirmation)
+                                {
+                                    <text>Payer</text>
                                 }
                                 else
                                 {
-                                                <InputNumber class="w-24 px-2 py-1 border rounded" 
-                                                           @bind-Value="entry.Amount" />
-                                            }
-                                        </td>
-                                    </tr>
+                                    <text>Continuer</text>
                                 }
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="2" class="px-4 py-2 text-right font-semibold">Total :</td>
-                                    <td class="px-4 py-2 font-semibold">@TotalPromiseAmount.ToString("N0")</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Date prévue</label>
-                        <InputDate class="form-input mt-1 block w-full" @bind-Value="promiseDate" />
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(message))
-                    {
-                        <div class="mt-4 p-3 rounded @(isSuccess ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")">
-                            @message
-                        </div>
-                    }
-
-                    <div class="mt-6 flex justify-end space-x-3">
-                        <button type="button" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                                @onclick="Close">
-                            Annuler
-                            </button>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                            @(IsEdit ? "Modifier" : "Créer")
                             </button>
                         </div>
                     </EditForm>
-                }
+                </div>
+            }
         </div>
     </div>
 }
@@ -125,6 +144,9 @@
     private bool isLoading;
     private bool isSuccess;
     private DateTime promiseDate = DateTime.Today;
+    private bool showConfirmation = false;
+    private decimal privateAccountBalance = 0;
+    private string reference;
 
     private decimal TotalPromiseAmount => promiseEntries.Sum(e => e.Amount);
 
@@ -148,6 +170,7 @@
                     Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
                     var promise = await Client.PaymentPromisesGETAsync(PromiseId.Value);
                     promiseDate = promise.PromiseDate;
+                    reference = promise.Reference;
                     
                     // Charger les comptes du membre pour avoir les soldes actuels
                     var accounts = (await Client.MemberAsync(MemberId)).ToList();
@@ -160,6 +183,12 @@
                         Balance = accounts.FirstOrDefault(a => a.Id == pa.AccountId)?.Balance ?? 0,
                         Amount = pa.AmountPromised
                     }).ToList();
+
+                    var privateAccount = accounts.FirstOrDefault(a => a.Type == AccountType.Prive);
+                    if (privateAccount != null)
+                    {
+                        privateAccountBalance = privateAccount.Balance;
+                    }
                 }
                 else
                 {
@@ -172,10 +201,16 @@
                         Balance = a.Balance,
                         Amount = 0
                     }).ToList();
-                }
 
-                // TODO: Charger le nom de la tontine
-                tontineName = "Foreur"; // À remplacer par l'appel API approprié
+                    var privateAccount = accounts.FirstOrDefault(a => a.Type == AccountType.Prive);
+                    if (privateAccount != null)
+                    {
+                        privateAccountBalance = privateAccount.Balance;
+                    }
+
+                    // Générer une nouvelle référence
+                    reference = ReferenceGenerator.GeneratePromiseReference();
+                }
             }
             catch (Exception ex)
             {
@@ -190,6 +225,17 @@
     }
 
     private async Task HandleValidSubmit()
+    {
+        if (!IsEdit && !showConfirmation)
+        {
+            showConfirmation = true;
+            return;
+        }
+
+        await CreateOrUpdatePromise();
+    }
+
+    private async Task CreateOrUpdatePromise()
     {
         try
         {
@@ -208,15 +254,15 @@
 
                 Client.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.AccessToken);
                 var result = await Client.PaymentPromisesPUTAsync(PromiseId.Value, updateRequest);
-            if (result.Success)
-            {
-                await OnPromiseCreated.InvokeAsync();
+                if (result.Success)
+                {
+                    await OnPromiseCreated.InvokeAsync();
                     await Close();
-            }
-            else
-            {
-                message = result.Message;
-                isSuccess = false;
+                }
+                else
+                {
+                    message = result.Message;
+                    isSuccess = false;
                 }
             }
             else
@@ -225,6 +271,7 @@
                 {
                     MemberId = MemberId.ToString(),
                     PromiseDate = promiseDate,
+                    Reference = reference,
                     Accounts = promiseEntries.Select(e => new CreatePaymentPromiseAccountRequest
                     {
                         AccountId = e.AccountId,
@@ -255,6 +302,7 @@
 
     private async Task Close()
     {
+        showConfirmation = false;
         await IsOpenChanged.InvokeAsync(false);
     }
 } 

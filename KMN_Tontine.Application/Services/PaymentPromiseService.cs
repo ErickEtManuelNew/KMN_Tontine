@@ -52,18 +52,26 @@ namespace KMN_Tontine.Application.Services
             var response = _mapper.Map<PaymentPromiseResponse>(promise);
             response.MemberFullName = promise.Member.FullName;
             
-            // Calculer AmountPaid en fonction du solde du compte privé pour les promesses incomplètes
+            // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
             if (!promise.IsFulfilled)
             {
-                var privateAccount = await _accountRepository.GetPrivateAccountAsync(promise.MemberId);
-                if (privateAccount != null)
+                // Vérifier s'il existe des transactions pour cette promesse
+                var hasTransactions = promise.Transactions.Any();
+                if (hasTransactions)
                 {
-                    response.AmountPaid = privateAccount.Balance;
+                    // S'il y a des transactions, calculer le montant déjà payé
+                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                }
+                else
+                {
+                    // S'il n'y a pas de transactions, AmountPaid est 0
+                    response.AmountPaid = 0;
                 }
             }
             else
             {
-                response.AmountPaid = 0;
+                // Si la promesse est validée, AmountPaid est la somme des transactions
+                response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
             }
             
             return response;
@@ -72,26 +80,36 @@ namespace KMN_Tontine.Application.Services
         public async Task<IEnumerable<PaymentPromiseResponse>> GetAllPaymentPromisesAsync()
         {
             var promises = await _paymentPromiseRepository.GetAllAsync();
-            var responses = _mapper.Map<IEnumerable<PaymentPromiseResponse>>(promises);
+            var responses = _mapper.Map<List<PaymentPromiseResponse>>(promises);
+
             foreach (var response in responses)
             {
                 var promise = promises.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
-                
-                // Calculer AmountPaid en fonction du solde du compte privé pour les promesses incomplètes
-                if (!promise.IsFulfilled)
+
+                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
+                if (!response.IsFulfilled)
                 {
-                    var privateAccount = await _accountRepository.GetPrivateAccountAsync(promise.MemberId);
-                    if (privateAccount != null)
+                    // Vérifier s'il existe des transactions pour cette promesse
+                    var hasTransactions = promise.Transactions.Any();
+                    if (hasTransactions)
                     {
-                        response.AmountPaid = privateAccount.Balance;
+                        // S'il y a des transactions, calculer le montant déjà payé
+                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                    }
+                    else
+                    {
+                        // S'il n'y a pas de transactions, AmountPaid est 0
+                        response.AmountPaid = 0;
                     }
                 }
                 else
                 {
-                    response.AmountPaid = 0;
+                    // Si la promesse est validée, AmountPaid est la somme des transactions
+                    response.AmountPaid = promise.PaymentPromiseAccounts.Sum(t => t.Account.Balance);
                 }
             }
+
             return responses;
         }
 
@@ -99,8 +117,17 @@ namespace KMN_Tontine.Application.Services
         {
             try
             {
-                var promise = _mapper.Map<PaymentPromise>(request);
+                if (string.IsNullOrEmpty(request.Reference))
+                    return SimpleResponse.Error("La référence est requise");
+
+                // Vérifier si la référence existe déjà
+                var existingPromise = await _context.PaymentPromises
+                    .FirstOrDefaultAsync(p => p.Reference == request.Reference);
+                    
+                if (existingPromise != null)
+                    return SimpleResponse.Error("Cette référence existe déjà");
                 
+                var promise = _mapper.Map<PaymentPromise>(request);
                 await _paymentPromiseRepository.AddAsync(promise);
                 return SimpleResponse.Ok("Payment promise created successfully");
             }
@@ -167,6 +194,29 @@ namespace KMN_Tontine.Application.Services
             {
                 var promise = list.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
+
+                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
+                if (!response.IsFulfilled)
+                {
+                    // Vérifier s'il existe des transactions pour cette promesse
+                    var hasTransactions = promise.Transactions.Any();
+                    if (hasTransactions)
+                    {
+                        // S'il y a des transactions, calculer le montant déjà payé
+                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                    }
+                    else
+                    {
+                        // S'il n'y a pas de transactions, AmountPaid est 0
+                        response.AmountPaid = 0;
+                    }
+                }
+                else
+                {
+                    // Si la promesse est validée, AmountPaid est la somme des transactions
+                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                }
+
             }
             return responses;
         }
@@ -179,6 +229,28 @@ namespace KMN_Tontine.Application.Services
             {
                 var promise = list.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
+
+                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
+                if (!response.IsFulfilled)
+                {
+                    // Vérifier s'il existe des transactions pour cette promesse
+                    var hasTransactions = promise.Transactions.Any();
+                    if (hasTransactions)
+                    {
+                        // S'il y a des transactions, calculer le montant déjà payé
+                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                    }
+                    else
+                    {
+                        // S'il n'y a pas de transactions, AmountPaid est 0
+                        response.AmountPaid = 0;
+                    }
+                }
+                else
+                {
+                    // Si la promesse est validée, AmountPaid est la somme des transactions
+                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
+                }
             }
             return responses;
         }
@@ -287,7 +359,7 @@ namespace KMN_Tontine.Application.Services
                     var notificationResult = await _notificationService.SendPaymentReminderAsync(
                         promise.MemberId,
                         remainingAmount,
-                        promise.Id
+                        promise.Reference
                     );
 
                     if (!notificationResult.Success)

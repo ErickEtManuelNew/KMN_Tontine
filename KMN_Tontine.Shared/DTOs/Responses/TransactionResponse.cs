@@ -18,6 +18,6 @@ namespace KMN_Tontine.Shared.DTOs.Responses
         public int AccountId { get; set; }
         public AccountType AccountType { get; set; }
         public int TontineId { get; set; }
-        public int? PaymentPromiseId { get; set; }
+        public string PaymentPromiseReference { get; set; }
     }
 }

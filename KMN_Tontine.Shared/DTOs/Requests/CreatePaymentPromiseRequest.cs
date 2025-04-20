@@ -7,6 +7,7 @@ namespace KMN_Tontine.Shared.DTOs.Requests
     {
         public DateTime PromiseDate { get; set; }
         public string MemberId { get; set; }
+        public string Reference { get; set; }
         public List<CreatePaymentPromiseAccountRequest> Accounts { get; set; } = new();
     }
 

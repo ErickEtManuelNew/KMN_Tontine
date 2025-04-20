@@ -4,5 +4,5 @@ public interface IEmailService
     Task<bool> SendEmailConfirmationAsync(string to, string userName, string confirmationLink);
     Task<bool> SendAccountApprovedAsync(string to, string userName, string confirmationLink);
     Task<bool> SendAccountRejectedAsync(string to, string userName, string reason);
-    Task<bool> SendPaymentReminderAsync(string to, string userName, decimal remainingAmount, int promiseId);
+    Task<bool> SendPaymentReminderAsync(string to, string userName, decimal remainingAmount, string promiseReference);
 } 

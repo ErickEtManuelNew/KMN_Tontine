@@ -40,7 +40,7 @@ else
                         <div class="flex justify-between items-center">
                             <div>
                                 <h4 class="text-lg font-semibold text-indigo-900">
-                                    Promesse du @promise.CreatedDate.ToString("dd/MM/yyyy")
+                                    Promesse @promise.Reference du @promise.CreatedDate.ToString("dd/MM/yyyy")
                                 </h4>
                                 <p class="text-sm text-gray-600">
                                     Date prévue : @promise.PromiseDate.ToString("dd/MM/yyyy")
@@ -79,35 +79,37 @@ else
                                             <span class="text-lg font-semibold">
                                                 @account.AmountPromised.ToString("C")
                                             </span>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                @if (promise.IsFulfilled)
-                                                {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Validée
-                                                    </span>
-                                                }
-                                                else if (promise.AmountPaid > 0 && promise.AmountPaid < promise.TotalAmountPromised)
-                                                {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                                        Incomplet (@((promise.AmountPaid / promise.TotalAmountPromised * 100).ToString("0"))%)
-                                                    </span>
-                                                }
-                                                else if (promise.AmountPaid > 0)
-                                                {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        Paiement partiel
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                        En attente
-                                                    </span>
-                                                }
-                                            </td>
                                         </div>
                                     </td>
                                 }
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                        @if (promise.IsFulfilled)
+                                        {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Validée
+                                        </span>
+                                        }
+                                        else if (promise.AmountPaid > 0 && promise.AmountPaid < promise.TotalAmountPromised)
+                                        {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                            Incomplet (@((promise.AmountPaid / promise.TotalAmountPromised * 100).ToString("0"))%)
+                                        </span>
+                                        }
+                                        else if (promise.AmountPaid > 0)
+                                        {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            Paiement partiel
+                                        </span>
+                                        }
+                                        else
+                                        {
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            En attente
+                                        </span>
+                                        }
+                                </td>
                             </tr>
                         </table>
                     </div>
