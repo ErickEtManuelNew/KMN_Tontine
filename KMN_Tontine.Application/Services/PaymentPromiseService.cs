@@ -106,7 +106,7 @@ namespace KMN_Tontine.Application.Services
                 else
                 {
                     // Si la promesse est validée, AmountPaid est la somme des transactions
-                    response.AmountPaid = promise.PaymentPromiseAccounts.Sum(t => t.Account.Balance);
+                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount) - promise.Transactions.FirstOrDefault(x => x.Description.StartsWith("Surplus paiement")).Amount;
                 }
             }
 
