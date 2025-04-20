@@ -32,6 +32,12 @@ builder.Configuration
     .AddJsonFile($"appsettings.{environment}.json", optional: true)
     .AddEnvironmentVariables();
 
+// 🔥 Charger les User Secrets en mode développement
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? Environment.GetEnvironmentVariable("ConnectionStrings_DefaultConnection");
 
@@ -76,12 +82,6 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddIdentity<Member, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
-// 🔥 Charger les User Secrets en mode développement
-if (builder.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>();
-}
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSettings["Key"]
