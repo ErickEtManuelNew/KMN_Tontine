@@ -22,7 +22,10 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
         }
 
         public async Task<IEnumerable<Transaction>> GetAllAsync()
-            => await _context.Transactions.ToListAsync();
+            => await _context.Transactions
+            .Include(t => t.Account)
+            .Include(t => t.PaymentPromise)
+            .ToListAsync();
 
         public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(int accountId)
         {

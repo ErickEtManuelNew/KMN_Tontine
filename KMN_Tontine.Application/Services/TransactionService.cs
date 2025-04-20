@@ -71,6 +71,17 @@ namespace KMN_Tontine.Application.Services
                     account.Balance -= request.Amount;
 
                 await _transactionRepository.AddAsync(transaction);
+
+                if (account.MemberId != null)
+                {
+                    var tontineAccount = (await _accountRepository.GetByMemberIdAsync(null))
+                        ?.FirstOrDefault(a => a.Type == account.Type);
+
+                    if (tontineAccount != null)
+                    {
+                        tontineAccount.Balance += request.Amount;
+                    }
+                }
                 await _unitOfWork.SaveChangesAsync();
 
                 return new SimpleResponse { Success = true, Message = "Transaction enregistrée avec succès." };

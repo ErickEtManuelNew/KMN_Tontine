@@ -27,7 +27,7 @@ namespace KMN_Tontine.Infrastructure.Repositories.Implementations
             .Include(x => x.Member)
             .ToListAsync();
 
-        public async Task<List<Account>> GetByMemberIdAsync(string memberId)
+        public async Task<List<Account>> GetByMemberIdAsync(string? memberId)
             => await _context.Accounts
                 .Where(a => a.MemberId == memberId)
                 .ToListAsync();

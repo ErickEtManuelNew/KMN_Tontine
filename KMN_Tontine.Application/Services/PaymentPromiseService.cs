@@ -51,29 +51,8 @@ namespace KMN_Tontine.Application.Services
 
             var response = _mapper.Map<PaymentPromiseResponse>(promise);
             response.MemberFullName = promise.Member.FullName;
-            
-            // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
-            if (!promise.IsFulfilled)
-            {
-                // Vérifier s'il existe des transactions pour cette promesse
-                var hasTransactions = promise.Transactions.Any();
-                if (hasTransactions)
-                {
-                    // S'il y a des transactions, calculer le montant déjà payé
-                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                }
-                else
-                {
-                    // S'il n'y a pas de transactions, AmountPaid est 0
-                    response.AmountPaid = 0;
-                }
-            }
-            else
-            {
-                // Si la promesse est validée, AmountPaid est la somme des transactions
-                response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-            }
-            
+            response.AmountPaid = CalculateAmountPaid(promise);
+
             return response;
         }
 
@@ -86,28 +65,7 @@ namespace KMN_Tontine.Application.Services
             {
                 var promise = promises.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
-
-                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
-                if (!response.IsFulfilled)
-                {
-                    // Vérifier s'il existe des transactions pour cette promesse
-                    var hasTransactions = promise.Transactions.Any();
-                    if (hasTransactions)
-                    {
-                        // S'il y a des transactions, calculer le montant déjà payé
-                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                    }
-                    else
-                    {
-                        // S'il n'y a pas de transactions, AmountPaid est 0
-                        response.AmountPaid = 0;
-                    }
-                }
-                else
-                {
-                    // Si la promesse est validée, AmountPaid est la somme des transactions
-                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount) - promise.Transactions.FirstOrDefault(x => x.Description.StartsWith("Surplus paiement")).Amount;
-                }
+                response.AmountPaid = CalculateAmountPaid(promise);
             }
 
             return responses;
@@ -194,29 +152,7 @@ namespace KMN_Tontine.Application.Services
             {
                 var promise = list.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
-
-                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
-                if (!response.IsFulfilled)
-                {
-                    // Vérifier s'il existe des transactions pour cette promesse
-                    var hasTransactions = promise.Transactions.Any();
-                    if (hasTransactions)
-                    {
-                        // S'il y a des transactions, calculer le montant déjà payé
-                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                    }
-                    else
-                    {
-                        // S'il n'y a pas de transactions, AmountPaid est 0
-                        response.AmountPaid = 0;
-                    }
-                }
-                else
-                {
-                    // Si la promesse est validée, AmountPaid est la somme des transactions
-                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                }
-
+                response.AmountPaid = CalculateAmountPaid(promise);
             }
             return responses;
         }
@@ -229,28 +165,7 @@ namespace KMN_Tontine.Application.Services
             {
                 var promise = list.First(p => p.Id == response.Id);
                 response.MemberFullName = promise.Member.FullName;
-
-                // Si la promesse n'est pas validée, vérifier si elle est partiellement payée
-                if (!response.IsFulfilled)
-                {
-                    // Vérifier s'il existe des transactions pour cette promesse
-                    var hasTransactions = promise.Transactions.Any();
-                    if (hasTransactions)
-                    {
-                        // S'il y a des transactions, calculer le montant déjà payé
-                        response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                    }
-                    else
-                    {
-                        // S'il n'y a pas de transactions, AmountPaid est 0
-                        response.AmountPaid = 0;
-                    }
-                }
-                else
-                {
-                    // Si la promesse est validée, AmountPaid est la somme des transactions
-                    response.AmountPaid = promise.Transactions.Sum(t => t.Amount);
-                }
+                response.AmountPaid = CalculateAmountPaid(promise);
             }
             return responses;
         }
@@ -379,5 +294,21 @@ namespace KMN_Tontine.Application.Services
                 return SimpleResponse.Error($"Erreur lors de la validation : {ex.Message}");
             }
         }
+
+        private decimal CalculateAmountPaid(PaymentPromise promise)
+        {
+            if (!promise.IsFulfilled)
+            {
+                return promise.Transactions.Any() ? promise.Transactions.Sum(t => t.Amount) : 0;
+            }
+            else
+            {
+                var surplus = promise.Transactions
+                    .FirstOrDefault(t => t.Description.StartsWith("Surplus paiement"))?.Amount ?? 0;
+
+                return promise.Transactions.Sum(t => t.Amount) - surplus;
+            }
+        }
+
     }
 }

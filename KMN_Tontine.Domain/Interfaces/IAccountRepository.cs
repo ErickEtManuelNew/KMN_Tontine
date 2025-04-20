@@ -11,7 +11,7 @@ namespace KMN_Tontine.Domain.Interfaces
     public interface IAccountRepository
     {
         Task<Account?> GetByIdAsync(int id);
-        Task<List<Account>> GetByMemberIdAsync(string memberId);
+        Task<List<Account>> GetByMemberIdAsync(string? memberId);
         Task<Account?> GetPrivateAccountAsync(string memberId);
         Task<IEnumerable<Account>> GetAllAsync();
         Task AddAsync(Account account);
