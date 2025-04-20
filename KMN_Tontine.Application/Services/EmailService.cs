@@ -21,9 +21,9 @@ public class EmailService : IEmailService
         _currencyOptions = currencyOptions.Value;
         
         // Configuration SMTP basée sur l'environnement
-        var host = _configuration["Email:SmtpHost"];
-        var port = int.Parse(_configuration["Email:SmtpPort"]);
-        var username = _configuration["Email:Username"];
+        var host = _configuration["Email:Host"];
+        var port = int.Parse(_configuration["Email:Port"]);
+        var username = _configuration["Email:User"];
         var password = _configuration["Email:Password"];
         _fromEmail = _configuration["Email:FromEmail"];
         _fromName = _configuration["Email:FromName"];
