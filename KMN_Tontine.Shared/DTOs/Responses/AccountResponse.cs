@@ -16,5 +16,6 @@ namespace KMN_Tontine.Shared.DTOs.Responses
         public string Comment { get; set; }
         public string MemberFullName { get; set; }
         public int TontineId { get; set; }
+        public string TontineName { get; set; }
     }
 }

@@ -81,11 +81,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await CurrentUser.LoadUserInfoAsync();
         try
         {
             _userName = CurrentUser.UserName ?? "Baramine";
 
             _comptes = await CompteService.GetComptesAsync(CurrentUser.UserId);
+            if (_comptes == null || !_comptes.Any())
+            {
+                _error = true;
+            }
+
+            _associationName = _comptes.FirstOrDefault()?.TontineName ?? "Association non spécifiée";
         }
         catch (Exception)
         {

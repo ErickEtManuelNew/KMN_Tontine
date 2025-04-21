@@ -26,7 +26,7 @@ namespace KMN_Tontine.Application.Mappings
             // Mapping Account -> AccountResponse
             CreateMap<Account, AccountResponse>()
                 .ForMember(dest => dest.MemberFullName, opt => opt.MapFrom(src => src.Member != null ? src.Member.FullName : ""))
-                //.ForMember(dest => dest.TontineId, opt => opt.MapFrom(src => src.Tontine != null ? src.Tontine.Name : ""))
+                .ForMember(dest => dest.TontineName, opt => opt.MapFrom(src => src.Tontine.Name))
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment ?? ""));
 
             // Mapping Tontine -> TontineResponse
