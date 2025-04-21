@@ -3,6 +3,7 @@
 @using System.Net.Http.Headers
 @inject IClient Client
 @inject CurrentUserService CurrentUser
+@inject CurrencyFormatter Formatter
 
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-2xl font-bold mb-6">📊 Mes Transactions</h1>
@@ -82,7 +83,7 @@ else
                                 @transaction.AccountType.ToString()
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm @(transaction.Type == TransactionType.Credit ? "text-green-600" : "text-red-600")">
-                                @transaction.Amount.ToString("C")
+                                @Formatter.Format(@transaction.Amount)
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @(transaction.PaymentPromiseReference ?? "-")

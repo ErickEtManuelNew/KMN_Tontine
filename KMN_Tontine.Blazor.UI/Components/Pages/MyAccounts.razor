@@ -1,10 +1,11 @@
 ﻿@page "/myaccounts"
 @inject IClient Client
 @inject CurrentUserService CurrentUser
-@using KMN_Tontine.Blazor.UI.Services.Base
 @inject NavigationManager Navigation
+@inject CurrencyFormatter Formatter
+@inject CurrencyFormatter Formatter
 
-<h3 class="text-2xl font-bold text-indigo-700 mb-6">📂 My Accounts</h3>
+<h3 class="text-2xl font-bold text-indigo-700 mb-6">📂 Mes comptes</h3>
 
 @if (isLoading)
 {
@@ -34,7 +35,7 @@ else
                 {
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">@account.Type.ToString()</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-700">@account.Balance.ToString("C")</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-700"> @Formatter.Format(@account.Balance)</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@account.Comment</td>
                         @*<td class="px-6 py-4 whitespace-nowrap space-x-2">
                              <button class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
@@ -48,7 +49,7 @@ else
                     <td colspan="4" class="text-center">
                         <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                                 @onclick="ShowPromiseDialog">
-                            💰 Make a Payment Promise
+                            💰 Faire une promesse de paiement
                         </button>
                     </td>
                 </tr>

@@ -3,6 +3,7 @@
 @inject IClient Client
 @inject NavigationManager Navigation
 @inject CurrentUserService CurrentUser
+@inject CurrencyFormatter Formatter
 
 <h3 class="text-2xl font-bold text-indigo-700 mb-6">💸 Promesses de paiement</h3>
 
@@ -77,7 +78,7 @@ else
                                                 @account.AccountName
                                             </span>
                                             <span class="text-lg font-semibold">
-                                                @account.AmountPromised.ToString("C")
+                                                 @Formatter.Format(@account.AmountPromised)
                                             </span>
                                         </div>
                                     </td>

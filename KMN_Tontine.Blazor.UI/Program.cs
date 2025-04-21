@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 
+using KMN_Tontine.Blazor.UI.Helpers;
 using KMN_Tontine.Blazor.UI.Services;
 using KMN_Tontine.Blazor.UI.Services.Authentication;
 using KMN_Tontine.Blazor.UI.Services.Base;
@@ -36,6 +37,8 @@ builder.Services.AddScoped<AuthenticationStateProvider>(p =>
 builder.Services.AddScoped<ICompteService, CompteService>();
 
 builder.Services.AddScoped<CurrentUserService>();
+
+builder.Services.AddSingleton<CurrencyFormatter>();
 
 // 🗄️ Stockage local pour conserver le token JWT
 builder.Services.AddBlazoredLocalStorage();

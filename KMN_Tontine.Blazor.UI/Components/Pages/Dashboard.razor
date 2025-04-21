@@ -1,4 +1,5 @@
 @page "/dashboard"
+@using KMN_Tontine.Blazor.UI.Helpers
 @using KMN_Tontine.Blazor.UI.Services
 @using KMN_Tontine.Blazor.UI.Services.Base
 @using Microsoft.AspNetCore.Components.Authorization
@@ -8,6 +9,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject CurrentUserService CurrentUser
+@inject CurrencyFormatter Formatter
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -50,7 +52,7 @@ else
                                     @Enum.GetName(typeof(AccountType), compte.Type)
                                 </td>
                                 <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                    @compte.Balance
+                                     @Formatter.Format(@compte.Balance)
                                 </td>
                                 <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                     @compte.Comment
@@ -87,10 +89,6 @@ else
             _userName = CurrentUser.UserName ?? "Baramine";
 
             _comptes = await CompteService.GetComptesAsync(CurrentUser.UserId);
-            if (_comptes == null || !_comptes.Any())
-            {
-                _error = true;
-            }
 
             _associationName = _comptes.FirstOrDefault()?.TontineName ?? "Association non spécifiée";
         }
