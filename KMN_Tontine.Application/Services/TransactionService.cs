@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using KMN_Tontine.Application.Common;
 using KMN_Tontine.Application.DTOs.Requests;
@@ -15,7 +9,6 @@ using KMN_Tontine.Domain.Interfaces;
 using KMN_Tontine.Shared.DTOs.Requests;
 using KMN_Tontine.Shared.DTOs.Responses;
 using KMN_Tontine.Infrastructure.Interface;
-using KMN_Tontine.Infrastructure.Repositories.Implementations;
 
 namespace KMN_Tontine.Application.Services
 {

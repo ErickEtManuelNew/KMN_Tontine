@@ -1,6 +1,7 @@
 @using System.Net.Http.Headers
 @inject IClient Client
 @inject CurrentUserService CurrentUser
+@inject CurrencyFormatter Formatter
 
 @if (IsOpen)
 {
@@ -41,7 +42,7 @@
                                     {
                                         <tr>
                                             <td class="px-3 py-2">@entry.AccountType.ToString()</td>
-                                            <td class="px-3 py-2">@entry.Balance.ToString("N0")</td>
+                                            <td class="px-3 py-2">@Formatter.Format(@entry.Balance)</td>
                                             <td class="px-3 py-2">
                                                 @if (entry.AccountType == AccountType.Prive)
                                                 {
@@ -49,15 +50,20 @@
                                                 }
                                                 else
                                                 {
-                                                    <InputNumber class="w-24 px-2 py-1 border rounded text-sm" 
-                                                               @bind-Value="entry.Amount" />
+                                                    <InputNumber @bind-Value="entry.Amount"
+                                                                 type="number"
+                                                                 min="0"
+                                                                 step="0.01"
+                                                                 class="w-24 px-2 py-1 border rounded text-sm"
+                                                                 onkeydown="return event.key !== 'e' && event.key !== 'E' && event.key !== '+' && event.key !== '-'"
+                                                                 />
                                                 }
                                             </td>
                                         </tr>
                                     }
                                     <tr class="bg-gray-50 font-semibold">
                                         <td colspan="2" class="px-3 py-2 text-right">Total :</td>
-                                        <td class="px-3 py-2">@TotalPromiseAmount.ToString("N0")</td>
+                                        <td class="px-3 py-2">@Formatter.Format(@TotalPromiseAmount)</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -147,6 +153,7 @@
     private bool showConfirmation = false;
     private decimal privateAccountBalance = 0;
     private string reference;
+    private decimal montant;
 
     private decimal TotalPromiseAmount => promiseEntries.Sum(e => e.Amount);
 
@@ -304,5 +311,13 @@
     {
         showConfirmation = false;
         await IsOpenChanged.InvokeAsync(false);
+    }
+
+    private void ArrondirMontant(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var value))
+        {
+            montant = Math.Round(value, 2, MidpointRounding.AwayFromZero);
+        }
     }
 } 

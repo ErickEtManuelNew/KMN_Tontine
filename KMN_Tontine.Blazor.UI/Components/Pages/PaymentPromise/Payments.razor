@@ -49,7 +49,7 @@ else
                             </div>
                             <div class="text-right">
                                 <span class="text-lg font-bold text-purple-700">
-                                    Total : @promise.TotalAmountPromised.ToString("C")
+                                    Total : @Formatter.Format(@promise.TotalAmountPromised)
                                 </span>
                                 <div class="mt-2">
                                     @if (!promise.IsFulfilled)
@@ -83,7 +83,7 @@ else
                                         </div>
                                     </td>
                                 }
-                            </tr>
+                    </tr>
                             <tr>
                                 <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         @if (promise.IsFulfilled)
@@ -110,12 +110,12 @@ else
                                             En attente
                                         </span>
                                         }
-                                </td>
-                            </tr>
+                            </td>
+                        </tr>
                         </table>
                     </div>
                 </div>
-            }
+                    }
         </div>
     }
 }

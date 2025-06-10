@@ -6,14 +6,14 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <div class="d-flex min-vh-100">
-                <!-- Sidebar -->
-                <div class="bg-primary text-white p-3 flex-shrink-0" style="width: 250px;">
+            <div class="d-flex" style="height: 100vh; overflow: hidden;">
+                <!-- Sidebar fixée -->
+                <div class="bg-primary text-white p-3 flex-shrink-0" style="width: 250px; height: auto; position: fixed; left: 0; top: 0; overflow-y: auto;">
                     <MainNav />
                 </div>
 
-                <!-- Contenu Principal -->
-                <div class="flex-grow-1 p-4 bg-light">
+                <!-- Contenu Principal scrollable -->
+                <div class="flex-grow-1 p-4 bg-light" style="margin-left: 250px; height:auto; overflow-y: auto;">
                     @Body
                 </div>
             </div>
