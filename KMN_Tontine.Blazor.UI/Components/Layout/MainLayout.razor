@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@inject LanguageService LangService
 
 <PageTitle>KMN Tontine</PageTitle>
 
@@ -7,7 +8,10 @@
     <AuthorizeView>
         <Authorized>
             <div class="d-flex" style="height: 100vh; overflow: hidden;">
-                <!-- Sidebar fixée -->
+
+        var culture = await LangService.GetCultureAsync();
+        await LangService.SetCultureAsync(culture);
+}
                 <div class="bg-primary text-white p-3 flex-shrink-0" style="width: 250px; height: auto; position: fixed; left: 0; top: 0; overflow-y: auto;">
                     <MainNav />
                 </div>
