@@ -1,11 +1,14 @@
-﻿using Blazored.LocalStorage;
+using Blazored.LocalStorage;
 
 using KMN_Tontine.Blazor.UI.Helpers;
 using KMN_Tontine.Blazor.UI.Services;
 using KMN_Tontine.Blazor.UI.Services.Authentication;
 using KMN_Tontine.Blazor.UI.Services.Base;
 
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +40,15 @@ builder.Services.AddScoped<AuthenticationStateProvider>(p =>
 builder.Services.AddScoped<ICompteService, CompteService>();
 
 builder.Services.AddScoped<CurrentUserService>();
+builder.Services.AddScoped<LanguageService>();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Locales");
+var supportedCultures = new[] { "en-US", "fr-FR" };
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+    options.SupportedUICultures = options.SupportedCultures;
+});
 
 builder.Services.AddSingleton<CurrencyFormatter>();
 
@@ -62,6 +74,8 @@ else
 
 app.UseStaticFiles();
 app.UseRouting();
+var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+app.UseRequestLocalization(locOptions);
 
 app.UseAuthentication();
 app.UseAuthorization();
