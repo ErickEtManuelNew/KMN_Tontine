@@ -1,0 +1,24 @@
+@inject LanguageService LangService
+@code {
+    private string currentCulture = "en-US";
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentCulture = await LangService.GetCultureAsync();
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        if (e.Value is string value)
+        {
+            currentCulture = value;
+            await LangService.SetCultureAsync(value);
+            StateHasChanged();
+        }
+    }
+}
+
+<select @onchange="OnChange" value="@currentCulture" class="form-select">
+    <option value="en-US">English</option>
+    <option value="fr-FR">Français</option>
+</select>
